@@ -42,7 +42,7 @@ const ReportScreen = ({navigation}) => {
     Load();
   }, []);
 
-  const [salesData, setSalesData] = useState([]);
+  const [salesData, setSalesData] = useState([0]);
   const [productData, setProductData] = useState([]);
   const [expenseData, setExpenseData] = useState([]);
   const [purchaseData, setPurchaseData] = useState([]);
@@ -201,6 +201,8 @@ const ReportScreen = ({navigation}) => {
     return price;
   };
   const [salesTable, setSaleTableData] = useState([0, 0]);
+  const [salesChartData, setSaleChartData] = useState([0, 0]);
+  const [salesChartLabel, setSaleChartLabel] = useState([0, 0]);
   const [tabletotalprice, setTabletotalprice] = useState(0);
 
   const [tableWidthArr, setWidthArr] = useState([
@@ -241,6 +243,8 @@ const ReportScreen = ({navigation}) => {
     // });
 
     let tableData = [];
+    let chartData = [];
+    let chartLabel = [];
     let price = 0;
     salesData.forEach((item, index) => {
       let row = [];
@@ -256,6 +260,7 @@ const ReportScreen = ({navigation}) => {
         } else if (_ === 'date') {
           let d = new Date(value);
           row.push(d.toDateString());
+          chartLabel.push(d.toLocaleDateString());
         } else if (_ === 'discount') {
           row.push(value + '%');
         } else if (_ === 'totalAmount') {
@@ -263,6 +268,7 @@ const ReportScreen = ({navigation}) => {
         } else if (_ === 'tax') {
           row.push(numberWithCommas(value) + ' Ks');
         } else if (_ === 'grandtotal') {
+          chartData.push(value);
           price += parseInt(value);
           row.push(numberWithCommas(parseInt(value)) + ' Ks');
         } else {
@@ -271,7 +277,8 @@ const ReportScreen = ({navigation}) => {
       }
       tableData.push(row);
     });
-    console.log(tableData);
+    if (chartLabel.length >= 1) setSaleChartLabel(chartLabel);
+    if (chartData.length >= 1) setSaleChartData(chartData);
     setSaleTableData(tableData);
     setTabletotalprice(price);
     setLoad(false);
@@ -688,12 +695,52 @@ const ReportScreen = ({navigation}) => {
     );
   };
 
-    const ChartView = () => {
+  const ChartView = () => {
     return (
       <ScrollView nestedScrollEnable={true}>
         {/* Sales */}
         <View style={{marginBottom: 5}}>
           <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
+
+          <ScrollView horizontal={true}>
+            <LineChart
+              data={{
+                labels: salesChartLabel,
+                datasets: [
+                  {
+                    data: salesChartData,
+                  },
+                ],
+              }}
+              width={(C.windowWidth * 100 * salesChartLabel.length) / 5} // from react-native
+              height={300}
+              yAxisSuffix=" k"
+              withHorizontalLines
+              yAxisInterval={1} // optional, defaults to 1
+              chartConfig={{
+                backgroundColor: 'black',
+                backgroundGradientFrom: '#4287f5',
+                backgroundGradientTo: '#548bf7',
+                decimalPlaces: 0, // optional, defaults to 2dp
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                propsForVerticalLabels: {translateY: 15},
+                style: {
+                  borderRadius: 0,
+                },
+                propsForDots: {
+                  r: '6',
+                  strokeWidth: '2',
+                  stroke: '#548bf7',
+                },
+              }}
+              bezier
+              style={{
+                marginVertical: 8,
+                borderRadius: 16,
+              }}
+            />
+          </ScrollView>
         </View>
       </ScrollView>
     );
