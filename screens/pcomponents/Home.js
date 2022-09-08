@@ -581,15 +581,13 @@ const HomeScreen = ({navigation}) => {
         <Table borderStyle={{borderWidth: 2, borderColor: '#000'}}>
           <Row
             data={['Date & Time', 'Amount']}
-            style={[
-              {
-                backgroundColor: '#f1f8ff',
-                height: 40,
-              },
-            ]}
-            textStyle={{color: 'black', textAlign: 'center'}}
+            style={{
+              backgroundColor: '#f1f8ff',
+              height: 40,
+            }}
+            textStyle={[{color: 'black', textAlign: 'center'}]}
           />
-          <Rows data={salesTable} textStyle={[{margin: 6, color: 'black'}]} />
+          <Rows data={salesTable} textStyle={{margin: 6, color: 'black'}} />
         </Table>
         <View
           style={{...s.flexrow_aligncenter_j_between, margin: 10, padding: 5}}>

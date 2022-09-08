@@ -19,7 +19,7 @@ import {
   Button,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
-import {IMAGE, STYLE as s, COLOR as C} from '../../Database';
+import {IMAGE as I, STYLE as s, COLOR as C} from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
@@ -39,14 +39,14 @@ const ReportScreen = ({navigation}) => {
   };
 
   useEffect(() => {
-    Load();
+    // Load();
   }, []);
 
-  const [salesData, setSalesData] = useState([0]);
-  const [productData, setProductData] = useState([]);
-  const [expenseData, setExpenseData] = useState([]);
-  const [purchaseData, setPurchaseData] = useState([]);
-  const [otherIncome, setOtherincomeData] = useState([]);
+  const [salesData, setSalesData] = useState(null);
+  const [productData, setProductData] = useState([0]);
+  const [expenseData, setExpenseData] = useState([0]);
+  const [purchaseData, setPurchaseData] = useState([0]);
+  const [otherIncome, setOtherincomeData] = useState([0]);
 
   const [refresh, setRefresh] = useState();
   const [load, setLoad] = useState(false);
@@ -58,13 +58,6 @@ const ReportScreen = ({navigation}) => {
     endd = new Date(),
   ) => {
     setRefresh(true);
-
-    getSalesFromServer(
-      type,
-      time,
-      startd.toLocaleDateString(),
-      endd.toLocaleDateString(),
-    );
 
     getProductFromServer();
 
@@ -88,10 +81,18 @@ const ReportScreen = ({navigation}) => {
       startd.toLocaleDateString(),
       endd.toLocaleDateString(),
     );
+
+    getSalesFromServer(
+      type,
+      time,
+      startd.toLocaleDateString(),
+      endd.toLocaleDateString(),
+    );
   };
   const getSalesFromServer = (type = '', time = 'today', startd, endd) => {
-    setLoad(true);
+    console.log('Fetching Sales Data');
     setSaleTableData(null);
+    setSalesData(null);
     axios
       .get('/api/sales/', {
         params: {
@@ -102,12 +103,10 @@ const ReportScreen = ({navigation}) => {
         },
       })
       .then(res => {
-       
-     
-          ComputeSalesData(res.data, time);
-          setSalesData(res.data);
-
-
+        console.log('Fetch Data from Sales Data');
+        setSalesData(res.data);
+        // ComputeSalesData(res.data, time);
+        console.log('Successfully Setted Data ');
       })
       .catch(err => console.log(err));
   };
@@ -139,6 +138,7 @@ const ReportScreen = ({navigation}) => {
 
   const getPurchaseFromServer = (type = '', time = 'today', startd, endd) => {
     setPurchaseTable(null);
+
     axios
       .get('/api/purchases/', {
         params: {
@@ -201,27 +201,29 @@ const ReportScreen = ({navigation}) => {
     });
     return price;
   };
-  const [salesTable, setSaleTableData] = useState([0, 0]);
-  const [salesChartData, setSaleChartData] = useState([0, 0]);
-  const [salesChartLabel, setSaleChartLabel] = useState([0, 0]);
+  const [salesTable, setSaleTableData] = useState([0]);
+  const [salesChartData, setSaleChartData] = useState([0]);
+  const [salesChartLabel, setSaleChartLabel] = useState([0]);
   const [tabletotalprice, setTabletotalprice] = useState(0);
-
-  const [tableWidthArr, setWidthArr] = useState([
-    150, 150, 150, 150, 80, 80, 100, 150, 150,
-  ]);
 
   const [otherIncomeTable, setOtherIncomeTable] = useState([0]);
   const [otherincomemodal, setotherincomemodal] = useState(false);
+  const [otherincomeChart, setOtherIncomeChart] = useState([0]);
+  const [otherincomeLabel, setOtherIncomeLabel] = useState([0]);
   const [oitabletotal, setoitabletotal] = useState(0);
   const onCloseotherincome = () => setotherincomemodal(false);
 
   const [ExpenseTable, setExpenseTable] = useState([0]);
   const [expensemodal, setexpensemodal] = useState(false);
+  const [expenseChart, setexpenseChart] = useState([0]);
+  const [expenseLabel, setexpenseLabel] = useState([0]);
   const [extotal, setextotal] = useState(0);
   const onCloseExpense = () => setexpensemodal(false);
 
   const [PurchaseTable, setPurchaseTable] = useState([0]);
   const [purchasemodal, setpurchasemodal] = useState(false);
+  const [purchaseChart, setpurchaseChart] = useState([0]);
+  const [purchaseLabel, setpurchaseLabel] = useState([0]);
   const [putotal, setputotal] = useState(0);
 
   const OnClosePurchase = () => setpurchasemodal(false);
@@ -243,168 +245,45 @@ const ReportScreen = ({navigation}) => {
     //   // setTabletotalprice(res.totalprice);
     // });
 
-    console.log('Computing Sales Data ')
+    console.log('Computing Sales Data ');
 
     let tableData = [];
     let chartData = [];
     let chartLabel = [];
     let price = 0;
-    salesData.forEach((item, index) => {
-      let row = [];
-      for (var [_, value] of Object.entries(item)) {
-        if (_ === 'sproduct') {
-          var productstr = '';
-          value.forEach((data, index) => {
-                      productstr +=
-              data.product_name + (value.length === index + 1 ? '' : ', ');
-          });
-          row.push(productstr);
-        } else if (_ === 'date') {
-          let d = new Date(value);
-          row.push(d.toDateString());
-          chartLabel.push(d.toLocaleDateString());
-        } else if (_ === 'discount') {
-          row.push(value + '%');
-        } else if (_ === 'totalAmount') {
-          row.push(numberWithCommas(value) + ' Ks');
-        } else if (_ === 'tax') {
-          row.push(numberWithCommas(value) + ' Ks');
-        } else if (_ === 'grandtotal') {
-          chartData.push( kFormatter(parseInt(value)));
-          price += parseInt(value);
-          row.push(numberWithCommas(parseInt(value)) + ' Ks');
-        } else {
-          row.push(value);
-        }
-      }
-      tableData.push(row);
-    });
-    console.log('Computing Sales Data Finished ')
-    if (chartLabel.length >= 1) setSaleChartLabel(chartLabel);
-    if (chartData.length >= 1) setSaleChartData(chartData);
-    setSaleTableData(tableData);
-    setTabletotalprice(price);
-    setLoad(false);
-    console.log('Computed Data Seted ')
-  };
+    // salesData.forEach((item, index) => {
+    //   let row = [];
+    //   for (var [_, value] of Object.entries(item)) {
+    //     if (_ === 'sproduct') {
+    //       var productstr = '';
+    //       value.forEach((data, index) => {
+    //         productstr +=
+    //           data.product_name + (value.length === index + 1 ? '' : ', ');
+    //       });
+    //       row.push(productstr);
+    //     } else if (_ === 'date') {
+    //       let d = new Date(value);
+    //       row.push(d.toDateString());
+    //       chartLabel.push(d.toLocaleDateString());
+    //     } else if (_ === 'discount') {
+    //       row.push(value + '%');
+    //     } else if (_ === 'totalAmount') {
+    //       row.push(numberWithCommas(value) + ' Ks');
+    //     } else if (_ === 'tax') {
+    //       row.push(numberWithCommas(value) + ' Ks');
+    //     } else if (_ === 'grandtotal') {
+    //       price += parseInt(value);
+    //       row.push(numberWithCommas(parseInt(value)) + ' Ks');
+    //     } else {
+    //       row.push(value);
+    //     }
+    //   }
+    //   tableData.push(row);
+    // });
 
-  const ComputeOtherIncomeData = (data, t, dtype = 'income') => {
-    let tableData = [];
-    let price = 0;
-    data.forEach((item, index) => {
-      let row = [];
-
-      for (var [_, value] of Object.entries(item)) {
-        if (_ === 'price') {
-          price += parseInt(value);
-          row.push(numberWithCommas(value) + ' Ks');
-        } else if (_ === 'date') {
-          let d = new Date(value);
-          row.push(d.toDateString());
-        } else if (_ === 'id') {
-          row.push(index + 1);
-        } else {
-          row.push(value);
-        }
-      }
-      tableData.push(row);
-    });
-    if (dtype == 'expense') {
-      setExpenseTable(tableData);
-      setextotal(price);
-    } else if (dtype == 'purchase') {
-      setPurchaseTable(tableData);
-      setputotal(price);
-    } else {
-      setOtherIncomeTable(tableData);
-      setoitabletotal(price);
-    }
-
-    setLoad(false);
-  };
-
-  const Compute = async (salesData, t) => {
-    const label = [];
-    const pricedata = [];
-    const tabledata = [];
-    var totalprice = 0;
-
-    /**
-     * @param{Date} time The Date
-     **/
-
-    const format12H = time => {
-      return (
-        time
-          .toLocaleTimeString()
-          .replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, '$1$3') +
-        (time.getHours() >= 12 ? ' PM' : ' AM')
-      );
-    };
-
-    if (t === 'today') {
-      const temp = salesData.filter(e => {
-        let today = new Date();
-        let d = new Date(e.date);
-        // console.log(e.date);
-
-        return (
-          today.getDate() === d.getDate() &&
-          today.getMonth() === d.getMonth() &&
-          d.getFullYear() === today.getFullYear()
-        );
-      });
-
-      temp.forEach(e => {
-        let d = new Date(e.date);
-        // console.log(e.customerName)
-        //  console.log(d.getHours() + ':' + d.getMinutes());
-        let time = d.toTimeString().substring(0, 5);
-        label.push(time);
-        pricedata.push(kFormatter(parseInt(e.grandtotal)));
-        tabledata.push([
-          format12H(d),
-          numberWithCommas(parseInt(e.grandtotal)) + ' MMK',
-        ]);
-        totalprice += parseInt(e.grandtotal);
-      });
-    } else if (t === 'week') {
-      const weekString = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-      var curr = new Date();
-      var first = curr.getDate() - curr.getDay();
-      var last = first + 6;
-
-      var firstdate = new Date(curr.setDate(first));
-      var lastdate = new Date(curr.setDate(last));
-
-      console.log(firstdate.getTime());
-
-      const tempw = salesData.filter(e => {
-        let d = new Date(e.date);
-        return (
-          d.getTime() >= firstdate.getTime() &&
-          d.getTime() <= lastdate.getTime()
-        );
-      });
-
-      weekString.forEach((e, index) => {
-        console.log(e);
-        var price = 0;
-
-        tempw.forEach(i => {
-          var d = new Date(i.date);
-          if (d.getDay() === index) {
-            price += parseInt(i.grandtotal);
-          }
-        });
-
-        label.push(e);
-        pricedata.push(kFormatter(price));
-        tabledata.push([e, numberWithCommas(parseInt(price)) + ' MMK']);
-        totalprice += price;
-      });
-    } else {
+    if (t === 'year') {
+      chartData = [];
+      chartLabel = [];
       const monthString = [
         'Jan',
         'Feb',
@@ -420,51 +299,181 @@ const ReportScreen = ({navigation}) => {
         'Dec',
       ];
 
-      var firstd = new Date();
-      firstd.setDate(1);
-      firstd.setMonth(0);
-      firstd.setHours(0, 0, 0, 0);
-
-      console.log('First :' + firstd);
-
-      var lastd = new Date();
-      lastd.setDate(31);
-      lastd.setMonth(11);
-      lastd.setHours(24, 0, 0, 0);
-
-      const tempm = salesData.filter(e => {
-        let d = new Date(e.date);
-        return (
-          d.getTime() >= firstd.getTime() && d.getTime() <= lastd.getTime()
-        );
-      });
-
       monthString.forEach((e, index) => {
         console.log(e);
         var price = 0;
 
-        tempm.forEach(i => {
+        salesData.forEach(i => {
           var d = new Date(i.date);
           if (d.getMonth() === index) {
             price += parseInt(i.grandtotal);
           }
         });
 
-        label.push(e);
-        pricedata.push(kFormatter(price));
-        tabledata.push([e, numberWithCommas(parseInt(price)) + ' MMK']);
-        totalprice += price;
+        chartLabel.push(e);
+        chartData.push(kFormatter(price));
       });
+    } else if (t === 'today') {
+      chartData = [];
+      chartLabel = [];
+      salesData.forEach(e => {
+        let d = new Date(e.date);
+        // console.log(e.customerName)
+        //  console.log(d.getHours() + ':' + d.getMinutes());
+        let time = d.toTimeString().substring(0, 5);
+        chartLabel.push(time);
+        chartData.push(kFormatter(parseInt(e.grandtotal)));
+      });
+    } else {
+      chartData = [];
+      chartLabel = [];
+      var hash = {};
+      var data = {};
+      var type = salesData.filter(obj => {
+        var s = new Date(obj.date).toLocaleDateString();
+
+        if (!hash[s]) {
+          hash[s] = true;
+          data[s] = parseInt(obj.grandtotal);
+          return true;
+        }
+        if (data[s]) {
+          data[s] += parseInt(obj.grandtotal);
+        }
+        return false;
+      });
+
+      for (var [key, value] of Object.entries(data)) {
+        chartData.push(kFormatter(value));
+        chartLabel.push(key);
+      }
     }
 
-    if (pricedata.length > 0) {
-      return {
-        pricedata: pricedata,
-        label: label,
-        tabledata: tabledata,
-        totalprice: totalprice,
-      };
+    console.log('Computing Sales Data Finished ');
+    if (chartLabel.length >= 1) setSaleChartLabel(chartLabel);
+    if (chartData.length >= 1) setSaleChartData(chartData);
+    setSaleTableData(tableData);
+    setTabletotalprice(price);
+    setLoad(false);
+    console.log('Computed Data Seted ');
+  };
+
+  const computeChartData = (datasets, t) => {
+    let chartData = [];
+    let chartLabel = [];
+
+    if (t === 'year') {
+      chartData = [];
+      chartLabel = [];
+      const monthString = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+
+      monthString.forEach((e, index) => {
+        var price = 0;
+
+        datasets.forEach(i => {
+          var d = new Date(i.date);
+          if (d.getMonth() === index) {
+            price += parseInt(i.price);
+          }
+        });
+
+        chartLabel.push(e);
+        chartData.push(kFormatter(price));
+      });
+    } else if (t === 'today') {
+      chartData = [];
+      chartLabel = [];
+      datasets.forEach(e => {
+        let d = new Date(e.date);
+        // console.log(e.customerName)
+        //  console.log(d.getHours() + ':' + d.getMinutes());
+        let time = d.toTimeString().substring(0, 5);
+        //  chartLabel.push(time);
+        chartData.push(kFormatter(parseInt(e.price)));
+      });
+    } else {
+      chartData = [];
+      chartLabel = [];
+      var hash = {};
+      var data = {};
+      var type = datasets.filter(obj => {
+        var s = new Date(obj.date).toLocaleDateString();
+
+        if (!hash[s]) {
+          hash[s] = true;
+          data[s] = parseInt(obj.price);
+          return true;
+        }
+        if (data[s]) {
+          data[s] += parseInt(obj.price);
+        }
+        return false;
+      });
+
+      for (var [key, value] of Object.entries(data)) {
+        chartData.push(kFormatter(value));
+        chartLabel.push(key);
+      }
     }
+
+    return {chartData, chartLabel};
+  };
+
+  const ComputeOtherIncomeData = (data, t, dtype = 'income') => {
+    // let tableData = [];
+    // let price = 0;
+    // data.forEach((item, index) => {
+    //   let row = [];
+    //   for (var [_, value] of Object.entries(item)) {
+    //     if (_ === 'price') {
+    //       price += parseInt(value);
+    //       row.push(numberWithCommas(value) + ' Ks');
+    //     } else if (_ === 'date') {
+    //       let d = new Date(value);
+    //       row.push(d.toDateString());
+    //     } else if (_ === 'id') {
+    //       row.push(index + 1);
+    //     } else {
+    //       row.push(value);
+    //     }
+    //   }
+    //   tableData.push(row);
+    // });
+    // if (dtype === 'expense') {
+    //   setExpenseTable(tableData);
+    //   setextotal(price);
+    //   var {chartData, chartLabel} = computeChartData(data, t);
+    //   console.log(chartData, chartLabel, 'Computed' + dtype);
+    //   if (chartData.length >= 1) setexpenseChart(chartData);
+    //   setexpenseLabel(chartLabel);
+    // } else if (dtype === 'purchase') {
+    //   setPurchaseTable(tableData);
+    //   setputotal(price);
+    //   var {chartData, chartLabel} = computeChartData(data, t);
+    //   console.log(chartData, chartLabel, 'Computed' + dtype);
+    //   // if (chartData.length >= 1) setpurchaseChart(chartData);setpurchaseLabel(chartLabel);
+    // } else {
+    //   setOtherIncomeTable(tableData);
+    //   setoitabletotal(price);
+    //   var {chartData, chartLabel} = computeChartData(data, t);
+    //   console.log(chartData, chartLabel, 'Computed' + dtype);
+    //   if (chartData.length >= 1) setOtherIncomeChart(chartData);
+    //   setOtherIncomeLabel(chartLabel);
+    // }
+    // setLoad(false);
   };
 
   const [salesModal, setSalesModal] = useState(false);
@@ -472,111 +481,400 @@ const ReportScreen = ({navigation}) => {
   const onCloseSales = () => setSalesModal(false);
 
   const SalesTable = () => {
+    const widtharr = [150, 150, 150, 100, 80, 80, 100, 150, 150];
+    if (salesData === null)
+      return (
+        <View>
+          <Text>Loading</Text>
+        </View>
+      );
+
+    const headerStyle = {
+      ...styles.cell,
+      alignItems: 'center',
+      justifyContent: 'center',
+    };
     return (
-      <View
-        style={[
-          (salesTable === null ? false : salesTable.length > 6) && {
-            paddingBottom: 40,
-          },
-        ]}>
-        <Table borderStyle={{borderWidth: 1, borderColor: '#000'}}>
-          <Row
-            data={[
-              'Receipt Number',
-              'Customer Name',
-              'Items',
-              'Sub Total',
-              'Tax',
-              'Discount',
-              'Grand Total',
-              'Date',
-              'Description',
-            ]}
-            style={[
-              {
-                backgroundColor: '#c8e1ff',
-                height: 40,
-              },
-            ]}
-            textStyle={{color: 'black', textAlign: 'center'}}
-            widthArr={tableWidthArr}
-          />
-          {salesTable === null ? (
-            <Text style={{...s.font_bold}}>Loading</Text>
-          ) : (
-            <ScrollView
-              nestedScrollEnabled={true}
-              style={{marginTop: -1, marginLeft: -1}}>
-              <Table borderStyle={{borderWidth: 1, borderColor: '#000'}}>
-                {salesTable.map((item, index) => (
-                  <Row
-                    data={item}
-                    textStyle={[{margin: 6, color: 'black'}]}
-                    widthArr={tableWidthArr}
-                    style={[
-                      {backgroundColor: '#E7E6E1'},
-                      index % 2 && {backgroundColor: '#F7F6E7'},
-                    ]}
-                  />
-                ))}
-              </Table>
-            </ScrollView>
-          )}
-        </Table>
-      </View>
+      <ScrollView nestedScrollEnable={true} horizontal={true}>
+        <View style={{flexDirection: 'column'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: 'black',
+              borderWidth: 0.5,
+              backgroundColor: '#c8e1ff',
+            }}>
+            <View style={{...headerStyle, width: widtharr[0]}}>
+              <Text style={{color: 'black'}}>Receipt Number</Text>
+            </View>
+            <View style={{...headerStyle, width: widtharr[1]}}>
+              <Text style={{color: 'black'}}>Customer Name</Text>
+            </View>
+            <View style={{...headerStyle, width: widtharr[2]}}>
+              <Text style={{color: 'black'}}>Items</Text>
+            </View>
+            <View style={{...headerStyle, width: widtharr[3]}}>
+              <Text style={{color: 'black'}}>Sub Total</Text>
+            </View>
+            <View
+              style={{
+                ...styles.cell,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: widtharr[4],
+              }}>
+              <Text style={{color: 'black'}}>Tax</Text>
+            </View>
+
+            <View style={{...headerStyle, width: widtharr[5]}}>
+              <Text style={{color: 'black'}}>Discount</Text>
+            </View>
+            <View
+              style={{
+                ...headerStyle,
+                width: widtharr[6],
+                backgroundColor: '#07ed72',
+              }}>
+              <Text style={{color: 'black'}}>Grand Total</Text>
+            </View>
+            <View style={{...headerStyle, width: widtharr[7]}}>
+              <Text style={{color: 'black'}}>Date</Text>
+            </View>
+            <View style={{...headerStyle, width: widtharr[8]}}>
+              <Text style={{color: 'black'}}>Description</Text>
+            </View>
+          </View>
+
+          <ScrollView nestedScrollEnabled={true} style={{marginTop: -1}}>
+            {salesData.map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  flexDirection: 'row',
+                  borderColor: 'black',
+                  borderWidth: 0.5,
+                  backgroundColor: index % 2 == 1 ? '#F7F6E7' : '#E7E6E1',
+                }}>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[0],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'left'}}>
+                    {item.receiptNumber}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[1],
+                  }}>
+                  <Text style={{color: 'black'}}>{item.customerName}</Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[2],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'left'}}>
+                    {item.sproduct.map(
+                      (sp_item, index) =>
+                        sp_item.product_name +
+                        (index + 1 === item.sproduct.length ? '' : ', '),
+                    )}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[3],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'right'}}>
+                    {numberWithCommas(item.totalAmount) + ' Ks'}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[4],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'right'}}>
+                    {numberWithCommas(item.tax) + ' Ks'}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[5],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'right'}}>
+                    {item.discount + ' %'}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[6],
+                    backgroundColor: index % 2 ? '#3ded07' : '#04d64e',
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'right'}}>
+                    {numberWithCommas(item.grandtotal) + ' Ks'}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[7],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'left'}}>
+                    {new Date(item.date).toDateString()}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[8],
+                  }}>
+                  <Text style={{color: 'black'}}>{item.description}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      </ScrollView>
     );
   };
 
-  const OtherIncomeTableView = (data = []) => {
-    let widtharr = [50, 150, 80, 150, 200];
-    return (
-      <View
-        style={[
-          (data === null ? false : data.length > 6) && {
-            paddingBottom: 40,
-          },
-        ]}>
-        <Table borderStyle={{borderWidth: 1, borderColor: '#000'}}>
-          <Row
-            data={['No', 'Title', 'Price', 'Date', 'Description']}
-            style={[
-              {
-                backgroundColor: '#c8e1ff',
-                height: 40,
-              },
-            ]}
-            textStyle={{color: 'black', textAlign: 'center'}}
-            widthArr={widtharr}
+  // const OtherIncomeTableView = (data = []) => {
+  //   let widtharr = [50, 150, 80, 150, 200];
+  //   return (
+  //     <View
+  //       style={[
+  //         (data === null ? false : data.length > 6) && {
+  //           paddingBottom: 40,
+  //         },
+  //       ]}>
+  //       <Table borderStyle={{borderWidth: 1, borderColor: '#000'}}>
+  //         <Row
+  //           data={['No', 'Title', 'Price', 'Date', 'Description']}
+  //           style={[
+  //             {
+  //               backgroundColor: '#c8e1ff',
+  //               height: 40,
+  //             },
+  //           ]}
+  //           textStyle={{color: 'black', textAlign: 'center'}}
+  //           widthArr={widtharr}
+  //         />
+  //         {data === null ? (
+  //           <ScrollView
+  //             style={{
+  //               marginTop: -1,
+  //               marginLeft: -1,
+  //               width: C.windowWidth * 98,
+  //             }}>
+  //             <View style={{alignItems: 'center', justifyContent: 'center'}}>
+  //               <Image
+  //                 source={I.spinnerloadgif}
+  //                 style={{width: 20, height: 20, padding: 50}}
+  //               />
+  //               <Text style={{...s.normal_label}}>Loading Data...</Text>
+  //             </View>
+  //           </ScrollView>
+  //         ) : (
+  //           <ScrollView
+  //             nestedScrollEnabled={true}
+  //             style={{marginTop: -1, marginLeft: -1}}>
+  //             <Table borderStyle={{borderWidth: 1, borderColor: '#000'}}>
+  //               {data.map((item, index) => (
+  //                 <Row
+  //                   data={item}
+  //                   textStyle={[{margin: 6, color: 'black'}]}
+  //                   widthArr={widtharr}
+  //                   key={index}
+  //                   style={[
+  //                     {backgroundColor: '#E7E6E1'},
+  //                     index % 2 && {backgroundColor: '#F7F6E7'},
+  //                   ]}
+  //                 />
+  //               ))}
+  //             </Table>
+  //           </ScrollView>
+  //         )}
+  //       </Table>
+  //     </View>
+  //   );
+  // };
+
+  const AnalyseTable = cstr => {
+    if (cstr === 'otherIncome') return ComputeTable(otherIncome);
+    else if (cstr === 'expenseData') return ComputeTable(expenseData);
+    else return ComputeTable(purchaseData);
+  };
+
+  const ComputeTable = (data = []) => {
+    let widtharr = [50, 150, 100, 150, 200];
+    if (salesData === null)
+      return (
+        <View
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: C.windowWidth * 98,
+          }}>
+          <Image
+            source={I.spinnerloadgif}
+            style={{width: 20, height: 20, padding: 50}}
           />
-          {data === null ? (
-            <Text style={{...s.font_bold}}>Loading</Text>
-          ) : (
-            <ScrollView
-              nestedScrollEnabled={true}
-              style={{marginTop: -1, marginLeft: -1}}>
-              <Table borderStyle={{borderWidth: 1, borderColor: '#000'}}>
-                {data.map((item, index) => (
-                  <Row
-                    data={item}
-                    textStyle={[{margin: 6, color: 'black'}]}
-                    widthArr={widtharr}
-                    style={[
-                      {backgroundColor: '#E7E6E1'},
-                      index % 2 && {backgroundColor: '#F7F6E7'},
-                    ]}
-                  />
-                ))}
-              </Table>
-            </ScrollView>
-          )}
-        </Table>
-      </View>
+          <Text style={{...s.normal_label}}>Loading Data...</Text>
+        </View>
+      );
+    return (
+      <ScrollView nestedScrollEnable={true} horizontal={true}>
+        <View style={{flexDirection: 'column'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: 'black',
+              borderWidth: 0.5,
+              backgroundColor: '#c8e1ff',
+            }}>
+            <View
+              style={{
+                ...styles.cell,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: widtharr[0],
+              }}>
+              <Text style={{color: 'black'}}>No</Text>
+            </View>
+            <View
+              style={{
+                ...styles.cell,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: widtharr[1],
+              }}>
+              <Text style={{color: 'black'}}>Title</Text>
+            </View>
+            <View
+              style={{
+                ...styles.cell,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: widtharr[2],
+              }}>
+              <Text style={{color: 'black'}}>Price</Text>
+            </View>
+            <View
+              style={{
+                ...styles.cell,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: widtharr[3],
+              }}>
+              <Text style={{color: 'black'}}>Date</Text>
+            </View>
+            <View
+              style={{
+                ...styles.cell,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: widtharr[4],
+              }}>
+              <Text style={{color: 'black'}}>Description</Text>
+            </View>
+          </View>
+          <ScrollView nestedScrollEnabled={true} style={{marginTop: -1}}>
+            {data.map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  flexDirection: 'row',
+                  borderColor: 'black',
+                  borderWidth: 0.5,
+                  backgroundColor: index % 2 == 1 ? '#F7F6E7' : '#E7E6E1',
+                }}>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[0],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'center'}}>
+                    {index + 1}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[1],
+                  }}>
+                  <Text style={{color: 'black'}}>{item.title}</Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[2],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'right'}}>
+                    {numberWithCommas(item.price) + ' Ks'}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[3],
+                  }}>
+                  <Text style={{color: 'black'}}>
+                    {new Date(item.date).toDateString()}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[4],
+                  }}>
+                  <Text style={{color: 'black'}}>{item.description}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      </ScrollView>
     );
   };
 
   const TableView = () => {
     return (
-      <ScrollView nestedScrollEnable={true}>
+      <ScrollView nestedScrollEnable={true} style={{backgroundColor: 'white'}}>
         {/* Sales */}
         <View style={{marginBottom: 5}}>
           <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
@@ -618,14 +916,14 @@ const ReportScreen = ({navigation}) => {
             show={otherincomemodal}
             onClose={onCloseotherincome}>
             <ScrollView horizontal={true}>
-              {OtherIncomeTableView(otherIncomeTable)}
+              {AnalyseTable('otherIncome')}
             </ScrollView>
           </MessageModalNormal>
           <ScrollView
             horizontal={true}
             nestedScrollEnabled={true}
             style={{maxHeight: C.windowHeight * 40}}>
-            {OtherIncomeTableView(otherIncomeTable)}
+            {AnalyseTable('otherIncome')}
           </ScrollView>
 
           <View style={styles.totalView}>
@@ -648,14 +946,14 @@ const ReportScreen = ({navigation}) => {
             show={expensemodal}
             onClose={onCloseExpense}>
             <ScrollView horizontal={true}>
-              {OtherIncomeTableView(ExpenseTable)}
+              {AnalyseTable('expenseData')}
             </ScrollView>
           </MessageModalNormal>
           <ScrollView
             horizontal={true}
             nestedScrollEnabled={true}
             style={{maxHeight: C.windowHeight * 40}}>
-            {OtherIncomeTableView(ExpenseTable)}
+            {AnalyseTable('expenseData')}
           </ScrollView>
 
           <View style={styles.totalView}>
@@ -678,14 +976,14 @@ const ReportScreen = ({navigation}) => {
             show={purchasemodal}
             onClose={OnClosePurchase}>
             <ScrollView horizontal={true}>
-              {OtherIncomeTableView(PurchaseTable)}
+              {AnalyseTable('purchaseData')}
             </ScrollView>
           </MessageModalNormal>
           <ScrollView
             horizontal={true}
             nestedScrollEnabled={true}
             style={{maxHeight: C.windowHeight * 40}}>
-            {OtherIncomeTableView(PurchaseTable)}
+            {AnalyseTable('purchaseData')}
           </ScrollView>
 
           <View style={styles.totalView}>
@@ -701,49 +999,138 @@ const ReportScreen = ({navigation}) => {
 
   const ChartView = () => {
     return (
-      <ScrollView nestedScrollEnable={true}>
+      <ScrollView nestedScrollEnable={true} style={{backgroundColor: 'white'}}>
         {/* Sales */}
         <View style={{marginBottom: 5}}>
-          <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
+            <Text style={{...s.font_bold, color: 'black'}}>
+              {' '}
+              {numberWithCommas(tabletotalprice) + ' MMK'}
+            </Text>
+          </View>
 
-           <LineChart
-              data={{
-                labels: [],
-                datasets: [
-                  {
-                    data: salesChartData,
-                  },
-                ],
-              }}
-              width={C.windowWidth * 95} // from react-native
-              height={300}
-              yAxisSuffix=" k"
-              withHorizontalLines
-              yAxisInterval={1} // optional, defaults to 1
-              chartConfig={{
-                // backgroundColor: 'black',
-                // backgroundGradientFrom: '#4287f5',
-                // backgroundGradientTo: '#548bf7',
-                 decimalPlaces: 0, // optional, defaults to 2dp
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                propsForVerticalLabels: {translateY: 15},
-                style: {
-                  borderRadius: 0,
+          <LineChart
+            data={{
+              labels: salesChartLabel,
+              datasets: [
+                {
+                  data: salesChartData,
                 },
-                // propsForDots: {
-                //   r: '6',
-                //   strokeWidth: '2',
-                //   stroke: '#548bf7',
-                // },
-              }}
-              bezier
-              style={{
-                marginVertical: 8,
-                borderRadius: 16,
-              }}
-            />
-          
+              ],
+            }}
+            width={C.windowWidth * 95} // from react-native
+            height={300}
+            yAxisSuffix=" k"
+            withHorizontalLines
+            yAxisInterval={1} // optional, defaults to 1
+            verticalLabelRotation={-90}
+            chartConfig={chartConfig}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        </View>
+        {/* OtherIncome */}
+        <View style={{marginBottom: 5}}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={{...s.font_bold, color: 'black'}}>Other Income</Text>
+            <Text style={{...s.font_bold, color: 'black'}}>
+              {' '}
+              {numberWithCommas(oitabletotal) + ' MMK'}
+            </Text>
+          </View>
+
+          <LineChart
+            data={{
+              labels: otherincomeLabel,
+              datasets: [
+                {
+                  data: otherincomeChart,
+                },
+              ],
+            }}
+            width={C.windowWidth * 95} // from react-native
+            height={300}
+            yAxisSuffix=" k"
+            withHorizontalLines
+            yAxisInterval={1} // optional, defaults to 1
+            verticalLabelRotation={-90}
+            chartConfig={chartConfig}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        </View>
+        {/* Expense */}
+        <View style={{marginBottom: 5}}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={{...s.font_bold, color: 'black'}}>Expense</Text>
+            <Text style={{...s.font_bold, color: 'black'}}>
+              {' '}
+              {numberWithCommas(extotal) + ' MMK'}
+            </Text>
+          </View>
+
+          <LineChart
+            data={{
+              labels: expenseLabel,
+              datasets: [
+                {
+                  data: expenseChart,
+                },
+              ],
+            }}
+            width={C.windowWidth * 95} // from react-native
+            height={300}
+            yAxisSuffix=" k"
+            withHorizontalLines
+            yAxisInterval={1} // optional, defaults to 1
+            verticalLabelRotation={-90}
+            chartConfig={chartConfig}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        </View>
+        {/* Purchase */}
+        <View style={{marginBottom: 5}}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <Text style={{...s.font_bold, color: 'black'}}>Purchase</Text>
+            <Text style={{...s.font_bold, color: 'black'}}>
+              {' '}
+              {numberWithCommas(putotal) + ' MMK'}
+            </Text>
+          </View>
+
+          <LineChart
+            data={{
+              labels: purchaseLabel,
+              datasets: [
+                {
+                  data: purchaseChart,
+                },
+              ],
+            }}
+            width={C.windowWidth * 95} // from react-native
+            height={300}
+            yAxisSuffix=" k"
+            withHorizontalLines
+            yAxisInterval={1} // optional, defaults to 1
+            verticalLabelRotation={-90}
+            chartConfig={chartConfig}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
         </View>
       </ScrollView>
     );
@@ -751,7 +1138,7 @@ const ReportScreen = ({navigation}) => {
 
   return (
     // {/* appbar */}
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{flexDirection: 'column'}}>
         <View
           style={{
@@ -929,7 +1316,7 @@ const ReportScreen = ({navigation}) => {
           <Tab.Navigator
             screenOptions={{
               tabBarStyle: {
-                backgroundColor: '#f0f0f0',
+                backgroundColor: 'white',
                 shadowOffset: {width: 0, height: 0},
                 elevation: 0,
               },
@@ -950,6 +1337,12 @@ const styles = StyleSheet.create({
     padding: 5,
     backgroundColor: 'yellow',
   },
+  cell: {
+    borderColor: 'black',
+    borderWidth: 0.5,
+    padding: 10,
+    backgroundColor: 'transparent',
+  },
 });
 
 const kFormatter = num => {
@@ -969,4 +1362,22 @@ const inputS = {
   padding: 10,
   paddingRight: 10,
   marginTop: 10,
+};
+
+const chartConfig = {
+  // backgroundColor: 'black',
+  backgroundGradientFrom: '#fff',
+  backgroundGradientTo: '#fff',
+  decimalPlaces: 0, // optional, defaults to 2dp
+  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(0,0, 0, ${opacity})`,
+  propsForVerticalLabels: {translateY: 32},
+  style: {
+    borderRadius: 0,
+  },
+  // propsForDots: {
+  //   r: '6',
+  //   strokeWidth: '2',
+  //   stroke: '#548bf7',
+  // },
 };
