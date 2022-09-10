@@ -133,7 +133,7 @@ export const ALERT = {
   sus: () =>
     Alert.alert('Successfully', 'Successfully Uploaded.', [{text: 'OK'}]),
 };
-export const numberWithCommas = x => {
+export const numberWithCommas = (x = 0) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 export const baseUrl = 'https://npweb.pythonanywhere.com';

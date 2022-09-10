@@ -74,7 +74,7 @@ const Sales = ({navigation}) => {
 
     const [isCreate, setCreate] = useState(false);
     const [isSucces, setSuccess] = useState(false);
-    const CreateReceipt = (c='', p, s, t, d, g,de='') => {
+    const CreateReceipt = (c = '', p, s, t, d, g, de = '') => {
       let fdata = new FormData();
       let re = new Date();
       fdata.append('receiptNumber', re.getTime().toString());
@@ -84,7 +84,7 @@ const Sales = ({navigation}) => {
       fdata.append('tax', t);
       fdata.append('discount', d);
       fdata.append('grandtotal', g);
-      fdata.append('description',de);
+      fdata.append('description', de);
       setCreate(true);
 
       axios
@@ -181,8 +181,8 @@ const Sales = ({navigation}) => {
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
             placeholder={'Tax'}
             keyboardType={'number-pad'}
-            value={tax}
-            defaultValue={tax}
+            value={tax + ''}
+            defaultValue={tax + ''}
             onChangeText={e => (e === '' ? setTax(0) : setTax(e))}
           />
           <Text style={{...s.bold_label, marginTop: 8}}>Discount (%)</Text>
@@ -243,7 +243,8 @@ const Sales = ({navigation}) => {
     const [dopen, setDopen] = useState(false);
     const [date, setDate] = useState(new Date());
     const [incomedata, setIncomeData] = useState({
-      date: date.getFullYear() + '-' +( date.getMonth()+1) + '-' + date.getDate(),
+      date:
+        date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
       description: '',
     });
 
@@ -251,7 +252,6 @@ const Sales = ({navigation}) => {
       const temp = {...incomedata, [name]: e};
       setIncomeData(temp);
       console.log(temp, 'what are we');
-      
     };
 
     const [isCreate, setCreate] = useState(false);
@@ -343,7 +343,7 @@ const Sales = ({navigation}) => {
                 var s =
                   date.getFullYear() +
                   '-' +
-                  (date.getMonth()+1) +
+                  (date.getMonth() + 1) +
                   '-' +
                   date.getDate();
                 console.log(s);
@@ -396,7 +396,7 @@ const Sales = ({navigation}) => {
           padding: 8,
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>Sales</Text>
-        <View style={{flexDirection: 'row'}}>          
+        <View style={{flexDirection: 'row'}}>
           <MIcons name={'file-chart'} size={25} color={'#000'} />
         </View>
       </View>
@@ -439,7 +439,6 @@ const Sales = ({navigation}) => {
             Others Income
           </Text>
         </TouchableOpacity>
-        
       </View>
       <View style={{flex: 1}}>
         <Stack.Navigator screenOptions={{headerShown: false}}>

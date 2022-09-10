@@ -24,7 +24,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import {numberWithCommas} from '../../Database';
-import {LineChart} from 'react-native-chart-kit';
+import {BarChart, LineChart, StackedBarChart} from 'react-native-chart-kit';
 import {Table, Row, Rows} from 'react-native-table-component';
 import {MessageModalNormal} from '../MessageModal';
 import {ShareOpenGraphValueContainer} from 'react-native-fbsdk';
@@ -33,13 +33,15 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 
 const Tab = createMaterialTopTabNavigator();
 
+let render_count = 0;
+
 const ReportScreen = ({navigation}) => {
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
   };
 
   useEffect(() => {
-    // Load();
+    Load();
   }, []);
 
   const [salesData, setSalesData] = useState(null);
@@ -104,7 +106,11 @@ const ReportScreen = ({navigation}) => {
       })
       .then(res => {
         console.log('Fetch Data from Sales Data');
-        setSalesData(res.data);
+        setloadtext('Loading Sales Data');
+        setSaleChartLabel(res.data.CHART_LABEL);
+        if (res.data.CHART_DATA.length >= 1)
+          setSaleChartData(res.data.CHART_DATA);
+        setSalesData(res.data.DATA);
         // ComputeSalesData(res.data, time);
         console.log('Successfully Setted Data ');
       })
@@ -130,8 +136,11 @@ const ReportScreen = ({navigation}) => {
         },
       })
       .then(res => {
-        setExpenseData(res.data);
-        ComputeOtherIncomeData(res.data, time, 'expense');
+        setloadtext('Loading Expense Data');
+        setExpenseData(res.data.DATA);
+        if (res.data.CHART_DATA.length >= 1)
+          setexpenseChart(res.data.CHART_DATA);
+        setexpenseLabel(res.data.CHART_LABEL);
       })
       .catch(err => console.log(err));
   };
@@ -149,8 +158,13 @@ const ReportScreen = ({navigation}) => {
         },
       })
       .then(res => {
-        setPurchaseData(res.data);
-        ComputeOtherIncomeData(res.data, time, 'purchase');
+        setloadtext('Loading Purchase Data');
+        setPurchaseData(res.data.DATA);
+        if (res.data.CHART_DATA.length >= 1)
+          setpurchaseChart(res.data.CHART_DATA);
+        setpurchaseLabel(res.data.CHART_LABEL);
+
+        // ComputeOtherIncomeData(res.data, time, 'purchase');
       })
       .catch(err => console.log(err));
   };
@@ -172,9 +186,11 @@ const ReportScreen = ({navigation}) => {
         },
       })
       .then(res => {
-        setOtherincomeData(res.data);
-        setRefresh(false);
-        ComputeOtherIncomeData(res.data, time);
+        setloadtext('Loading Other Income Data');
+        setOtherincomeData(res.data.DATA);
+        if (res.data.CHART_DATA.length >= 1)
+          setOtherIncomeChart(res.data.CHART_DATA);
+        setOtherIncomeLabel(res.data.CHART_LABEL);
       })
       .catch(err => console.log(err));
   };
@@ -237,247 +253,8 @@ const ReportScreen = ({navigation}) => {
   const [edopen, setedopen] = useState(false);
   const [edate, setedate] = useState(new Date());
 
-  const ComputeSalesData = (salesData, t) => {
-    // Compute(salesData, t).then(res => {
-    //   setSalesChartData(res.pricedata);
-    //   setSalesChartLabel(res.label);
-    //   // setSaleTableData(res.tabledata);
-    //   // setTabletotalprice(res.totalprice);
-    // });
-
-    console.log('Computing Sales Data ');
-
-    let tableData = [];
-    let chartData = [];
-    let chartLabel = [];
-    let price = 0;
-    // salesData.forEach((item, index) => {
-    //   let row = [];
-    //   for (var [_, value] of Object.entries(item)) {
-    //     if (_ === 'sproduct') {
-    //       var productstr = '';
-    //       value.forEach((data, index) => {
-    //         productstr +=
-    //           data.product_name + (value.length === index + 1 ? '' : ', ');
-    //       });
-    //       row.push(productstr);
-    //     } else if (_ === 'date') {
-    //       let d = new Date(value);
-    //       row.push(d.toDateString());
-    //       chartLabel.push(d.toLocaleDateString());
-    //     } else if (_ === 'discount') {
-    //       row.push(value + '%');
-    //     } else if (_ === 'totalAmount') {
-    //       row.push(numberWithCommas(value) + ' Ks');
-    //     } else if (_ === 'tax') {
-    //       row.push(numberWithCommas(value) + ' Ks');
-    //     } else if (_ === 'grandtotal') {
-    //       price += parseInt(value);
-    //       row.push(numberWithCommas(parseInt(value)) + ' Ks');
-    //     } else {
-    //       row.push(value);
-    //     }
-    //   }
-    //   tableData.push(row);
-    // });
-
-    if (t === 'year') {
-      chartData = [];
-      chartLabel = [];
-      const monthString = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-
-      monthString.forEach((e, index) => {
-        console.log(e);
-        var price = 0;
-
-        salesData.forEach(i => {
-          var d = new Date(i.date);
-          if (d.getMonth() === index) {
-            price += parseInt(i.grandtotal);
-          }
-        });
-
-        chartLabel.push(e);
-        chartData.push(kFormatter(price));
-      });
-    } else if (t === 'today') {
-      chartData = [];
-      chartLabel = [];
-      salesData.forEach(e => {
-        let d = new Date(e.date);
-        // console.log(e.customerName)
-        //  console.log(d.getHours() + ':' + d.getMinutes());
-        let time = d.toTimeString().substring(0, 5);
-        chartLabel.push(time);
-        chartData.push(kFormatter(parseInt(e.grandtotal)));
-      });
-    } else {
-      chartData = [];
-      chartLabel = [];
-      var hash = {};
-      var data = {};
-      var type = salesData.filter(obj => {
-        var s = new Date(obj.date).toLocaleDateString();
-
-        if (!hash[s]) {
-          hash[s] = true;
-          data[s] = parseInt(obj.grandtotal);
-          return true;
-        }
-        if (data[s]) {
-          data[s] += parseInt(obj.grandtotal);
-        }
-        return false;
-      });
-
-      for (var [key, value] of Object.entries(data)) {
-        chartData.push(kFormatter(value));
-        chartLabel.push(key);
-      }
-    }
-
-    console.log('Computing Sales Data Finished ');
-    if (chartLabel.length >= 1) setSaleChartLabel(chartLabel);
-    if (chartData.length >= 1) setSaleChartData(chartData);
-    setSaleTableData(tableData);
-    setTabletotalprice(price);
-    setLoad(false);
-    console.log('Computed Data Seted ');
-  };
-
-  const computeChartData = (datasets, t) => {
-    let chartData = [];
-    let chartLabel = [];
-
-    if (t === 'year') {
-      chartData = [];
-      chartLabel = [];
-      const monthString = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-
-      monthString.forEach((e, index) => {
-        var price = 0;
-
-        datasets.forEach(i => {
-          var d = new Date(i.date);
-          if (d.getMonth() === index) {
-            price += parseInt(i.price);
-          }
-        });
-
-        chartLabel.push(e);
-        chartData.push(kFormatter(price));
-      });
-    } else if (t === 'today') {
-      chartData = [];
-      chartLabel = [];
-      datasets.forEach(e => {
-        let d = new Date(e.date);
-        // console.log(e.customerName)
-        //  console.log(d.getHours() + ':' + d.getMinutes());
-        let time = d.toTimeString().substring(0, 5);
-        //  chartLabel.push(time);
-        chartData.push(kFormatter(parseInt(e.price)));
-      });
-    } else {
-      chartData = [];
-      chartLabel = [];
-      var hash = {};
-      var data = {};
-      var type = datasets.filter(obj => {
-        var s = new Date(obj.date).toLocaleDateString();
-
-        if (!hash[s]) {
-          hash[s] = true;
-          data[s] = parseInt(obj.price);
-          return true;
-        }
-        if (data[s]) {
-          data[s] += parseInt(obj.price);
-        }
-        return false;
-      });
-
-      for (var [key, value] of Object.entries(data)) {
-        chartData.push(kFormatter(value));
-        chartLabel.push(key);
-      }
-    }
-
-    return {chartData, chartLabel};
-  };
-
-  const ComputeOtherIncomeData = (data, t, dtype = 'income') => {
-    // let tableData = [];
-    // let price = 0;
-    // data.forEach((item, index) => {
-    //   let row = [];
-    //   for (var [_, value] of Object.entries(item)) {
-    //     if (_ === 'price') {
-    //       price += parseInt(value);
-    //       row.push(numberWithCommas(value) + ' Ks');
-    //     } else if (_ === 'date') {
-    //       let d = new Date(value);
-    //       row.push(d.toDateString());
-    //     } else if (_ === 'id') {
-    //       row.push(index + 1);
-    //     } else {
-    //       row.push(value);
-    //     }
-    //   }
-    //   tableData.push(row);
-    // });
-    // if (dtype === 'expense') {
-    //   setExpenseTable(tableData);
-    //   setextotal(price);
-    //   var {chartData, chartLabel} = computeChartData(data, t);
-    //   console.log(chartData, chartLabel, 'Computed' + dtype);
-    //   if (chartData.length >= 1) setexpenseChart(chartData);
-    //   setexpenseLabel(chartLabel);
-    // } else if (dtype === 'purchase') {
-    //   setPurchaseTable(tableData);
-    //   setputotal(price);
-    //   var {chartData, chartLabel} = computeChartData(data, t);
-    //   console.log(chartData, chartLabel, 'Computed' + dtype);
-    //   // if (chartData.length >= 1) setpurchaseChart(chartData);setpurchaseLabel(chartLabel);
-    // } else {
-    //   setOtherIncomeTable(tableData);
-    //   setoitabletotal(price);
-    //   var {chartData, chartLabel} = computeChartData(data, t);
-    //   console.log(chartData, chartLabel, 'Computed' + dtype);
-    //   if (chartData.length >= 1) setOtherIncomeChart(chartData);
-    //   setOtherIncomeLabel(chartLabel);
-    // }
-    // setLoad(false);
-  };
-
   const [salesModal, setSalesModal] = useState(false);
-
+  const [loadtext, setloadtext] = useState('Loading');
   const onCloseSales = () => setSalesModal(false);
 
   const SalesTable = () => {
@@ -873,269 +650,373 @@ const ReportScreen = ({navigation}) => {
   };
 
   const TableView = () => {
-    return (
-      <ScrollView nestedScrollEnable={true} style={{backgroundColor: 'white'}}>
-        {/* Sales */}
-        <View style={{marginBottom: 5}}>
-          <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-            <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
-            <TouchableOpacity onPress={() => setSalesModal(true)}>
-              <Icons name={'expand'} size={25} color={'#000'} />
-            </TouchableOpacity>
-          </View>
-          <MessageModalNormal
-            width="100%"
-            show={salesModal}
-            onClose={onCloseSales}>
-            <ScrollView horizontal={true}>{SalesTable()}</ScrollView>
-          </MessageModalNormal>
-          <ScrollView
-            horizontal={true}
-            nestedScrollEnabled={true}
-            style={{maxHeight: C.windowHeight * 40}}>
-            {SalesTable()}
-          </ScrollView>
+    if (salesData && otherIncome && expenseData && purchaseData) {
+      return (
+        <ScrollView
+          nestedScrollEnable={true}
+          style={{backgroundColor: 'white'}}>
+          {/* Sales */}
+          <View style={{marginBottom: 5}}>
+            <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
+              <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
+              <TouchableOpacity onPress={() => setSalesModal(true)}>
+                <Icons name={'expand'} size={25} color={'#000'} />
+              </TouchableOpacity>
+            </View>
+            <MessageModalNormal
+              width="100%"
+              show={salesModal}
+              onClose={onCloseSales}>
+              <ScrollView horizontal={true}>{SalesTable()}</ScrollView>
+            </MessageModalNormal>
+            <ScrollView
+              horizontal={true}
+              nestedScrollEnabled={true}
+              style={{maxHeight: C.windowHeight * 40}}>
+              {SalesTable()}
+            </ScrollView>
 
-          <View style={styles.totalView}>
-            <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
-            <Text style={{...s.font_bold, color: 'black'}}>
-              {numberWithCommas(tabletotalprice) + ' MMK'}
-            </Text>
+            <View style={styles.totalView}>
+              <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {numberWithCommas(SUM(salesChartData)) + ' MMK'}
+              </Text>
+            </View>
           </View>
-        </View>
-        {/* OtherIncome */}
-        <View style={{marginBottom: 5}}>
-          <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-            <Text style={{...s.font_bold, color: 'black'}}>Other Income</Text>
-            <TouchableOpacity onPress={() => setotherincomemodal(true)}>
-              <Icons name={'expand'} size={25} color={'#000'} />
-            </TouchableOpacity>
-          </View>
-          <MessageModalNormal
-            width="100%"
-            show={otherincomemodal}
-            onClose={onCloseotherincome}>
-            <ScrollView horizontal={true}>
+          {/* OtherIncome */}
+          <View style={{marginBottom: 5}}>
+            <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
+              <Text style={{...s.font_bold, color: 'black'}}>Other Income</Text>
+              <TouchableOpacity onPress={() => setotherincomemodal(true)}>
+                <Icons name={'expand'} size={25} color={'#000'} />
+              </TouchableOpacity>
+            </View>
+            <MessageModalNormal
+              width="100%"
+              show={otherincomemodal}
+              onClose={onCloseotherincome}>
+              <ScrollView horizontal={true}>
+                {AnalyseTable('otherIncome')}
+              </ScrollView>
+            </MessageModalNormal>
+            <ScrollView
+              horizontal={true}
+              nestedScrollEnabled={true}
+              style={{maxHeight: C.windowHeight * 40}}>
               {AnalyseTable('otherIncome')}
             </ScrollView>
-          </MessageModalNormal>
-          <ScrollView
-            horizontal={true}
-            nestedScrollEnabled={true}
-            style={{maxHeight: C.windowHeight * 40}}>
-            {AnalyseTable('otherIncome')}
-          </ScrollView>
 
-          <View style={styles.totalView}>
-            <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
-            <Text style={{...s.font_bold, color: 'black'}}>
-              {numberWithCommas(oitabletotal) + ' MMK'}
-            </Text>
+            <View style={styles.totalView}>
+              <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {numberWithCommas(SUM(otherincomeChart)) + ' MMK'}
+              </Text>
+            </View>
           </View>
-        </View>
-        {/* Expense */}
-        <View style={{marginBottom: 5}}>
-          <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-            <Text style={{...s.font_bold, color: 'black'}}>Expense</Text>
-            <TouchableOpacity onPress={() => setexpensemodal(true)}>
-              <Icons name={'expand'} size={25} color={'#000'} />
-            </TouchableOpacity>
-          </View>
-          <MessageModalNormal
-            width="100%"
-            show={expensemodal}
-            onClose={onCloseExpense}>
-            <ScrollView horizontal={true}>
+          {/* Expense */}
+          <View style={{marginBottom: 5}}>
+            <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
+              <Text style={{...s.font_bold, color: 'black'}}>Expense</Text>
+              <TouchableOpacity onPress={() => setexpensemodal(true)}>
+                <Icons name={'expand'} size={25} color={'#000'} />
+              </TouchableOpacity>
+            </View>
+            <MessageModalNormal
+              width="100%"
+              show={expensemodal}
+              onClose={onCloseExpense}>
+              <ScrollView horizontal={true}>
+                {AnalyseTable('expenseData')}
+              </ScrollView>
+            </MessageModalNormal>
+            <ScrollView
+              horizontal={true}
+              nestedScrollEnabled={true}
+              style={{maxHeight: C.windowHeight * 40}}>
               {AnalyseTable('expenseData')}
             </ScrollView>
-          </MessageModalNormal>
-          <ScrollView
-            horizontal={true}
-            nestedScrollEnabled={true}
-            style={{maxHeight: C.windowHeight * 40}}>
-            {AnalyseTable('expenseData')}
-          </ScrollView>
 
-          <View style={styles.totalView}>
-            <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
-            <Text style={{...s.font_bold, color: 'black'}}>
-              {numberWithCommas(extotal) + ' MMK'}
-            </Text>
+            <View style={styles.totalView}>
+              <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {numberWithCommas(SUM(expenseChart)) + ' MMK'}
+              </Text>
+            </View>
           </View>
-        </View>
-        {/* Purchase */}
-        <View style={{marginBottom: 5}}>
-          <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-            <Text style={{...s.font_bold, color: 'black'}}>Purchase</Text>
-            <TouchableOpacity onPress={() => setpurchasemodal(true)}>
-              <Icons name={'expand'} size={25} color={'#000'} />
-            </TouchableOpacity>
-          </View>
-          <MessageModalNormal
-            width="100%"
-            show={purchasemodal}
-            onClose={OnClosePurchase}>
-            <ScrollView horizontal={true}>
+          {/* Purchase */}
+          <View style={{marginBottom: 5}}>
+            <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
+              <Text style={{...s.font_bold, color: 'black'}}>Purchase</Text>
+              <TouchableOpacity onPress={() => setpurchasemodal(true)}>
+                <Icons name={'expand'} size={25} color={'#000'} />
+              </TouchableOpacity>
+            </View>
+            <MessageModalNormal
+              width="100%"
+              show={purchasemodal}
+              onClose={OnClosePurchase}>
+              <ScrollView horizontal={true}>
+                {AnalyseTable('purchaseData')}
+              </ScrollView>
+            </MessageModalNormal>
+            <ScrollView
+              horizontal={true}
+              nestedScrollEnabled={true}
+              style={{maxHeight: C.windowHeight * 40}}>
               {AnalyseTable('purchaseData')}
             </ScrollView>
-          </MessageModalNormal>
-          <ScrollView
-            horizontal={true}
-            nestedScrollEnabled={true}
-            style={{maxHeight: C.windowHeight * 40}}>
-            {AnalyseTable('purchaseData')}
-          </ScrollView>
 
-          <View style={styles.totalView}>
-            <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
-            <Text style={{...s.font_bold, color: 'black'}}>
-              {numberWithCommas(putotal) + ' MMK'}
-            </Text>
+            <View style={styles.totalView}>
+              <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {numberWithCommas(SUM(purchaseChart)) + ' MMK'}
+              </Text>
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      );
+    }
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: 'white',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Image
+          source={I.spinnerloadgif}
+          style={{width: 20, height: 20, padding: 50}}
+        />
+
+        <Text style={{...s.normal_label}}>{loadtext}.</Text>
+      </View>
     );
+  };
+
+  const SUM = array => {
+    return array.reduce((a, b) => a + b, 0);
   };
 
   const ChartView = () => {
+    if (salesData && otherIncome && expenseData && purchaseData) {
+      return (
+        <ScrollView
+          nestedScrollEnable={true}
+          style={{backgroundColor: 'white'}}>
+          {/* Sales */}
+          <View style={{marginBottom: 5}}>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {' '}
+                {numberWithCommas(SUM(salesChartData)) + ' MMK'}
+              </Text>
+            </View>
+
+            <LineChart
+              data={{
+                labels: salesChartLabel,
+                datasets: [
+                  {
+                    data: salesChartData,
+                  },
+                ],
+              }}
+              width={C.windowWidth * 95} // from react-native
+              height={300}
+              yAxisSuffix=" k"
+              withHorizontalLines
+              yAxisInterval={1} // optional, defaults to 1
+              verticalLabelRotation={-90}
+              chartConfig={chartConfig}
+              bezier
+              style={{
+                marginVertical: 8,
+                borderRadius: 16,
+              }}
+            />
+          </View>
+          {/* OtherIncome */}
+          <View style={{marginBottom: 5}}>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={{...s.font_bold, color: 'black'}}>Other Income</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {' '}
+                {numberWithCommas(SUM(otherincomeChart)) + ' MMK'}
+              </Text>
+            </View>
+
+            <LineChart
+              data={{
+                labels: otherincomeLabel,
+                datasets: [
+                  {
+                    data: otherincomeChart,
+                  },
+                ],
+              }}
+              width={C.windowWidth * 95} // from react-native
+              height={300}
+              yAxisSuffix=" k"
+              withHorizontalLines
+              yAxisInterval={1} // optional, defaults to 1
+              verticalLabelRotation={-90}
+              chartConfig={chartConfig}
+              bezier
+              style={{
+                marginVertical: 8,
+                borderRadius: 16,
+              }}
+            />
+          </View>
+          {/* Expense */}
+          <View style={{marginBottom: 5}}>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={{...s.font_bold, color: 'black'}}>Expense</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {' '}
+                {numberWithCommas(SUM(expenseChart)) + ' MMK'}
+              </Text>
+            </View>
+
+            <LineChart
+              data={{
+                labels: expenseLabel,
+                datasets: [
+                  {
+                    data: expenseChart,
+                  },
+                ],
+              }}
+              width={C.windowWidth * 95} // from react-native
+              height={300}
+              yAxisSuffix=" k"
+              withHorizontalLines
+              yAxisInterval={1} // optional, defaults to 1
+              verticalLabelRotation={-90}
+              chartConfig={chartConfig}
+              bezier
+              style={{
+                marginVertical: 8,
+                borderRadius: 16,
+              }}
+            />
+          </View>
+          {/* Purchase */}
+          <View style={{marginBottom: 5}}>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={{...s.font_bold, color: 'black'}}>Purchase</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {' '}
+                {numberWithCommas(SUM(purchaseChart)) + ' MMK'}
+              </Text>
+            </View>
+
+            <LineChart
+              data={{
+                labels: purchaseLabel,
+                datasets: [
+                  {
+                    data: purchaseChart,
+                  },
+                ],
+              }}
+              width={C.windowWidth * 95} // from react-native
+              height={300}
+              yAxisSuffix=" k"
+              withHorizontalLines
+              yAxisInterval={1} // optional, defaults to 1
+              verticalLabelRotation={-90}
+              chartConfig={chartConfig}
+              bezier
+              style={{
+                marginVertical: 8,
+                borderRadius: 16,
+              }}
+            />
+          </View>
+        </ScrollView>
+      );
+    }
     return (
-      <ScrollView nestedScrollEnable={true} style={{backgroundColor: 'white'}}>
-        {/* Sales */}
-        <View style={{marginBottom: 5}}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
-            <Text style={{...s.font_bold, color: 'black'}}>
-              {' '}
-              {numberWithCommas(tabletotalprice) + ' MMK'}
-            </Text>
-          </View>
-
-          <LineChart
-            data={{
-              labels: salesChartLabel,
-              datasets: [
-                {
-                  data: salesChartData,
-                },
-              ],
-            }}
-            width={C.windowWidth * 95} // from react-native
-            height={300}
-            yAxisSuffix=" k"
-            withHorizontalLines
-            yAxisInterval={1} // optional, defaults to 1
-            verticalLabelRotation={-90}
-            chartConfig={chartConfig}
-            bezier
-            style={{
-              marginVertical: 8,
-              borderRadius: 16,
-            }}
-          />
-        </View>
-        {/* OtherIncome */}
-        <View style={{marginBottom: 5}}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={{...s.font_bold, color: 'black'}}>Other Income</Text>
-            <Text style={{...s.font_bold, color: 'black'}}>
-              {' '}
-              {numberWithCommas(oitabletotal) + ' MMK'}
-            </Text>
-          </View>
-
-          <LineChart
-            data={{
-              labels: otherincomeLabel,
-              datasets: [
-                {
-                  data: otherincomeChart,
-                },
-              ],
-            }}
-            width={C.windowWidth * 95} // from react-native
-            height={300}
-            yAxisSuffix=" k"
-            withHorizontalLines
-            yAxisInterval={1} // optional, defaults to 1
-            verticalLabelRotation={-90}
-            chartConfig={chartConfig}
-            bezier
-            style={{
-              marginVertical: 8,
-              borderRadius: 16,
-            }}
-          />
-        </View>
-        {/* Expense */}
-        <View style={{marginBottom: 5}}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={{...s.font_bold, color: 'black'}}>Expense</Text>
-            <Text style={{...s.font_bold, color: 'black'}}>
-              {' '}
-              {numberWithCommas(extotal) + ' MMK'}
-            </Text>
-          </View>
-
-          <LineChart
-            data={{
-              labels: expenseLabel,
-              datasets: [
-                {
-                  data: expenseChart,
-                },
-              ],
-            }}
-            width={C.windowWidth * 95} // from react-native
-            height={300}
-            yAxisSuffix=" k"
-            withHorizontalLines
-            yAxisInterval={1} // optional, defaults to 1
-            verticalLabelRotation={-90}
-            chartConfig={chartConfig}
-            bezier
-            style={{
-              marginVertical: 8,
-              borderRadius: 16,
-            }}
-          />
-        </View>
-        {/* Purchase */}
-        <View style={{marginBottom: 5}}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={{...s.font_bold, color: 'black'}}>Purchase</Text>
-            <Text style={{...s.font_bold, color: 'black'}}>
-              {' '}
-              {numberWithCommas(putotal) + ' MMK'}
-            </Text>
-          </View>
-
-          <LineChart
-            data={{
-              labels: purchaseLabel,
-              datasets: [
-                {
-                  data: purchaseChart,
-                },
-              ],
-            }}
-            width={C.windowWidth * 95} // from react-native
-            height={300}
-            yAxisSuffix=" k"
-            withHorizontalLines
-            yAxisInterval={1} // optional, defaults to 1
-            verticalLabelRotation={-90}
-            chartConfig={chartConfig}
-            bezier
-            style={{
-              marginVertical: 8,
-              borderRadius: 16,
-            }}
-          />
-        </View>
-      </ScrollView>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: 'white',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Image
+          source={I.spinnerloadgif}
+          style={{width: 20, height: 20, padding: 50}}
+        />
+        <Text style={{...s.normal_label}}>{loadtext}</Text>
+      </View>
     );
   };
 
+  const [profitdata, setprofitdata] = useState(null);
+
+  const ProfitnLossView = () => {
+    useEffect(() => {
+      if (profitdata === null) {
+        FetchData();
+      }
+    }, []);
+
+    const FetchData = () => {
+      axios
+        .get('/api/profitnloss/')
+        .then(res => {
+          console.log(res.data);
+          setprofitdata(res.data);
+        })
+        .catch(err => console.log(err));
+    };
+
+    if (profitdata === null) {
+      return <View></View>;
+    }
+    return (
+      <View style={{backgroundColor: 'white', flex: 1}}>
+        <LineChart
+          data={{
+            labels: Object.keys(profitdata.addData),
+            datasets: [
+              {
+                data: Object.values(profitdata.addData),
+                color: (opacity = 1) => `rgba(13, 209, 6, ${opacity})`,
+              },
+              {
+                data: Object.values(profitdata.minusData),
+                color: (opacity = 1) => `rgba(209, 6, 33, ${opacity})`,
+              },
+            ],
+          }}
+          width={C.windowWidth * 95} // from react-native
+          height={300}
+          yAxisSuffix=" k"
+          withHorizontalLines
+          yAxisInterval={1} // optional, defaults to 1
+          verticalLabelRotation={-90}
+          chartConfig={chartConfig}
+          bezier
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+        />
+      </View>
+    );
+  };
+
+  render_count = render_count + 1;
+  console.log('Report render count ' + render_count);
   return (
     // {/* appbar */}
     <View style={{flex: 1, backgroundColor: 'white'}}>
@@ -1321,8 +1202,9 @@ const ReportScreen = ({navigation}) => {
                 elevation: 0,
               },
             }}>
-            <Tab.Screen name="Table View" component={TableView} />
-            <Tab.Screen name="Chart View" component={ChartView} />
+            <Tab.Screen name="Table" component={TableView} />
+            <Tab.Screen name="Chart" component={ChartView} />
+            <Tab.Screen name="Profit & Loss" component={ProfitnLossView} />
           </Tab.Navigator>
         </View>
       </View>
@@ -1369,7 +1251,7 @@ const chartConfig = {
   backgroundGradientFrom: '#fff',
   backgroundGradientTo: '#fff',
   decimalPlaces: 0, // optional, defaults to 2dp
-  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  color: (opacity = 0.8) => `rgba(0, 0, 0, ${opacity})`,
   labelColor: (opacity = 1) => `rgba(0,0, 0, ${opacity})`,
   propsForVerticalLabels: {translateY: 32},
   style: {

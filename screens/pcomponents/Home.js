@@ -64,10 +64,10 @@ const HomeScreen = ({navigation}) => {
         },
       })
       .then(res => {
-        setSalesData(res.data);
+        setSalesData(res.data.DATA);
 
         setTimeout(() => {
-          getSalesChartFromServer(res.data, 't');
+          getSalesChartFromServer(res.data.DATA, 't');
         }, 1000);
       })
       .catch(err => console.log(err));
@@ -83,14 +83,14 @@ const HomeScreen = ({navigation}) => {
   const getExpenseFromServer = () => {
     axios
       .get('/api/expenses/')
-      .then(res => setExpenseData(res.data))
+      .then(res => setExpenseData(res.data.DATA))
       .catch(err => console.log(err));
   };
 
   const getPurchaseFromServer = () => {
     axios
       .get('/api/purchases/')
-      .then(res => setPurchaseData(res.data))
+      .then(res => setPurchaseData(res.data.DATA))
       .catch(err => console.log(err));
   };
 
@@ -98,14 +98,15 @@ const HomeScreen = ({navigation}) => {
     axios
       .get('/api/otherincome/')
       .then(res => {
-        setOtherincomeData(res.data);
+        setOtherincomeData(res.data.DATA);
         setRefresh(false);
       })
       .catch(err => console.log(err));
   };
 
-  const SumSales = data => {
+  const SumSales = (data = []) => {
     let price = 0;
+
     data.forEach(e => {
       price += parseInt(e.grandtotal);
     });
