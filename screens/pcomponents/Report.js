@@ -969,12 +969,17 @@ const ReportScreen = ({navigation}) => {
       }
     }, []);
 
+    const [refresh, setrefresh] = useState(false);
+
     const FetchData = () => {
+      setrefresh(true);
+      setprofitdata(null);
       axios
         .get('/api/profitnloss/')
         .then(res => {
           console.log(res.data);
           setprofitdata(res.data);
+          setrefresh(false);
         })
         .catch(err => console.log(err));
     };
@@ -982,8 +987,23 @@ const ReportScreen = ({navigation}) => {
     if (profitdata === null) {
       return <View></View>;
     }
+    let widthwidth = C.windowWidth * 95 - 50;
+
+    let tablearr = [50, widthwidth / 3, widthwidth / 3, widthwidth / 3];
+    let headerstyle = {
+      borderColor: 'black',
+      borderWidth: 1,
+
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding:5,
+    };
     return (
-      <View style={{backgroundColor: 'white', flex: 1}}>
+      <ScrollView
+        style={{backgroundColor: 'white', flex: 1}}
+        refreshControl={
+          <RefreshControl onRefresh={FetchData} refreshing={refresh} />
+        }>
         <LineChart
           data={{
             labels: Object.keys(profitdata.addData),
@@ -1011,7 +1031,81 @@ const ReportScreen = ({navigation}) => {
             borderRadius: 16,
           }}
         />
-      </View>
+        <View>
+          <Text style={{...s.bold_label}}>2022</Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            <View style={{...headerstyle, width: tablearr[0]}}>
+              <Text style={{color: 'black', textAlign: 'center'}}>Time</Text>
+            </View>
+            <View style={{...headerstyle, width: tablearr[1]}}>
+              <Text style={{color: 'black', textAlign: 'center'}}>Income</Text>
+            </View>
+            <View style={{...headerstyle, width: tablearr[2]}}>
+              <Text style={{color: 'black', textAlign: 'center'}}>
+                Expense & Purchase
+              </Text>
+            </View>
+            <View style={{...headerstyle, width: tablearr[3]}}>
+              <Text style={{color: 'black', textAlign: 'center'}}>
+                Profit & Loss
+              </Text>
+            </View>
+          </View>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            <View style={{flexDirection: 'column', width: tablearr[0]}}>
+              {Object.keys(profitdata.result).map((data, index) => (
+                <View
+                  style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
+                  <Text
+                    style={{color: 'black', textAlign: 'center'}}
+                    key={index}>
+                    {data.substring(0, 3)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            <View style={{flexDirection: 'column', width: tablearr[1]}}>
+              {Object.values(profitdata.addData).map((data, index) => (
+                <View
+                  style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
+                  <Text
+                    style={{color: 'black', textAlign: 'right'}}
+                    key={index}>
+                    {numberWithCommas(data) + ' Ks'}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            <View style={{flexDirection: 'column', width: tablearr[2]}}>
+              {Object.values(profitdata.minusData).map((data, index) => (
+                <View
+                  style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
+                  <Text
+                    style={{color: 'black', textAlign: 'right'}}
+                    key={index}>
+                    {numberWithCommas(data) + ' Ks'}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            <View style={{flexDirection: 'column', width: tablearr[3]}}>
+              {Object.values(profitdata.result).map((data, index) => (
+                <View
+                  style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
+                  <Text
+                    style={{
+                      color: data <= 0 ? 'red' : 'green',
+                      textAlign: 'right',
+                    }}
+                    key={index}>
+                    {numberWithCommas(data) + ' Ks'}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     );
   };
 
