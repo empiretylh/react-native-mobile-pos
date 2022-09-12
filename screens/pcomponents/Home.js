@@ -298,10 +298,12 @@ const HomeScreen = ({navigation}) => {
           padding: 8,
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>Dashboard</Text>
-        <Image
-          source={IMAGE.thura}
-          style={{width: 40, height: 40, borderRadius: 30}}
-        />
+        <TouchableOpacity onPress={() => navigation.navigate('profile')}>
+          <Image
+            source={IMAGE.thura}
+            style={{width: 40, height: 40, borderRadius: 30}}
+          />
+        </TouchableOpacity>
       </View>
       {/* view */}
       <View style={{flex: 1}}>

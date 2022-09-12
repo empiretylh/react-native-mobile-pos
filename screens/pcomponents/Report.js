@@ -440,67 +440,6 @@ const ReportScreen = ({navigation}) => {
     );
   };
 
-  // const OtherIncomeTableView = (data = []) => {
-  //   let widtharr = [50, 150, 80, 150, 200];
-  //   return (
-  //     <View
-  //       style={[
-  //         (data === null ? false : data.length > 6) && {
-  //           paddingBottom: 40,
-  //         },
-  //       ]}>
-  //       <Table borderStyle={{borderWidth: 1, borderColor: '#000'}}>
-  //         <Row
-  //           data={['No', 'Title', 'Price', 'Date', 'Description']}
-  //           style={[
-  //             {
-  //               backgroundColor: '#c8e1ff',
-  //               height: 40,
-  //             },
-  //           ]}
-  //           textStyle={{color: 'black', textAlign: 'center'}}
-  //           widthArr={widtharr}
-  //         />
-  //         {data === null ? (
-  //           <ScrollView
-  //             style={{
-  //               marginTop: -1,
-  //               marginLeft: -1,
-  //               width: C.windowWidth * 98,
-  //             }}>
-  //             <View style={{alignItems: 'center', justifyContent: 'center'}}>
-  //               <Image
-  //                 source={I.spinnerloadgif}
-  //                 style={{width: 20, height: 20, padding: 50}}
-  //               />
-  //               <Text style={{...s.normal_label}}>Loading Data...</Text>
-  //             </View>
-  //           </ScrollView>
-  //         ) : (
-  //           <ScrollView
-  //             nestedScrollEnabled={true}
-  //             style={{marginTop: -1, marginLeft: -1}}>
-  //             <Table borderStyle={{borderWidth: 1, borderColor: '#000'}}>
-  //               {data.map((item, index) => (
-  //                 <Row
-  //                   data={item}
-  //                   textStyle={[{margin: 6, color: 'black'}]}
-  //                   widthArr={widtharr}
-  //                   key={index}
-  //                   style={[
-  //                     {backgroundColor: '#E7E6E1'},
-  //                     index % 2 && {backgroundColor: '#F7F6E7'},
-  //                   ]}
-  //                 />
-  //               ))}
-  //             </Table>
-  //           </ScrollView>
-  //         )}
-  //       </Table>
-  //     </View>
-  //   );
-  // };
-
   const AnalyseTable = cstr => {
     if (cstr === 'otherIncome') return ComputeTable(otherIncome);
     else if (cstr === 'expenseData') return ComputeTable(expenseData);
@@ -996,7 +935,7 @@ const ReportScreen = ({navigation}) => {
 
       alignItems: 'center',
       justifyContent: 'center',
-      padding:5,
+      padding: 5,
     };
     return (
       <ScrollView
@@ -1004,6 +943,7 @@ const ReportScreen = ({navigation}) => {
         refreshControl={
           <RefreshControl onRefresh={FetchData} refreshing={refresh} />
         }>
+        <Text style={{...s.bold_label}}>2022</Text>
         <LineChart
           data={{
             labels: Object.keys(profitdata.addData),
@@ -1032,7 +972,6 @@ const ReportScreen = ({navigation}) => {
           }}
         />
         <View>
-          <Text style={{...s.bold_label}}>2022</Text>
           <View style={{flex: 1, flexDirection: 'row'}}>
             <View style={{...headerstyle, width: tablearr[0]}}>
               <Text style={{color: 'black', textAlign: 'center'}}>Time</Text>
@@ -1054,7 +993,7 @@ const ReportScreen = ({navigation}) => {
           <View style={{flex: 1, flexDirection: 'row'}}>
             <View style={{flexDirection: 'column', width: tablearr[0]}}>
               {Object.keys(profitdata.result).map((data, index) => (
-                <View
+                <View key={index}
                   style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
                   <Text
                     style={{color: 'black', textAlign: 'center'}}
@@ -1066,7 +1005,7 @@ const ReportScreen = ({navigation}) => {
             </View>
             <View style={{flexDirection: 'column', width: tablearr[1]}}>
               {Object.values(profitdata.addData).map((data, index) => (
-                <View
+                <View key={index}
                   style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
                   <Text
                     style={{color: 'black', textAlign: 'right'}}
@@ -1078,7 +1017,7 @@ const ReportScreen = ({navigation}) => {
             </View>
             <View style={{flexDirection: 'column', width: tablearr[2]}}>
               {Object.values(profitdata.minusData).map((data, index) => (
-                <View
+                <View key={index}
                   style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
                   <Text
                     style={{color: 'black', textAlign: 'right'}}
@@ -1090,7 +1029,7 @@ const ReportScreen = ({navigation}) => {
             </View>
             <View style={{flexDirection: 'column', width: tablearr[3]}}>
               {Object.values(profitdata.result).map((data, index) => (
-                <View
+                <View key={index}
                   style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
                   <Text
                     style={{

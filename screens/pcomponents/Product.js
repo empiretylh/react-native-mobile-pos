@@ -817,17 +817,47 @@ const Product = ({navigation}) => {
 
   const [focusView, setFocusView] = useState('p');
 
+  const SortProduct = type => {
+    const temp_product = [...sp];
+    if (type === 'name')
+      temp_product.sort((p1, p2) => (p1.name > p2.name ? 1 : -1));
+    if (type === 'qty') temp_product.sort((p1, p2) => p1.qty - p2.qty);
+    if (type === 'price') temp_product.sort((p1, p2) => p1.price - p2.price);
+    setSp(temp_product);
+    onCloseFiltershow();
+  };
+
   return (
     <View style={{...s.Container}}>
       <MessageModalNormal show={filtershow} onClose={onCloseFiltershow}>
         <View>
           <Text style={{...s.bold_label}}>Sort Product</Text>
           <View>
-            <Button
-              title="Sorty by Name"
-              color={C.blackbutton}
-              onPress={() => console.log('Sorted by name')}
-            />
+            <TouchableOpacity
+              onPress={() => {
+                SortProduct('name');
+              }}
+              style={{...s.blue_button, marginTop: 8, padding: 10}}>
+              <Text style={{...s.bold_label, color: 'white'}}>
+                Sort By Name
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                SortProduct('qty');
+              }}
+              style={{...s.blue_button, marginTop: 8, padding: 10}}>
+              <Text style={{...s.bold_label, color: 'white'}}>Sort By Qty</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                SortProduct('price');
+              }}
+              style={{...s.blue_button, marginTop: 8, padding: 10}}>
+              <Text style={{...s.bold_label, color: 'white'}}>
+                Sort By Price
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </MessageModalNormal>
@@ -1099,10 +1129,9 @@ const Product = ({navigation}) => {
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>Products</Text>
         <View style={{flexDirection: 'row'}}>
-          <Text style={{...s.bold_label, marginRight: 10}}>
+          <Text style={{...s.bold_label}}>
             {numberWithCommas(SumProductBalance(ProductData))} MMK
           </Text>
-          <MIcons name={'file-chart'} size={25} color={'#000'} />
         </View>
       </View>
       {/* view */}
@@ -1127,65 +1156,68 @@ const Product = ({navigation}) => {
         <Icons name={'search'} size={20} color={'#000'} />
       </View>
       <View style={{...s.flexrow_aligncenter_j_center}}>
-        <TouchableOpacity
-          style={{position: 'absolute', left: 0}}
-          onPress={() => setFilterShow(true)}>
+        <TouchableOpacity onPress={() => setFilterShow(true)}>
           <Icons name={'filter'} size={25} color={'#000'} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('p');
-            setFocusView('p');
-          }}>
-          <Text
-            style={{
-              ...s.normal_label,
-              ...s.black_button,
-              color: focusView === 'p' ? 'white' : 'black',
-              backgroundColor: focusView === 'p' ? C.blackbutton : '#f0f0f0',
-              padding: 10,
-              borderRadius: 15,
-              fontSize: 15,
+        <ScrollView
+          style={{flexDirection: 'row'}}
+          horizontal
+          showsHorizontalScrollIndicator={false}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('p');
+              setFocusView('p');
             }}>
-            Product
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('c');
-            setFocusView('c');
-          }}>
-          <Text
-            style={{
-              ...s.normal_label,
-              ...s.black_button,
-              color: focusView === 'c' ? 'white' : 'black',
-              backgroundColor: focusView === 'c' ? C.blackbutton : '#f0f0f0',
-              padding: 10,
-              borderRadius: 15,
-              fontSize: 15,
+            <Text
+              style={{
+                ...s.normal_label,
+                ...s.black_button,
+                color: focusView === 'p' ? 'white' : 'black',
+                backgroundColor: focusView === 'p' ? C.blackbutton : '#f0f0f0',
+                padding: 10,
+                borderRadius: 15,
+                fontSize: 15,
+              }}>
+              Product
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('c');
+              setFocusView('c');
             }}>
-            Category
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('cpurchase');
-          }}>
-          <Text
-            style={{
-              ...s.normal_label,
-              ...s.black_button,
-              color: 'black',
-              backgroundColor: '#f0f0f0',
-              padding: 10,
-              borderRadius: 15,
-              fontSize: 15,
+            <Text
+              style={{
+                ...s.normal_label,
+                ...s.black_button,
+                color: focusView === 'c' ? 'white' : 'black',
+                backgroundColor: focusView === 'c' ? C.blackbutton : '#f0f0f0',
+                padding: 10,
+                borderRadius: 15,
+                fontSize: 15,
+              }}>
+              Category
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('cpurchase');
             }}>
-            Purchase
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{position: 'absolute', right: 0}}>
+            <Text
+              style={{
+                ...s.normal_label,
+                ...s.black_button,
+                color: 'black',
+                backgroundColor: '#f0f0f0',
+                padding: 10,
+                borderRadius: 15,
+                fontSize: 15,
+              }}>
+              Purchase
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+        <TouchableOpacity>
           <Text style={{...s.bold_label, fontSize: 14}}>
             {ProductData.length} Items
           </Text>

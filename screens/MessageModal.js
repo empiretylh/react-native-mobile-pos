@@ -162,11 +162,11 @@ export const MessageModalNormal = ({
       <View
         style={{
           flex: 1,
-          
+
           width: C.windowWidth * 100,
           height: C.windowHeight * 100,
           backgroundColor: 'rgba(52, 52, 52, 0.8)',
-         
+
           justifyContent: 'center',
           alignItems: 'center',
         }}>
@@ -174,11 +174,8 @@ export const MessageModalNormal = ({
           style={{
             width: width ? width : '80%',
             backgroundColor: 'white',
-            borderColor: C.textmuted,
-            borderWidth: 0.5,
             borderRadius: 15,
             padding: 10,
-          
           }}>
           {children}
         </View>

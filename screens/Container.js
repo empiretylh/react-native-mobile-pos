@@ -8,6 +8,7 @@ import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {View, Text} from 'react-native';
 import Register from './SignUp';
+import Profile from './pcomponents/profile';
 
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
@@ -57,7 +58,10 @@ const SContainer = () => {
             />
           </>
         ) : (
-          <Stack.Screen name="main" component={Container} />
+          <>
+            <Stack.Screen name="main" component={Container} />
+            <Stack.Screen name="profile" component={Profile} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

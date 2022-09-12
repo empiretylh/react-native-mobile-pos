@@ -397,7 +397,9 @@ const Sales = ({navigation}) => {
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>Sales</Text>
         <View style={{flexDirection: 'row'}}>
-          <MIcons name={'file-chart'} size={25} color={'#000'} />
+          <TouchableOpacity onPress={() => navigation.navigate('report')}>
+            <MIcons name={'file-chart'} size={25} color={'#000'} />
+          </TouchableOpacity>
         </View>
       </View>
       {/* view */}

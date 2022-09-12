@@ -11,6 +11,7 @@ import {
   TextInput,
   RefreshControl,
   Button,
+  ScrollView,
   KeyboardAvoidingView,
   KeyboardAvoidingViewBase,
 } from 'react-native';
@@ -320,44 +321,100 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
         />
       </View>;
     }
+    const [selectc, setselectc] = useState('All');
+    const ChooseCategory = category_value => {
+      setselectc(category_value);
+      const pd = [...ProductData];
+      if (category_value !== 'All') {
+        const temp = pd.filter(item => item.category === category_value);
+        setSp(temp);
+      } else {
+        setSp(pd);
+      }
+    };
     return (
       <>
         <KeyboardAvoidingView style={{flex: 1, padding: 0}}>
-          <View
-            style={{
-              ...s.flexrow_aligncenter_j_between,
-              borderRadius: 15,
-              height: 45,
-              borderColor: 'black',
-              borderWidth: 1.5,
-              paddingRight: 10,
-              margin: 5,
-            }}>
-            <TextInput
+          <View style={{flexDirection: 'column', padding: 5}}>
+            <View
               style={{
-                padding: 10,
-                flex: 1,
-                fontWeight: '900',
-              }}
-              placeholder={'Search Products'}
-              onChangeText={e => SearchProducts(e)}
-            />
-            <Icon name={'search'} size={20} color={'#000'} />
-          </View>
-          <FlatList
-            refreshControl={
-              <RefreshControl
-                refreshing={load}
-                onRefresh={GetProdcutsFromServer}
+                ...s.flexrow_aligncenter_j_between,
+                borderRadius: 15,
+                height: 45,
+                borderColor: 'black',
+                borderWidth: 1.5,
+                paddingRight: 10,
+                margin: 5,
+              }}>
+              <TextInput
+                style={{
+                  padding: 10,
+                  flex: 1,
+                  fontWeight: '900',
+                }}
+                placeholder={'Search Products'}
+                onChangeText={e => SearchProducts(e)}
               />
-            }
-            keyboardShouldPersistTaps={'always'}
-            removeClippedSubviews={false}
-            style={{backgroundColor: C.white}}
-            data={sp}
-            renderItem={PDITEM}
-            keyExtractor={i => i.id}
-          />
+              <Icon name={'search'} size={20} color={'#000'} />
+            </View>
+            {categoryData ? (
+              <ScrollView
+                style={{
+                  flexDirection: 'row',
+                }}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}>
+                <TouchableOpacity onPress={e => ChooseCategory('All')}>
+                  <Text
+                    style={{
+                      backgroundColor:
+                        selectc === 'All' ? C.blackbutton : '#f0f0f0',
+                      color: selectc === 'All' ? 'white' : 'black',
+                      padding: 10,
+                      marginLeft: 5,
+                      marginRight: 5,
+                      borderRadius: 15,
+                    }}>
+                    All
+                  </Text>
+                </TouchableOpacity>
+                {categoryData.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={e => ChooseCategory(item.value)}>
+                    <Text
+                      style={{
+                        backgroundColor:
+                          selectc === item.value ? C.blackbutton : '#f0f0f0',
+                        color: selectc === item.value ? 'white' : 'black',
+                        padding: 10,
+                        marginLeft: 5,
+                        marginRight: 5,
+                        borderRadius: 15,
+                      }}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            ) : null}
+          </View>
+          <View style={{flex: 1}}>
+            <FlatList
+              refreshControl={
+                <RefreshControl
+                  refreshing={load}
+                  onRefresh={GetProdcutsFromServer}
+                />
+              }
+              keyboardShouldPersistTaps={'always'}
+              removeClippedSubviews={false}
+              style={{backgroundColor: C.white}}
+              data={sp}
+              renderItem={PDITEM}
+              keyExtractor={i => i.id}
+            />
+          </View>
           <View
             style={{
               borderColor: 'black',

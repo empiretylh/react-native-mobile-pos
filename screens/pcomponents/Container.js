@@ -5,7 +5,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from './Home';
 import Product from './Product';
 import Expense from './Expense';
-import Sales from  './Sales';
+import Sales from './Sales';
 import Report from './Report';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -63,7 +63,7 @@ const Container = () => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                Product
+                Products
               </Text>
             </View>
           ),
@@ -109,7 +109,7 @@ const Container = () => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                Expense
+                Expenses
               </Text>
             </View>
           ),
