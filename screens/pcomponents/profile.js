@@ -1,3 +1,5 @@
+/* eslint-disable react/self-closing-comp */
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {
   View,
@@ -361,7 +363,7 @@ const Profile = ({navigation, route}) => {
   if (pdata === null) {
     return (
       <View>
-        t<Text>Loading...</Text>
+        <Text>Loading...</Text>
       </View>
     );
   }
@@ -423,7 +425,76 @@ const Profile = ({navigation, route}) => {
             <Text>{pdata.username}</Text>
           </View>
         </View>
-        <View></View>
+        <View style={{margin: 20, marginBottom: 2}}>
+          <Text style={{color: 'black', fontSize: 16}}>Profile</Text>
+        </View>
+        <View
+          style={{
+            marginTop: 0,
+            borderColor: 'black',
+            borderWidth: 0.8,
+            margin: 20,
+            borderRadius: 10,
+            backgroundColor: '#f0f0f0',
+          }}>
+          <TouchableOpacity>
+            <View style={styles.FirstButtonStyle}>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>Name</Text>
+              <Text style={styles.buttonFont}>{pdata.name}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.buttonColor}>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>Username</Text>
+              <Text style={styles.buttonFont}>{pdata.username}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.buttonColor}>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>
+                Phone Number
+              </Text>
+              <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.LastButtonStyle}>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>Email</Text>
+              <Text style={styles.buttonFont}>{pdata.email}</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={{margin: 20, marginBottom: 2}}>
+          <Text style={{color: 'black', fontSize: 16}}>Settings</Text>
+        </View>
+        <View
+          style={{
+            marginTop: 0,
+            borderColor: 'black',
+            borderWidth: 0.8,
+            margin: 20,
+            borderRadius: 10,
+            backgroundColor: '#f0f0f0',
+          }}>
+          <TouchableOpacity>
+            <View style={styles.FirstButtonStyle}>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>Language</Text>
+              <Text style={styles.buttonFont}>{pdata.name}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.buttonColor}>
+              <Text style={{color: 'black', fontWeight: 'bold'}}></Text>
+              <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.LastButtonStyle}>
+            
+              <Text style={{color: 'black', fontWeight: 'bold'}}>Logout</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -432,6 +503,7 @@ const Profile = ({navigation, route}) => {
 const styles = StyleSheet.create({
   contianer: {
     flex: 1,
+    backgroundColor: 'white',
   },
   profileimage: {
     justifyContent: 'center',
@@ -457,6 +529,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     margin: 5,
     borderRadius: 15,
+  },
+  buttonColor: {
+    backgroundColor: '#f0f0f0',
+    borderBottomColor: 'black',
+    borderBottomWidth: 0.5,
+    padding: 8,
+  },
+  buttonFont: {
+    color: 'black',
+    fontSize: 15,
+  },
+  FirstButtonStyle: {
+    backgroundColor: '#f0f0f0',
+    borderBottomColor: 'black',
+    borderBottomWidth: 0.5,
+    padding: 8,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  LastButtonStyle: {
+    backgroundColor: '#f0f0f0',
+    padding: 8,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
   },
 });
 
