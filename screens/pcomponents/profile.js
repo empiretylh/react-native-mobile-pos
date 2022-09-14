@@ -17,6 +17,11 @@ import * as ImagePicker from 'react-native-image-picker';
 import {IMAGE as I, COLOR as C} from '../../Database';
 import {MessageModalNormal} from '../MessageModal';
 
+import {useTranslation} from 'react-i18next';
+import '../../assets/i18n/i18n';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import Container from '../Container';
+
 const Icon = props => <Icons {...props} color={'#000'} />;
 
 const Profile = ({navigation, route}) => {
@@ -29,10 +34,17 @@ const Profile = ({navigation, route}) => {
   const [isPostSuccess, setIspostsuccess] = useState();
 
   const [isLoad, setIsLoad] = useState(false);
-
+  const {token} = route.params;
+  const RemoveToken = () => {
+    EncryptedStorage.removeItem('secure_token');
+    // Container.InfoToken.setUserToken(null);   
+    token(null);
+  };
   useEffect(() => {
     LoadProfile();
   }, []);
+
+  const {t, i18n} = useTranslation();
 
   const LoadProfile = () => {
     setIsLoad(true);
@@ -157,7 +169,7 @@ const Profile = ({navigation, route}) => {
             padding: 10,
             color: 'black',
           }}>
-          Change Profile Picture
+         {t('Change_Profile_Picture')}
         </Text>
         <TouchableOpacity
           style={styles.chooseimagebutton}
@@ -174,7 +186,7 @@ const Profile = ({navigation, route}) => {
               fontWeight: '500',
               color: 'black',
             }}>
-            Take a Photo
+            {t('Take_Photo')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -192,7 +204,7 @@ const Profile = ({navigation, route}) => {
               fontWeight: '500',
               color: 'black',
             }}>
-            Choose Image
+              {t('Choose_Image')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -205,7 +217,7 @@ const Profile = ({navigation, route}) => {
               fontWeight: '500',
               color: 'black',
             }}>
-            Cancel
+           {t('Cancel')}
           </Text>
         </TouchableOpacity>
       </MessageModalNormal>
@@ -426,7 +438,7 @@ const Profile = ({navigation, route}) => {
           </View>
         </View>
         <View style={{margin: 20, marginBottom: 2}}>
-          <Text style={{color: 'black', fontSize: 16}}>Profile</Text>
+          <Text style={{color: 'black', fontSize: 16}}>{t('Profile')}</Text>
         </View>
         <View
           style={{
@@ -439,33 +451,33 @@ const Profile = ({navigation, route}) => {
           }}>
           <TouchableOpacity>
             <View style={styles.FirstButtonStyle}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>Name</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Name')}</Text>
               <Text style={styles.buttonFont}>{pdata.name}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity>
             <View style={styles.buttonColor}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>Username</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Username')}</Text>
               <Text style={styles.buttonFont}>{pdata.username}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity>
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
-                Phone Number
+                {t('Phone_Number')}
               </Text>
               <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity>
             <View style={styles.LastButtonStyle}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>Email</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Email')}</Text>
               <Text style={styles.buttonFont}>{pdata.email}</Text>
             </View>
           </TouchableOpacity>
         </View>
         <View style={{margin: 20, marginBottom: 2}}>
-          <Text style={{color: 'black', fontSize: 16}}>Settings</Text>
+          <Text style={{color: 'black', fontSize: 16}}>{t('Settings')}</Text>
         </View>
         <View
           style={{
@@ -478,7 +490,7 @@ const Profile = ({navigation, route}) => {
           }}>
           <TouchableOpacity>
             <View style={styles.FirstButtonStyle}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>Language</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Language')}</Text>
               <Text style={styles.buttonFont}>{pdata.name}</Text>
             </View>
           </TouchableOpacity>
@@ -488,10 +500,10 @@ const Profile = ({navigation, route}) => {
               <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={()=> RemoveToken()}>
             <View style={styles.LastButtonStyle}>
             
-              <Text style={{color: 'black', fontWeight: 'bold'}}>Logout</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Logout')}</Text>
             </View>
           </TouchableOpacity>
         </View>

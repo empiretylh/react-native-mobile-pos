@@ -59,8 +59,16 @@ const SContainer = () => {
           </>
         ) : (
           <>
-            <Stack.Screen name="main" component={Container} />
-            <Stack.Screen name="profile" component={Profile} />
+            <Stack.Screen
+              name="main"
+              component={Container}
+              initialParams={{token: setToken}}
+            />
+            <Stack.Screen
+              name="profile"
+              component={Profile}
+              initialParams={{token: setToken}}
+            />
           </>
         )}
       </Stack.Navigator>

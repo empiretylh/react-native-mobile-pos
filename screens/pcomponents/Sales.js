@@ -32,6 +32,8 @@ import * as ImagePicker from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import Loading from '../Loading';
 
+import {useTranslation} from 'react-i18next';
+import '../../assets/i18n/i18n';
 const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
@@ -45,6 +47,8 @@ String.prototype.replaceAllTxt = function replaceAll(search, replace) {
 const Sales = ({navigation}) => {
   const [ProductData, setProductData] = useState([]);
   const [load, setLoad] = useState(false);
+
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     if (load === false) {
@@ -138,7 +142,7 @@ const Sales = ({navigation}) => {
             setSuccess(false);
             navigation.navigate('s');
           }}>
-          <Text style={{...s.bold_label}}>Receipt Successfully Created</Text>
+          <Text style={{...s.bold_label}}>{t('RSC')}</Text>
           <TouchableOpacity
             onPress={() => {
               setSuccess(false);
@@ -151,44 +155,46 @@ const Sales = ({navigation}) => {
               padding: 10,
               backgroundColor: 'green',
             }}>
-            <Text style={{...s.bold_label, color: 'white'}}>OK</Text>
+            <Text style={{...s.bold_label, color: 'white'}}>{t('OK')}</Text>
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{padding: 5}}>
-          <Text style={{...s.bold_label}}>Customer Name</Text>
+          <Text style={{...s.bold_label}}>{t('Customer_Name')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-            placeholder={'Customer'}
+            placeholder={t('Customer_Name')}
             value={customername}
             onChangeText={e => setcustomername(e)}
           />
 
-          <Text style={{...s.bold_label, marginTop: 8}}>Products</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Products')}</Text>
           <ProductField
             ContainerProps={{style: {...inputS, padding: 5}}}
             setTotalAmount={setTotalAmount}
             setData={setCartData}
             data={CartData}
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>Sub Total</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Sub_Total')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
             value={numberWithCommas(totalAmount) + ' MMK'}
-            placeholder={'Sub Total'}
+            placeholder={t('Sub_Total')}
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>Tax (MMK)</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Tax_(MMK)')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-            placeholder={'Tax'}
+            placeholder={t('Tax_(MMK)')}
             keyboardType={'number-pad'}
             value={tax + ''}
             defaultValue={tax + ''}
             onChangeText={e => (e === '' ? setTax(0) : setTax(e))}
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>Discount (%)</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>
+            {t('Discount')}
+          </Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-            placeholder={'Discount'}
+            placeholder={t('Discount')}
             keyboardType={'number-pad'}
             value={discount}
             defaultValue={discount}
@@ -207,7 +213,7 @@ const Sales = ({navigation}) => {
               backgroundColor: 'yellow',
               marginTop: 8,
             }}>
-            <Text style={{...s.bold_label}}>Total Amount </Text>
+            <Text style={{...s.bold_label}}>{t('Total_Amount')}</Text>
             <Text style={{...s.bold_label}}>
               {numberWithCommas(sumGrandTotal(totalAmount, tax, discount))} MMK
             </Text>
@@ -229,7 +235,7 @@ const Sales = ({navigation}) => {
             }}
             style={{...s.blue_button, padding: 10}}>
             <Text style={{...s.bold_label, color: 'white'}}>
-              Create Receipt
+              {t('Create_Receipt')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -281,7 +287,7 @@ const Sales = ({navigation}) => {
       <ScrollView style={{backgroundColor: 'white'}}>
         <Loading show={isCreate} infotext={'Creating Other Income Receipt'} />
         <MessageModalNormal show={isSucces} onClose={() => setSuccess(false)}>
-          <Text style={{...s.bold_label}}>Receipt Successfully Created</Text>
+          <Text style={{...s.bold_label}}>{t('RSC')}</Text>
           <TouchableOpacity
             onPress={() => setSuccess(false)}
             style={{
@@ -291,20 +297,20 @@ const Sales = ({navigation}) => {
               padding: 10,
               backgroundColor: 'green',
             }}>
-            <Text style={{...s.bold_label, color: 'white'}}>OK</Text>
+            <Text style={{...s.bold_label, color: 'white'}}>{t('OK')}</Text>
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{flex: 1, padding: 10}}>
-          <Text style={{...s.bold_label, marginTop: 8}}>Title</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Title')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-            placeholder={'Title'}
+            placeholder={t('Title')}
             onChangeText={e => handleOtherIncome(e, 'title')}
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>Price</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Price')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-            placeholder={'Price'}
+            placeholder={t('Price')}
             value={numberWithCommas(incomedata.price ? incomedata.price : '')}
             onChangeText={e =>
               handleOtherIncome(e.replaceAllTxt(',', ''), 'price')
@@ -312,7 +318,7 @@ const Sales = ({navigation}) => {
             keyboardType={'number-pad'}
             selectTextOnFocus
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>Date</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Date')}</Text>
           <View
             style={{
               ...inputS,
@@ -355,7 +361,9 @@ const Sales = ({navigation}) => {
             />
           </View>
 
-          <Text style={{...s.bold_label, marginTop: 8}}>Description</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>
+            {t('Description')}
+          </Text>
           <TextInput
             style={{
               ...inputS,
@@ -363,7 +371,7 @@ const Sales = ({navigation}) => {
               color: '#0f0f0f',
               height: 100,
             }}
-            placeholder={'Description'}
+            placeholder={t('Description')}
             onChangeText={e => handleOtherIncome(e, 'description')}
             multiline
           />
@@ -377,7 +385,7 @@ const Sales = ({navigation}) => {
             }}
             style={{...s.blue_button, marginTop: 8, padding: 10}}>
             <Text style={{...s.bold_label, color: 'white'}}>
-              Create Receipt
+              {t('Create_Receipt')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -395,7 +403,7 @@ const Sales = ({navigation}) => {
           ...s.flexrow_aligncenter_j_between,
           padding: 8,
         }}>
-        <Text style={{...s.bold_label, fontSize: 23}}>Sales</Text>
+        <Text style={{...s.bold_label, fontSize: 23}}>{t('Sales')}</Text>
         <View style={{flexDirection: 'row'}}>
           <TouchableOpacity onPress={() => navigation.navigate('report')}>
             <MIcons name={'file-chart'} size={25} color={'#000'} />
@@ -420,7 +428,7 @@ const Sales = ({navigation}) => {
               borderRadius: 15,
               fontSize: 15,
             }}>
-            Sales
+            {t('Sales')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -438,7 +446,7 @@ const Sales = ({navigation}) => {
               borderRadius: 15,
               fontSize: 15,
             }}>
-            Others Income
+            {t('Other_Income')}
           </Text>
         </TouchableOpacity>
       </View>

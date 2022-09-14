@@ -1,0 +1,97 @@
+{
+  "translation": {
+    "Sales": "အရောင်း",
+    "Expense": "ကုန်ကျစရိတ်",
+    "Purchase": "ကုန်ပစ္စည်းအဝယ်",
+    "pd_balance_amount": "ကုန်ပစ္စည်းလက်ကျန်ပမာဏ",
+    "Report": "အချုပ်စာရင်း",
+    "Sales_Chart": "အရောင်းဂရပ်",
+
+    "Today": "ယနေ့",
+    "Days_View": "ရက်စွဲ",
+    "Months_View": "လ",
+
+    "Sales_Table": "အရောင်းဇယား",
+    "Date&Time": "အချိန်",
+    "Amount": "ပမာဏ",
+    "Total_Amount": "စုစုပေါင်း ပမာဏ",
+
+    "Products": "ကုန်ပစ္စည်း",
+    "Category": "အမျိုးအစား",
+    "Items": "ပစ္စည်းများ",
+    "Add_Category": "အမျိုးအစား အသစ်ထည့်ရန်",
+    "Add_Product": "ကုန်ပစ္စည်း အသစ်ထည့်ရန်",
+
+    "Edit_Product": "ကုန်ပစ္စည်း ပြင်ဆင်မည်",
+    "Delete_Product": "ဖျက်မည်",
+    "Search_Products": "ကုန်ပစ္စည်းများရှာပါ",
+
+    "Other_Income": "အခြားဝင်ငွေ",
+    "Customer_Name": "ဝယ်ယူသူအမည်",
+    "Add_Products": "ကုန်ပစ္စည်းရွေးချယ်မည်",
+    "Sub_Total": "စုစုပေါင်း",
+    "Tax_(MMK)": "အခွန် (MMK)",
+    "Discount": "လျှော့စျေး %",
+    "Create_Receipt": "ပြေစာဖန်တီးမည်",
+
+    "Title": "ခေါင်းစဉ်",
+    "Price": "ကုန်ကျစရိတ်",
+    "Date": "ရက်စွဲ",
+    "Description": "အကြောင်းအရာ",
+
+    "This_Month": "ယခုလ",
+    "This_Year": "ယခုနှစ်",
+    "Custom_Date": "စိတ်ကြိုက်ရက်စွဲ",
+    "Start_Date": "ပထမရက်",
+    "End_Date": "နောက်ဆုံးရက်",
+    "Apply": "အတည်ပြုမည်",
+
+    "Table": "ဇယား",
+    "Chart": "ဂရပ်",
+    "Profit&Loss": "အရှုံးအမြတ်",
+
+    "Receipt_Number": "ပြေစာနံပါတ်",
+    "Grand_Total": "စုစုပေါင်းပမာဏ",
+
+    "No": "နံပါတ်",
+    "Time": "အချိန်",
+    "Income": "ဝင်ငွေ",
+    "Expense&Purchase": "ထွက်ငွေ",
+
+   
+    "Change_Profile_Picture": "ပုံပြောင်းမည်",
+    "Take_Photo": "ဓာတ်ပုံရိုက်မည်",
+    "Choose_Image": "ဓာတ်ပုံရွေးချယ်မည်",
+    "Cancel": "မလုပ်တော့ပါ",
+
+    "Name": "နာမည်",
+    "Username": "Username",
+    "Phone_Number": "ဖုန်းနံပါတ်",
+    "Email": "အီးမေးလ်",
+    "Settings": "စက်တင်",
+    "Language": "ဘာသာစကား",
+    "Logout": "အကောင့်မှထွက်မည်",
+
+
+    "ProductName": "ကုန်ပစ္စည်းအမည်",
+    "Quantity": "အရေအတွက်",
+    "Qty": "အရေအတွက်",
+    "Tax": "အခွန်",
+
+    "Done": "ပြီးပြီ",
+    "ASWDP": "Are you sure want to delete this product?",
+    "ASWDP2": "If you delete a product, the sales data related to that product will be lost.Change quantity instead of deleting.",
+    "DPAnyway": "Delete Product Anyway",
+
+    "RSC": "ပြေစာကိုအောင်မြင်စွာ ဖန်တီးပြီးပါပြီ",
+    "OK": "OK",
+
+    "LoadExpense":"အသုံးစရိတ် ဒေတာများ...",
+    "LoadPurchase":"ကုန်ပစ္စည်းအဝယ် ဒေတာများ...",
+    "LoadOtherIncome":"အခြားဝင်ငွေ ဒေတာများ...",
+    "LoadSales":"အရောင်း ဒေတာများ...",
+
+    "Home":"အိမ်",
+    "Profile":"ပရိုဖိုင်"
+  }
+}

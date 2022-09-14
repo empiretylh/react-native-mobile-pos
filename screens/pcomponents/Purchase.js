@@ -17,6 +17,8 @@ import {MessageModalNormal} from '../MessageModal';
 import DatePicker from 'react-native-date-picker';
 import Loading from '../Loading';
 
+import {useTranslation} from 'react-i18next';
+import '../../assets/i18n/i18n';
 const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
@@ -26,6 +28,9 @@ String.prototype.replaceAllTxt = function replaceAll(search, replace) {
 };
 const Purchase = ({navigation}) => {
   const [load, setLoad] = useState(false);
+
+
+  const {t, i18n} = useTranslation();
 
   useEffect(() => {
     if (load === false) {
@@ -82,7 +87,7 @@ const Purchase = ({navigation}) => {
       <ScrollView style={{backgroundColor: 'white'}}>
         <Loading show={isCreate} infotext={'Creating Purchase Receipt'} />
         <MessageModalNormal show={isSucces} onClose={() => setSuccess(false)}>
-          <Text style={{...s.bold_label}}>Receipt Successfully Created</Text>
+          <Text style={{...s.bold_label}}>{t('RSC')}</Text>
           <TouchableOpacity
             onPress={() => setSuccess(false)}
             style={{
@@ -92,26 +97,26 @@ const Purchase = ({navigation}) => {
               padding: 10,
               backgroundColor: 'green',
             }}>
-            <Text style={{...s.bold_label, color: 'white'}}>OK</Text>
+            <Text style={{...s.bold_label, color: 'white'}}>{t('OK')}</Text>
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{flex: 1, padding: 10}}>
-          <Text style={{...s.bold_label, marginTop: 8}}>Title</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Title')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-            placeholder={'Title'}
+            placeholder={t('Title')}
             onChangeText={e => handleExpense(e, 'title')}
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>Price</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Price')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-            placeholder={'Price'}
+            placeholder={t('Price')}
             value={numberWithCommas(expensedata.price ? expensedata.price : '')}
             onChangeText={e => handleExpense(e.replaceAllTxt(',', ''), 'price')}
             keyboardType={'number-pad'}
             selectTextOnFocus
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>Date</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Date')}</Text>
           <View
             style={{
               ...inputS,
@@ -154,7 +159,7 @@ const Purchase = ({navigation}) => {
             />
           </View>
 
-          <Text style={{...s.bold_label, marginTop: 8}}>Description</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Description')}</Text>
           <TextInput
             style={{
               ...inputS,
@@ -162,7 +167,7 @@ const Purchase = ({navigation}) => {
               color: '#0f0f0f',
               height: 100,
             }}
-            placeholder={'Description'}
+            placeholder={t('Description')}
             onChangeText={e => handleExpense(e, 'description')}
             multiline
           />
@@ -176,7 +181,7 @@ const Purchase = ({navigation}) => {
             }}
             style={{...s.blue_button, marginTop: 8, padding: 10}}>
             <Text style={{...s.bold_label, color: 'white'}}>
-              Create Receipt
+              {t('Create_Receipt')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -194,7 +199,7 @@ const Purchase = ({navigation}) => {
           ...s.flexrow_aligncenter_j_between,
           padding: 8,
         }}>
-        <Text style={{...s.bold_label, fontSize: 23}}>Purchase</Text>
+        <Text style={{...s.bold_label, fontSize: 23}}>{t('Purchase')}</Text>
         <View style={{flexDirection: 'row'}}>
           <Text style={{...s.bold_label, marginRight: 10}}></Text>
           <TouchableOpacity onPress={() => navigation.navigate('report')}>

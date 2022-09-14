@@ -1,4 +1,4 @@
-/* eslint-disable no-extend-native */
+
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
@@ -25,8 +25,9 @@ import axios from 'axios';
 import {numberWithCommas} from '../../Database';
 import {LineChart} from 'react-native-chart-kit';
 import {Table, Row, Rows} from 'react-native-table-component';
-
-const HomeScreen = ({navigation}) => {
+import {useTranslation} from 'react-i18next';
+import '../../assets/i18n/i18n';
+const HomeScreen = ({navigation, route}) => {
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
   };
@@ -35,11 +36,14 @@ const HomeScreen = ({navigation}) => {
     Load();
   }, []);
 
+  const {t, i18n} = useTranslation();
+
   const [salesData, setSalesData] = useState([]);
   const [productData, setProductData] = useState([]);
   const [expenseData, setExpenseData] = useState([]);
   const [purchaseData, setPurchaseData] = useState([]);
   const [otherIncome, setOtherincomeData] = useState([]);
+  const [pdata, setPddata] = useState(null);
 
   const [refresh, setRefresh] = useState();
 
@@ -55,7 +59,22 @@ const HomeScreen = ({navigation}) => {
     getPurchaseFromServer();
 
     getOtherIncomeFromServer();
+
+    LoadProfile();
   };
+
+  const LoadProfile = () => {
+    axios
+      .get('/api/profile/')
+      .then(res => {
+        console.log(res.data);
+        setPddata(res.data);
+      })
+      .catch(res => {
+        console.log(res);
+      });
+  };
+
   const getSalesFromServer = () => {
     axios
       .get('/api/sales/', {
@@ -287,6 +306,10 @@ const HomeScreen = ({navigation}) => {
     }
   };
 
+  const StockOutProduct = () => {
+    productdata
+  };
+
   return (
     <ScrollView
       style={s.Container}
@@ -298,11 +321,27 @@ const HomeScreen = ({navigation}) => {
           padding: 8,
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>Dashboard</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('profile')}>
-          <Image
-            source={IMAGE.thura}
-            style={{width: 40, height: 40, borderRadius: 30}}
-          />
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate({name: 'profile', params: route.params})
+          }>
+          {pdata === null ? (
+            <Image
+              source={IMAGE.profile}
+              style={{width: 40, height: 40, borderRadius: 30}}
+            />
+          ) : (
+            <Image
+              source={
+                pdata.profileimage
+                  ? {
+                      uri: axios.defaults.baseURL + pdata.profileimage,
+                    }
+                  : IMAGE.profile
+              }
+              style={{width: 40, height: 40, borderRadius: 30}}
+            />
+          )}
         </TouchableOpacity>
       </View>
       {/* view */}
@@ -326,7 +365,7 @@ const HomeScreen = ({navigation}) => {
                   flex: 1,
                 }}>
                 <Text style={{...s.bold_label, color: 'white', fontSize: 25}}>
-                  Sales
+                  {t('Sales')}
                 </Text>
 
                 <Text
@@ -370,7 +409,7 @@ const HomeScreen = ({navigation}) => {
                   flex: 1,
                 }}>
                 <Text style={{...s.bold_label, color: 'white', fontSize: 25}}>
-                  Expense
+                  {t('Expense')}
                 </Text>
 
                 <Text
@@ -414,7 +453,7 @@ const HomeScreen = ({navigation}) => {
                   flex: 1,
                 }}>
                 <Text style={{...s.bold_label, color: 'white', fontSize: 25}}>
-                  Purchase
+                  {t('Purchase')}
                 </Text>
 
                 <Text
@@ -458,7 +497,7 @@ const HomeScreen = ({navigation}) => {
                   flex: 1,
                 }}>
                 <Text style={{...s.bold_label, color: 'white', fontSize: 20}}>
-                  Product Balance Amount
+                  {t('pd_balance_amount')}
                 </Text>
 
                 <Text
@@ -485,7 +524,7 @@ const HomeScreen = ({navigation}) => {
         </TouchableHighlight>
       </View>
       <View style={{...s.flexrow_aligncenter_j_between, marginTop: 8}}>
-        <Text style={{...s.bold_label}}>Report</Text>
+        <Text style={{...s.bold_label}}>{t('Report')}</Text>
 
         <TouchableOpacity style={{padding: 5}}>
           <Icons
@@ -495,8 +534,15 @@ const HomeScreen = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
+
       <View>
-        <Text style={{color: 'black', fontWeight: 'bold'}}>Sales Chart</Text>
+                  
+      </View>
+
+      <View>
+        <Text style={{color: 'black', fontWeight: 'bold'}}>
+          {t('Sales_Chart')}
+        </Text>
         <ScrollView
           style={{flexDirection: 'row'}}
           horizontal
@@ -511,7 +557,7 @@ const HomeScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>Today</Text>
+              <Text style={{color: 'white', padding: 10}}>{t('Today')}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -524,7 +570,9 @@ const HomeScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>Days View</Text>
+              <Text style={{color: 'white', padding: 10}}>
+                {t('Days_View')}
+              </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -537,7 +585,9 @@ const HomeScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>Months View</Text>
+              <Text style={{color: 'white', padding: 10}}>
+                {t('Months_View')}
+              </Text>
             </View>
           </TouchableOpacity>
         </ScrollView>
@@ -579,11 +629,13 @@ const HomeScreen = ({navigation}) => {
             borderRadius: 16,
           }}
         />
-        <Text style={{color: 'black', fontWeight: 'bold'}}>Sales Table</Text>
+        <Text style={{color: 'black', fontWeight: 'bold'}}>
+          {t('Sales_Table')}
+        </Text>
 
         <Table borderStyle={{borderWidth: 2, borderColor: '#000'}}>
           <Row
-            data={['Date & Time', 'Amount']}
+            data={[t('Date&Time'), t('Amount')]}
             style={{
               backgroundColor: '#f1f8ff',
               height: 40,
@@ -594,7 +646,9 @@ const HomeScreen = ({navigation}) => {
         </Table>
         <View
           style={{...s.flexrow_aligncenter_j_between, margin: 10, padding: 5}}>
-          <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+          <Text style={{...s.font_bold, color: 'black'}}>
+            {t('Total_Amount')}
+          </Text>
           <Text style={{...s.font_bold, color: 'black'}}>
             {numberWithCommas(tabletotalprice) + ' MMK'}
           </Text>

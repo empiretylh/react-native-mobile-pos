@@ -9,10 +9,13 @@ import Sales from './Sales';
 import Report from './Report';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-const Tab = createBottomTabNavigator();
-const Container = () => {
-  const bottomIconsize = 25;
 
+import {useTranslation} from 'react-i18next';
+import '../../assets/i18n/i18n';
+const Tab = createBottomTabNavigator();
+const Container = ({navigation, route}) => {
+  const bottomIconsize = 25;
+  const {t, i18n} = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -26,6 +29,7 @@ const Container = () => {
       <Tab.Screen
         name="home"
         component={Home}
+        initialParams={route.params}
         options={{
           tabBarIcon: ({focused}) => (
             <View style={{alignItems: 'center'}}>
@@ -40,7 +44,7 @@ const Container = () => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                Home
+                {t('Home')}
               </Text>
             </View>
           ),
@@ -63,7 +67,7 @@ const Container = () => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                Products
+                {t('Product')}
               </Text>
             </View>
           ),
@@ -86,7 +90,7 @@ const Container = () => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                Sales
+                {t('Sales')}
               </Text>
             </View>
           ),
@@ -109,7 +113,7 @@ const Container = () => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                Expenses
+                {t('Expenses')}
               </Text>
             </View>
           ),
@@ -132,7 +136,7 @@ const Container = () => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                Report
+                {t('Report')}
               </Text>
             </View>
           ),

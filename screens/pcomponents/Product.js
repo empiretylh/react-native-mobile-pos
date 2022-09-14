@@ -35,7 +35,8 @@ import * as ImagePicker from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import ProductField from './extra/productfield';
 import Purchase from './Purchase';
-
+import {useTranslation} from 'react-i18next';
+import '../../assets/i18n/i18n';
 const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
@@ -49,6 +50,8 @@ const Product = ({navigation}) => {
     EncryptedStorage.removeItem('secure_token');
   };
 
+  const {t, i18n} = useTranslation();
+
   const [apmodal, setapmodal] = useState(false);
   const [cmodal, setcmodal] = useState(false);
   const [pmodal, setpmodal] = useState(false);
@@ -58,7 +61,7 @@ const Product = ({navigation}) => {
   const onClosepmodal = () => setpmodal(false);
 
   const Category = () => {};
-  let t;
+  // let t;
   const [categorytext, setCtext] = useState();
 
   const [categoryData, setCategoryData] = useState([]);
@@ -554,7 +557,7 @@ const Product = ({navigation}) => {
               </View>
 
               <View style={{marginTop: 10}}>
-                <Text style={{...s.bold_label}}>Product Name</Text>
+                <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
                 <TextInput
                   style={{
                     padding: 10,
@@ -568,7 +571,7 @@ const Product = ({navigation}) => {
                   defaultValue={editpd.name}
                   onChangeText={e => onHandleEPdtData(e, 'name')}
                 />
-                <Text style={{...s.bold_label}}>Category</Text>
+                <Text style={{...s.bold_label}}>{t('Category')}</Text>
                 <DropDownPicker
                   open={open}
                   value={editpd.category}
@@ -586,7 +589,9 @@ const Product = ({navigation}) => {
                     onHandleEPdtData(item.value, 'category');
                   }}
                 />
-                <Text style={{...s.bold_label, marginTop: 5}}>Quantity</Text>
+                <Text style={{...s.bold_label, marginTop: 5}}>
+                  {t('Quantity')}
+                </Text>
                 <TextInput
                   style={{
                     padding: 10,
@@ -602,7 +607,9 @@ const Product = ({navigation}) => {
                     onHandleEPdtData(e.replaceAllTxt(' ', ''), 'qty')
                   }
                 />
-                <Text style={{...s.bold_label, marginTop: 5}}>Price</Text>
+                <Text style={{...s.bold_label, marginTop: 5}}>
+                  {t('Price')}
+                </Text>
                 <TextInput
                   style={{
                     padding: 10,
@@ -619,7 +626,9 @@ const Product = ({navigation}) => {
                   }
                 />
 
-                <Text style={{...s.bold_label, marginTop: 5}}>Description</Text>
+                <Text style={{...s.bold_label, marginTop: 5}}>
+                  {t('Description')}
+                </Text>
                 <TextInput
                   style={{
                     padding: 10,
@@ -655,7 +664,7 @@ const Product = ({navigation}) => {
                       ...s.blue_button,
                     }}>
                     <Text style={{...s.font_bold, color: 'white', padding: 10}}>
-                      Edit Product
+                      {t('Edit_Product')}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -671,13 +680,11 @@ const Product = ({navigation}) => {
           <View style={{justifyContent: 'center'}}>
             <View style={{}}>
               <Text style={{...s.bold_label, marginBottom: 5}}>
-                Are you sure want to delete this product?{' \n'}
+                {t('ASWDP')}
+                {' \n'}
                 {editpd ? editpd.name : ''}
               </Text>
-              <Text style={{...s.normal_label}}>
-                If you delete a product, the sales data related to that product
-                will be lost.Change quantity instead of deleting.
-              </Text>
+              <Text style={{...s.normal_label}}>{t('ASWDP2')}</Text>
             </View>
             <TouchableOpacity
               onPress={() => {
@@ -692,7 +699,7 @@ const Product = ({navigation}) => {
                 }}>
                 <Icons name={'trash'} size={30} color={'#fff'} />
                 <Text style={{...s.bold_label, marginLeft: 5, color: 'white'}}>
-                  Delete Product Anyway
+                  {t('DPAnyway')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -710,7 +717,7 @@ const Product = ({navigation}) => {
                 }}>
                 <Icons name={'close'} size={30} color={'#fff'} />
                 <Text style={{...s.bold_label, marginLeft: 5, color: 'white'}}>
-                  Cancel
+                  {t('Cancel')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -743,7 +750,7 @@ const Product = ({navigation}) => {
                     color: 'white',
                     fontSize: 22,
                   }}>
-                  Edit Product
+                  {t('Edit_Product')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -760,7 +767,7 @@ const Product = ({navigation}) => {
                 }}>
                 <Icons name={'trash'} size={30} color={'#fff'} />
                 <Text style={{...s.bold_label, marginLeft: 5, color: 'white'}}>
-                  Delete Product
+                  {t('Delete_Product')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -905,7 +912,7 @@ const Product = ({navigation}) => {
           </View>
 
           <View style={{marginTop: 10}}>
-            <Text style={{...s.bold_label}}>Product Name</Text>
+            <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -914,11 +921,11 @@ const Product = ({navigation}) => {
 
                 ...inputS,
               }}
-              placeholder={'Product Name'}
+              placeholder={t('PrdocutName')}
               autoFocus={true}
               onChangeText={e => onHandlePdtData(e, 'name')}
             />
-            <Text style={{...s.bold_label}}>Category</Text>
+            <Text style={{...s.bold_label}}>{t('Category')}</Text>
             <DropDownPicker
               open={open}
               value={value}
@@ -936,7 +943,7 @@ const Product = ({navigation}) => {
                 onHandlePdtData(item.value, 'category');
               }}
             />
-            <Text style={{...s.bold_label, marginTop: 5}}>Quantity</Text>
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Quantity')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -951,7 +958,7 @@ const Product = ({navigation}) => {
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'qty')
               }
             />
-            <Text style={{...s.bold_label, marginTop: 5}}>Price</Text>
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -960,7 +967,7 @@ const Product = ({navigation}) => {
 
                 ...inputS,
               }}
-              placeholder={'Price'}
+              placeholder={t('Price')}
               keyboardType={'number-pad'}
               value={pdtData.price}
               onChangeText={e =>
@@ -1000,7 +1007,7 @@ const Product = ({navigation}) => {
                 }}
               />
             </View> */}
-            <Text style={{...s.bold_label, marginTop: 5}}>Description</Text>
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Description')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -1010,7 +1017,7 @@ const Product = ({navigation}) => {
                 height: 100,
                 textAlign: 'auto',
               }}
-              placeholder={'Description'}
+              placeholder={t('Description')}
               multiline
               onChangeText={e => onHandlePdtData(e, 'description')}
             />
@@ -1035,7 +1042,7 @@ const Product = ({navigation}) => {
                   ...s.blue_button,
                 }}>
                 <Text style={{...s.font_bold, color: 'white', padding: 10}}>
-                  Add Product
+                  {t('Add_Product')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -1060,7 +1067,7 @@ const Product = ({navigation}) => {
                 fontWeight: '900',
                 flex: 1,
               }}
-              placeholder={'Category'}
+              placeholder={t('Category')}
               autoFocus={true}
               value={categorytext}
               onChangeText={e => setCtext(e)}
@@ -1084,7 +1091,7 @@ const Product = ({navigation}) => {
                 ...s.blue_button,
               }}>
               <Text style={{...s.font_bold, color: 'white', padding: 10}}>
-                Add Category
+                {t('Add_Category')}
               </Text>
             </View>
           </TouchableOpacity>
@@ -1100,7 +1107,9 @@ const Product = ({navigation}) => {
             }}>
             <View style={{...s.flexrow_aligncenter, padding: 10}}>
               <Icons name={'duplicate-outline'} size={30} color={'#000'} />
-              <Text style={{...s.bold_label, marginLeft: 5}}>Add Category</Text>
+              <Text style={{...s.bold_label, marginLeft: 5}}>
+                {t('Add_Category')}
+              </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1115,7 +1124,9 @@ const Product = ({navigation}) => {
                 size={30}
                 color={'#000'}
               />
-              <Text style={{...s.bold_label, marginLeft: 5}}>Add Products</Text>
+              <Text style={{...s.bold_label, marginLeft: 5}}>
+                {t('Add_Product')}
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -1127,7 +1138,7 @@ const Product = ({navigation}) => {
           ...s.flexrow_aligncenter_j_between,
           padding: 8,
         }}>
-        <Text style={{...s.bold_label, fontSize: 23}}>Products</Text>
+        <Text style={{...s.bold_label, fontSize: 23}}>{t('Products')}</Text>
         <View style={{flexDirection: 'row'}}>
           <Text style={{...s.bold_label}}>
             {numberWithCommas(SumProductBalance(ProductData))} MMK
@@ -1150,7 +1161,7 @@ const Product = ({navigation}) => {
             flex: 1,
             fontWeight: '900',
           }}
-          placeholder={'Search Products'}
+          placeholder={t('Search_Products')}
           onChangeText={e => SearchProducts(e)}
         />
         <Icons name={'search'} size={20} color={'#000'} />
@@ -1178,7 +1189,7 @@ const Product = ({navigation}) => {
                 borderRadius: 15,
                 fontSize: 15,
               }}>
-              Product
+              {t('Products')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1196,7 +1207,7 @@ const Product = ({navigation}) => {
                 borderRadius: 15,
                 fontSize: 15,
               }}>
-              Category
+              {t('Category')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1213,13 +1224,13 @@ const Product = ({navigation}) => {
                 borderRadius: 15,
                 fontSize: 15,
               }}>
-              Purchase
+              {t('Purchase')}
             </Text>
           </TouchableOpacity>
         </ScrollView>
         <TouchableOpacity>
-          <Text style={{...s.bold_label, fontSize: 14}}>
-            {ProductData.length} Items
+          <Text style={{...s.bold_label, fontSize: 14, padding: 5}}>
+            {ProductData.length}
           </Text>
         </TouchableOpacity>
       </View>

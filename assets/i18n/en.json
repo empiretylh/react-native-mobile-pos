@@ -1,0 +1,95 @@
+{
+  "translation": {
+    "Sales": "Sales",
+    "Expense": "Expense",
+    "Purchase": "Purchase",
+    "pd_balance_amount": "Products Balance Amount",
+    "Report": "Report",
+    "Sales_Chart": "Sales Chart",
+
+    "Today": "Today",
+    "Days_View": "Days View",
+    "Months_View": "Months View",
+
+    "Sales_Table": "Sales Table",
+    "Date&Time": "Date & Time",
+    "Amount": "Amount",
+    "Total_Amount": "Total Amount",
+
+    "Products": "Products",
+    "Category": "Category",
+    "Items": "Items",
+    "Add_Category": "Add Category",
+    "Add_Product": "Add Product",
+
+    "Edit_Product": "Edit Product",
+    "Delete_Product": "Delete Product",
+    "Search_Products": "Search Products",
+
+    "Other_Income": "Other Income",
+    "Customer_Name": "Customer Name",
+    "Add_Products": "Add Products",
+    "Sub_Total": "Sub Total",
+    "Tax_(MMK)": "Tax (MMK)",
+    "Discount": "Discount",
+    "Create_Receipt": "Create Receipt",
+
+    "Title": "Title",
+    "Price": "Price",
+    "Date": "Date",
+    "Description": "Description",
+
+    "This_Month": "This Month",
+    "This_Year": "This Year",
+    "Custom_Date": "Custom Date",
+    "Start_Date": "Start Date",
+    "End_Date": "End Date",
+    "Apply": "Apply",
+
+    "Table": "Table",
+    "Chart": "Chart",
+    "Profit&Loss": "Profit & Loss",
+
+    "Receipt_Number": "Receipt Number",
+    "Grand_Total": "Grand Total",
+
+    "No": "No",
+    "Time": "Time",
+    "Income": "Income",
+    "Expense&Purchase": "Expense & Purchase",
+
+    "Change_Profile_Picture": "Change Profile Picture",
+    "Take_Photo": "Take Photo",
+    "Choose_Image": "Choose Image",
+    "Cancel": "Cancel",
+
+    "Name": "Name",
+    "Username": "Username",
+    "Phone_Number": "Phone Number",
+    "Email": "Email",
+    "Settings": "Settings",
+    "Language": "Language",
+    "Logout": "Log Out",
+
+    "ProductName": "Product Name",
+    "Quantity": "Quantity",
+    "Qty": "Qty",
+    "Tax": "Tax",
+
+    "Done": "Done",
+    "ASWDP": "Are you sure want to delete this product?",
+    "ASWDP2": "If you delete a product, the sales data related to that product will be lost.Change quantity instead of deleting.",
+    "DPAnyway": "Delete Product Anyway",
+
+    "RSC": "Receipt Successfully Created",
+    "OK": "OK",
+
+    "LoadExpense":"Loading Expense Data",
+    "LoadPurchase":"Loading Purchase Data",
+    "LoadOtherIncome":"Loading Other Income Data",
+    "LoadSales":"Loading Sales Data",
+
+    "Home":"Home",
+    "Profile":"Profile"
+  }
+}

@@ -31,6 +31,8 @@ import {ShareOpenGraphValueContainer} from 'react-native-fbsdk';
 import DatePicker from 'react-native-date-picker';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 
+import {useTranslation} from 'react-i18next';
+import '../../assets/i18n/i18n';
 const Tab = createMaterialTopTabNavigator();
 
 let render_count = 0;
@@ -40,6 +42,7 @@ const ReportScreen = ({navigation}) => {
     EncryptedStorage.removeItem('secure_token');
   };
 
+  const {t, i18n} = useTranslation();
   useEffect(() => {
     Load();
   }, []);
@@ -106,7 +109,7 @@ const ReportScreen = ({navigation}) => {
       })
       .then(res => {
         console.log('Fetch Data from Sales Data');
-        setloadtext('Loading Sales Data');
+        setloadtext(t('LoadSales'));
         setSaleChartLabel(res.data.CHART_LABEL);
         if (res.data.CHART_DATA.length >= 1)
           setSaleChartData(res.data.CHART_DATA);
@@ -136,7 +139,7 @@ const ReportScreen = ({navigation}) => {
         },
       })
       .then(res => {
-        setloadtext('Loading Expense Data');
+        setloadtext(t('LoadExpense'));
         setExpenseData(res.data.DATA);
         if (res.data.CHART_DATA.length >= 1)
           setexpenseChart(res.data.CHART_DATA);
@@ -158,7 +161,7 @@ const ReportScreen = ({navigation}) => {
         },
       })
       .then(res => {
-        setloadtext('Loading Purchase Data');
+        setloadtext(t('LoadPurchase'));
         setPurchaseData(res.data.DATA);
         if (res.data.CHART_DATA.length >= 1)
           setpurchaseChart(res.data.CHART_DATA);
@@ -186,7 +189,7 @@ const ReportScreen = ({navigation}) => {
         },
       })
       .then(res => {
-        setloadtext('Loading Other Income Data');
+        setloadtext(t('LoadOtherIncome'));
         setOtherincomeData(res.data.DATA);
         if (res.data.CHART_DATA.length >= 1)
           setOtherIncomeChart(res.data.CHART_DATA);
@@ -282,16 +285,16 @@ const ReportScreen = ({navigation}) => {
               backgroundColor: '#c8e1ff',
             }}>
             <View style={{...headerStyle, width: widtharr[0]}}>
-              <Text style={{color: 'black'}}>Receipt Number</Text>
+              <Text style={{color: 'black'}}>{t('Receipt_Number')}</Text>
             </View>
             <View style={{...headerStyle, width: widtharr[1]}}>
-              <Text style={{color: 'black'}}>Customer Name</Text>
+              <Text style={{color: 'black'}}>{t('Customer_Name')}</Text>
             </View>
             <View style={{...headerStyle, width: widtharr[2]}}>
-              <Text style={{color: 'black'}}>Items</Text>
+              <Text style={{color: 'black'}}>{t('Items')}</Text>
             </View>
             <View style={{...headerStyle, width: widtharr[3]}}>
-              <Text style={{color: 'black'}}>Sub Total</Text>
+              <Text style={{color: 'black'}}>{t('Sub_Total')}</Text>
             </View>
             <View
               style={{
@@ -300,11 +303,11 @@ const ReportScreen = ({navigation}) => {
                 justifyContent: 'center',
                 width: widtharr[4],
               }}>
-              <Text style={{color: 'black'}}>Tax</Text>
+              <Text style={{color: 'black'}}>{t('Tax')}</Text>
             </View>
 
             <View style={{...headerStyle, width: widtharr[5]}}>
-              <Text style={{color: 'black'}}>Discount</Text>
+              <Text style={{color: 'black'}}>{t('Discount')}</Text>
             </View>
             <View
               style={{
@@ -312,13 +315,13 @@ const ReportScreen = ({navigation}) => {
                 width: widtharr[6],
                 backgroundColor: '#07ed72',
               }}>
-              <Text style={{color: 'black'}}>Grand Total</Text>
+              <Text style={{color: 'black'}}>{t('Grand_Total')}</Text>
             </View>
             <View style={{...headerStyle, width: widtharr[7]}}>
-              <Text style={{color: 'black'}}>Date</Text>
+              <Text style={{color: 'black'}}>{t('Date')}</Text>
             </View>
             <View style={{...headerStyle, width: widtharr[8]}}>
-              <Text style={{color: 'black'}}>Description</Text>
+              <Text style={{color: 'black'}}>{t('Description')}</Text>
             </View>
           </View>
 
@@ -480,7 +483,7 @@ const ReportScreen = ({navigation}) => {
                 justifyContent: 'center',
                 width: widtharr[0],
               }}>
-              <Text style={{color: 'black'}}>No</Text>
+              <Text style={{color: 'black'}}>{t('No')}</Text>
             </View>
             <View
               style={{
@@ -489,7 +492,7 @@ const ReportScreen = ({navigation}) => {
                 justifyContent: 'center',
                 width: widtharr[1],
               }}>
-              <Text style={{color: 'black'}}>Title</Text>
+              <Text style={{color: 'black'}}>{t('Title')}</Text>
             </View>
             <View
               style={{
@@ -498,7 +501,7 @@ const ReportScreen = ({navigation}) => {
                 justifyContent: 'center',
                 width: widtharr[2],
               }}>
-              <Text style={{color: 'black'}}>Price</Text>
+              <Text style={{color: 'black'}}>{t('Price')}</Text>
             </View>
             <View
               style={{
@@ -507,7 +510,7 @@ const ReportScreen = ({navigation}) => {
                 justifyContent: 'center',
                 width: widtharr[3],
               }}>
-              <Text style={{color: 'black'}}>Date</Text>
+              <Text style={{color: 'black'}}>{t('Date')}</Text>
             </View>
             <View
               style={{
@@ -516,7 +519,7 @@ const ReportScreen = ({navigation}) => {
                 justifyContent: 'center',
                 width: widtharr[4],
               }}>
-              <Text style={{color: 'black'}}>Description</Text>
+              <Text style={{color: 'black'}}>{t('Description')}</Text>
             </View>
           </View>
           <ScrollView nestedScrollEnabled={true} style={{marginTop: -1}}>
@@ -597,7 +600,7 @@ const ReportScreen = ({navigation}) => {
           {/* Sales */}
           <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-              <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('Sales')}</Text>
               <TouchableOpacity onPress={() => setSalesModal(true)}>
                 <Icons name={'expand'} size={25} color={'#000'} />
               </TouchableOpacity>
@@ -616,7 +619,9 @@ const ReportScreen = ({navigation}) => {
             </ScrollView>
 
             <View style={styles.totalView}>
-              <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Total_Amount')}
+              </Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {numberWithCommas(SUM(salesChartData)) + ' MMK'}
               </Text>
@@ -625,7 +630,9 @@ const ReportScreen = ({navigation}) => {
           {/* OtherIncome */}
           <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-              <Text style={{...s.font_bold, color: 'black'}}>Other Income</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Other_Income')}
+              </Text>
               <TouchableOpacity onPress={() => setotherincomemodal(true)}>
                 <Icons name={'expand'} size={25} color={'#000'} />
               </TouchableOpacity>
@@ -646,7 +653,9 @@ const ReportScreen = ({navigation}) => {
             </ScrollView>
 
             <View style={styles.totalView}>
-              <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Total_Amount')}
+              </Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {numberWithCommas(SUM(otherincomeChart)) + ' MMK'}
               </Text>
@@ -655,7 +664,9 @@ const ReportScreen = ({navigation}) => {
           {/* Expense */}
           <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-              <Text style={{...s.font_bold, color: 'black'}}>Expense</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Expense')}
+              </Text>
               <TouchableOpacity onPress={() => setexpensemodal(true)}>
                 <Icons name={'expand'} size={25} color={'#000'} />
               </TouchableOpacity>
@@ -676,7 +687,9 @@ const ReportScreen = ({navigation}) => {
             </ScrollView>
 
             <View style={styles.totalView}>
-              <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Total_Amount')}
+              </Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {numberWithCommas(SUM(expenseChart)) + ' MMK'}
               </Text>
@@ -685,7 +698,7 @@ const ReportScreen = ({navigation}) => {
           {/* Purchase */}
           <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-              <Text style={{...s.font_bold, color: 'black'}}>Purchase</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('Purchase')}</Text>
               <TouchableOpacity onPress={() => setpurchasemodal(true)}>
                 <Icons name={'expand'} size={25} color={'#000'} />
               </TouchableOpacity>
@@ -706,7 +719,7 @@ const ReportScreen = ({navigation}) => {
             </ScrollView>
 
             <View style={styles.totalView}>
-              <Text style={{...s.font_bold, color: 'black'}}>Total Amount</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('Total_Amount')}</Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {numberWithCommas(SUM(purchaseChart)) + ' MMK'}
               </Text>
@@ -747,7 +760,7 @@ const ReportScreen = ({navigation}) => {
           <View style={{marginBottom: 5}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{...s.font_bold, color: 'black'}}>Sales</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('Sales')}</Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {' '}
                 {numberWithCommas(SUM(salesChartData)) + ' MMK'}
@@ -781,7 +794,7 @@ const ReportScreen = ({navigation}) => {
           <View style={{marginBottom: 5}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{...s.font_bold, color: 'black'}}>Other Income</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('Other_Income')}</Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {' '}
                 {numberWithCommas(SUM(otherincomeChart)) + ' MMK'}
@@ -815,7 +828,7 @@ const ReportScreen = ({navigation}) => {
           <View style={{marginBottom: 5}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{...s.font_bold, color: 'black'}}>Expense</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('Expense')}</Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {' '}
                 {numberWithCommas(SUM(expenseChart)) + ' MMK'}
@@ -849,7 +862,7 @@ const ReportScreen = ({navigation}) => {
           <View style={{marginBottom: 5}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{...s.font_bold, color: 'black'}}>Purchase</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('Purchase')}</Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {' '}
                 {numberWithCommas(SUM(purchaseChart)) + ' MMK'}
@@ -974,26 +987,27 @@ const ReportScreen = ({navigation}) => {
         <View>
           <View style={{flex: 1, flexDirection: 'row'}}>
             <View style={{...headerstyle, width: tablearr[0]}}>
-              <Text style={{color: 'black', textAlign: 'center'}}>Time</Text>
+              <Text style={{color: 'black', textAlign: 'center'}}>{t('Time')}</Text>
             </View>
             <View style={{...headerstyle, width: tablearr[1]}}>
-              <Text style={{color: 'black', textAlign: 'center'}}>Income</Text>
+              <Text style={{color: 'black', textAlign: 'center'}}>{t('Income')}</Text>
             </View>
             <View style={{...headerstyle, width: tablearr[2]}}>
               <Text style={{color: 'black', textAlign: 'center'}}>
-                Expense & Purchase
+                {t('Expense&Purchase')}
               </Text>
             </View>
             <View style={{...headerstyle, width: tablearr[3]}}>
               <Text style={{color: 'black', textAlign: 'center'}}>
-                Profit & Loss
+                {t('Profit&Loss')}
               </Text>
             </View>
           </View>
           <View style={{flex: 1, flexDirection: 'row'}}>
             <View style={{flexDirection: 'column', width: tablearr[0]}}>
               {Object.keys(profitdata.result).map((data, index) => (
-                <View key={index}
+                <View
+                  key={index}
                   style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
                   <Text
                     style={{color: 'black', textAlign: 'center'}}
@@ -1005,7 +1019,8 @@ const ReportScreen = ({navigation}) => {
             </View>
             <View style={{flexDirection: 'column', width: tablearr[1]}}>
               {Object.values(profitdata.addData).map((data, index) => (
-                <View key={index}
+                <View
+                  key={index}
                   style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
                   <Text
                     style={{color: 'black', textAlign: 'right'}}
@@ -1017,7 +1032,8 @@ const ReportScreen = ({navigation}) => {
             </View>
             <View style={{flexDirection: 'column', width: tablearr[2]}}>
               {Object.values(profitdata.minusData).map((data, index) => (
-                <View key={index}
+                <View
+                  key={index}
                   style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
                   <Text
                     style={{color: 'black', textAlign: 'right'}}
@@ -1029,7 +1045,8 @@ const ReportScreen = ({navigation}) => {
             </View>
             <View style={{flexDirection: 'column', width: tablearr[3]}}>
               {Object.values(profitdata.result).map((data, index) => (
-                <View key={index}
+                <View
+                  key={index}
                   style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
                   <Text
                     style={{
@@ -1059,7 +1076,7 @@ const ReportScreen = ({navigation}) => {
             ...s.flexrow_aligncenter_j_between,
             padding: 8,
           }}>
-          <Text style={{...s.bold_label, fontSize: 23}}>Report</Text>
+          <Text style={{...s.bold_label, fontSize: 23}}>{t('Report')}</Text>
         </View>
         <ScrollView
           style={{
@@ -1078,7 +1095,7 @@ const ReportScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>Today</Text>
+              <Text style={{color: 'white', padding: 10}}>{t('Today')}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1091,7 +1108,7 @@ const ReportScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>This Month</Text>
+              <Text style={{color: 'white', padding: 10}}>{t('This_Month')}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1104,7 +1121,7 @@ const ReportScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>This Year</Text>
+              <Text style={{color: 'white', padding: 10}}>{t('This_Year')}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1117,12 +1134,12 @@ const ReportScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>Custom Date</Text>
+              <Text style={{color: 'white', padding: 10}}>{t('Custom_Date')}</Text>
             </View>
           </TouchableOpacity>
 
           <MessageModalNormal show={cudmodal} onClose={OnClosenOpenCud}>
-            <Text style={{...s.bold_label, marginTop: 8}}>Start Date</Text>
+            <Text style={{...s.bold_label, marginTop: 8}}>{t('Start_Date')}</Text>
 
             <View
               style={{
@@ -1167,7 +1184,7 @@ const ReportScreen = ({navigation}) => {
                 }}
               />
             </View>
-            <Text style={{...s.bold_label, marginTop: 8}}>End Date</Text>
+            <Text style={{...s.bold_label, marginTop: 8}}>{t('End_Date')}</Text>
 
             <View
               style={{
@@ -1218,7 +1235,7 @@ const ReportScreen = ({navigation}) => {
               }}
               style={{...s.blue_button, marginTop: 8, padding: 10}}>
               <Text style={{...s.bold_label, color: 'white'}}>
-                Apply & Load Data{' '}
+                {t('Apply')}
               </Text>
             </TouchableOpacity>
           </MessageModalNormal>
@@ -1235,9 +1252,9 @@ const ReportScreen = ({navigation}) => {
                 elevation: 0,
               },
             }}>
-            <Tab.Screen name="Table" component={TableView} />
-            <Tab.Screen name="Chart" component={ChartView} />
-            <Tab.Screen name="Profit & Loss" component={ProfitnLossView} />
+            <Tab.Screen name={t('Table')} component={TableView} />
+            <Tab.Screen name={t("Chart")} component={ChartView} />
+            <Tab.Screen name={t("Profit&Loss")} component={ProfitnLossView} />
           </Tab.Navigator>
         </View>
       </View>
