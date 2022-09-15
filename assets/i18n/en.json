@@ -84,12 +84,21 @@
     "RSC": "Receipt Successfully Created",
     "OK": "OK",
 
-    "LoadExpense":"Loading Expense Data",
-    "LoadPurchase":"Loading Purchase Data",
-    "LoadOtherIncome":"Loading Other Income Data",
-    "LoadSales":"Loading Sales Data",
+    "LoadExpense": "Loading Expense Data",
+    "LoadPurchase": "Loading Purchase Data",
+    "LoadOtherIncome": "Loading Other Income Data",
+    "LoadSales": "Loading Sales Data",
 
-    "Home":"Home",
-    "Profile":"Profile"
+    "Home": "Home",
+    "Profile": "Profile",
+
+    "Add_Quantity": "Update Quantity",
+    "PL10Q": "Products are less than 10 Qty",
+    "POOS": "Products are out of stock",
+
+    "TFSP": "Top Frequently Sales Products",
+    "TMP": "Top Money Products",
+    "Price2":"Price"
+   
   }
 }

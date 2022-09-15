@@ -64,7 +64,7 @@
     "Choose_Image": "ဓာတ်ပုံရွေးချယ်မည်",
     "Cancel": "မလုပ်တော့ပါ",
 
-    "Name": "နာမည်",
+    "Name": "အမည်",
     "Username": "Username",
     "Phone_Number": "ဖုန်းနံပါတ်",
     "Email": "အီးမေးလ်",
@@ -92,6 +92,14 @@
     "LoadSales":"အရောင်း ဒေတာများ...",
 
     "Home":"အိမ်",
-    "Profile":"ပရိုဖိုင်"
+    "Profile":"ပရိုဖိုင်",
+    "Add_Quantity": "အရေအတွက်ချိန်းမည်",
+    "PL10Q": "Products are less than 10 Qty",
+    "POOS": "Products are out of stock",
+
+    "TFSP": "အရောင်းရဆုံး ကုန်ပစ္စည်းများ",
+    "TMP": "ငွေအများဆုံး ဝင်သောကုန်ပစ္စည်းများ",
+    "Price2":"တန်ဖိုး"
+   
   }
 }

@@ -1,4 +1,3 @@
-
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
@@ -16,17 +15,21 @@ import {
   TouchableHighlight,
   TouchableOpacityBase,
   Button,
+  TurboModuleRegistry,
+  TextInput,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
 import {IMAGE, STYLE as s, COLOR as C} from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
+import Icons2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import {numberWithCommas} from '../../Database';
-import {LineChart} from 'react-native-chart-kit';
+import {LineChart, PieChart} from 'react-native-chart-kit';
 import {Table, Row, Rows} from 'react-native-table-component';
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
+import {MessageModalNormal} from '../MessageModal';
 const HomeScreen = ({navigation, route}) => {
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
@@ -47,6 +50,8 @@ const HomeScreen = ({navigation, route}) => {
 
   const [refresh, setRefresh] = useState();
 
+  const [topProduct, setTopProduct] = useState(null);
+
   const Load = () => {
     setRefresh(true);
 
@@ -61,6 +66,35 @@ const HomeScreen = ({navigation, route}) => {
     getOtherIncomeFromServer();
 
     LoadProfile();
+
+    getTopProduct();
+  };
+
+  const getTopProduct = (time = 'year') => {
+    axios
+      .get('/api/toproduct/', {
+        params: {
+          time: time,
+        },
+      })
+      .then(res => {
+        console.log('Fetch Data from Sales Data');
+        console.log(res.data);
+        let T_Freq = [];
+        for (var [k, v] of Object.entries(res.data.T_Freq)) {
+          console.log(k, v);
+          T_Freq.push({
+            name: k,
+            freq: v,
+            price: res.data.T_Money[k],
+            color: getRandomColor(),
+            legendFontColor: 'black',
+            legendFontSize: 15,
+          });
+        }
+        setTopProduct(T_Freq);
+      })
+      .catch(err => console.log(err));
   };
 
   const LoadProfile = () => {
@@ -95,7 +129,16 @@ const HomeScreen = ({navigation, route}) => {
   const getProductFromServer = () => {
     axios
       .get('/api/products/')
-      .then(res => setProductData(res.data))
+      .then(res => {
+        setProductData(res.data);
+        console.log('LESStock : ', showLS);
+        console.log('STockOUT : ', showSO);
+        if (showLS === true) {
+          LessStockProducts();
+        } else {
+          StockOutProducts();
+        }
+      })
       .catch(err => console.log(err));
   };
 
@@ -145,6 +188,31 @@ const HomeScreen = ({navigation, route}) => {
       price += parseInt(e.price) * parseInt(e.qty);
     });
     return price;
+  };
+
+  const PutProductsToServer = (pd, pic, id) => {
+    const d = new FormData();
+    d.append('id', id);
+    d.append('name', pd.name);
+    d.append('price', pd.price);
+    d.append('qty', pd.qty);
+
+    d.append('category', pd.category);
+    d.append('description', pd.description);
+    d.append('pic', pic);
+
+    console.log(d);
+
+    axios
+      .put('/api/products/', d, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(res => {
+        getProductFromServer();
+      })
+      .catch(err => a.spe());
   };
 
   const [salesChartData, setSalesChartData] = useState([0]);
@@ -306,15 +374,178 @@ const HomeScreen = ({navigation, route}) => {
     }
   };
 
-  const StockOutProduct = () => {
-    productdata
+  const [SOData, setSOData] = useState();
+  const [LSData, setLSData] = useState();
+  const StockOutProducts = () => {
+    console.log('COmputing Stock OUt Prodcuts');
+    const pddata = productData.filter(item => item.qty <= 0);
+    setSOData(pddata);
+    // return pddata.length;
+  };
+  const LessStockProducts = () => {
+    setSOData(null);
+    console.log('Computing LessThan Products');
+    const pddata = productData.filter(item => item.qty <= 10);
+    setSOData(pddata);
+    // return pddata.length;
+  };
+
+  const [showSO, setShowSO] = useState(false);
+  const [showLS, setshowLS] = useState(false);
+  const [editpd, setEditPD] = useState();
+
+  const PDITEM = ({item}) => {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#f0f0f0',
+          padding: 10,
+          margin: 5,
+          flexDirection: 'row',
+          borderRadius: 15,
+        }}>
+        <Image
+          source={{
+            uri:
+              item.pic === '/media/null'
+                ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
+                : axios.defaults.baseURL + item.pic,
+          }}
+          style={{width: 100, height: 100}}
+        />
+        <View style={{marginLeft: 10}}>
+          <Text style={{...s.bold_label, fontSize: 18}}>{item.name}</Text>
+          <Text style={{...s.bold_label, fontSize: 15, marginTop: 5}}>
+            {numberWithCommas(item.price)} MMK
+          </Text>
+        </View>
+        <View style={{position: 'absolute', right: 5, top: 8}}>
+          <TouchableOpacity
+            onPress={() => {
+              setCmodal(true);
+              setEditPD(item);
+            }}>
+            <Icons name={'create-outline'} size={30} color={'#000'} />
+          </TouchableOpacity>
+        </View>
+        <Text
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            ...s.normal_label,
+            backgroundColor: 'red',
+            color: 'white',
+            padding: 5,
+            borderBottomRightRadius: 15,
+            borderTopLeftRadius: 15,
+            fontWeight: 'bold',
+          }}>
+          {item.qty}
+        </Text>
+      </View>
+    );
+  };
+
+  const onCloseSO = () => {
+    setShowSO(!showSO);
+    setshowLS(!showLS);
+  };
+
+  const [cmodal, setCmodal] = useState(false);
+  const onClosecmodal = () => setCmodal(!cmodal);
+
+  const EditQty = () => {
+    const onHandleEPdtData = (e, name) => {
+      const temp = {...editpd, [name]: e};
+      setEditPD(temp);
+      console.log(temp);
+    };
+
+    if (editpd) {
+      return (
+        <MessageModalNormal show={cmodal} onClose={onClosecmodal}>
+          <View>
+            <Text style={{color: 'black'}}>{editpd.name}</Text>
+            <View
+              style={{
+                ...s.flexrow_aligncenter_j_between,
+                borderRadius: 15,
+                height: 45,
+                borderColor: 'black',
+                borderWidth: 1.5,
+                paddingRight: 10,
+              }}>
+              <TextInput
+                style={{
+                  padding: 10,
+                  fontSize: 16,
+                  fontWeight: '900',
+                  flex: 1,
+                }}
+                defaultValue={editpd.qty + ''}
+                placeholder={t('Qty')}
+                autoFocus={true}
+                onChangeText={e => onHandleEPdtData(e, 'qty')}
+                keyboardType={'number-pad'}
+              />
+            </View>
+
+            <TouchableOpacity
+              onPress={() => {
+                console.log(editpd);
+                onClosecmodal();
+                PutProductsToServer(editpd, null, editpd.id);
+                onCloseSO();
+              }}>
+              <View
+                style={{
+                  ...s.flexrow_aligncenter_j_center,
+                  padding: 10,
+                  ...s.blue_button,
+                }}>
+                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                  {t('Add_Quantity')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </MessageModalNormal>
+      );
+    }
+  };
+
+  let widthwidth = C.windowWidth * 95 - 50;
+
+  let tablearr = [50, widthwidth / 2, widthwidth / 2, widthwidth / 3];
+
+  const headerstyle = {
+    ...styles.cell,
+    alignItems: 'center',
+    justifyContent: 'center',
   };
 
   return (
     <ScrollView
+      nestedScrollEnabled
       style={s.Container}
       refreshControl={<RefreshControl onRefresh={Load} refreshing={refresh} />}>
       {/* appbar */}
+      <MessageModalNormal show={showSO} onClose={onCloseSO} width={'100%'}>
+        <View style={{alignItems: 'center'}}>
+          <Text style={{...s.font_bold, color: 'black', padding: 5}}>
+            {showLS ? 'Less Than 10 Qty Product' : 'Stock Out Products'}
+          </Text>
+        </View>
+        <FlatList
+          data={SOData}
+          renderItem={PDITEM}
+          keyExtractor={i => i.id}
+          style={{backgroundColor: 'white'}}
+        />
+      </MessageModalNormal>
+      {EditQty()}
       <View
         style={{
           ...s.flexrow_aligncenter_j_between,
@@ -534,12 +765,136 @@ const HomeScreen = ({navigation, route}) => {
           />
         </TouchableOpacity>
       </View>
-
       <View>
-                  
-      </View>
+        {productData ? (
+          <View style={{flexDirection: 'column'}}>
+            {productData.filter(item => item.qty <= 0).length <= 0 ? null : (
+              <TouchableOpacity
+                style={{
+                  padding: 10,
+                  backgroundColor: '#fa1455',
+                  borderRadius: 15,
+                  ...s.flexrow_aligncenter,
+                }}
+                onPress={() => {
+                  setShowSO(true);
+                  StockOutProducts();
+                }}>
+                <Icons2
+                  name={'package-variant-closed'}
+                  size={25}
+                  color={'white'}
+                />
+                <Text style={{...s.bold_label, color: 'white'}}>
+                  {productData.filter(item => item.qty <= 0).length} {t('POOS')}
+                </Text>
+              </TouchableOpacity>
+            )}
+            {productData.filter(item => item.qty <= 10).length <= 0 ? null : (
+              <TouchableOpacity
+                style={{
+                  padding: 10,
+                  backgroundColor: '#f57a07',
+                  borderRadius: 15,
+                  ...s.flexrow_aligncenter,
+                  marginTop: 5,
+                }}
+                onPress={() => {
+                  setShowSO(true);
+                  setshowLS(true);
+                  LessStockProducts();
+                }}>
+                <Icons2
+                  name={'package-variant-closed'}
+                  size={25}
+                  color={'white'}
+                />
+                <Text style={{...s.bold_label, color: 'white'}}>
+                  {productData.filter(item => item.qty <= 10).length}{' '}
+                  {t('PL10Q')}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : null}
+        <View style={{marginTop: 8}}>
+          <Text style={{...s.font_bold, color: 'black'}}>{t('TFSP')}</Text>
+          {topProduct ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <PieChart
+                data={
+                  topProduct.length >= 4 ? topProduct.slice(0, 4) : topProduct
+                }
+                width={C.windowWidth * 120}
+                height={220}
+                chartConfig={chartConfig}
+                accessor={'freq'}
+                center={[10, 0]}
+              />
+            </ScrollView>
+          ) : null}
+        </View>
 
-      <View>
+        <View style={{marginTop: 8}}>
+          <Text style={{...s.font_bold, color: 'black'}}>{t('TMP')}</Text>
+          {topProduct ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              nestedScrollEnabled={true}
+              style={{height: 200}}>
+              <View style={{flexDirection: 'column'}}>
+                <View
+                  style={{
+                    height: 40,
+                    flexDirection: 'row',
+                    backgroundColor: 'red',
+                  }}>
+                  <View style={{...headerstyle, width: tablearr[0]}}>
+                    <Text style={{color: 'white', textAlign: 'center'}}>
+                      {t('No')}
+                    </Text>
+                  </View>
+                  <View style={{...headerstyle, width: tablearr[1]}}>
+                    <Text style={{color: 'white', textAlign: 'center'}}>
+                      {t('ProductName')}
+                    </Text>
+                  </View>
+                  <View style={{...headerstyle, width: tablearr[2]}}>
+                    <Text style={{color: 'white', textAlign: 'center'}}>
+                      {t('Price2')}
+                    </Text>
+                  </View>
+                </View>
+
+                <ScrollView nestedScrollEnabled={true}>
+                  {topProduct.map((item, index) => (
+                    <View>
+                      <View style={{flex: 1, flexDirection: 'row'}}>
+                        <View style={{...styles.cell, width: tablearr[0]}}>
+                          <Text style={{color: 'black', textAlign: 'center'}}>
+                            {index + 1}
+                          </Text>
+                        </View>
+                        <View style={{...styles.cell, width: tablearr[1]}}>
+                          <Text style={{color: 'black', textAlign: 'center'}}>
+                            {item.name}
+                          </Text>
+                        </View>
+                        <View style={{...styles.cell, width: tablearr[2]}}>
+                          <Text style={{color: 'black', textAlign: 'right'}}>
+                            {numberWithCommas(item.price) + ' MMK'}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </ScrollView>
+              </View>
+            </ScrollView>
+          ) : null}
+        </View>
+
         <Text style={{color: 'black', fontWeight: 'bold'}}>
           {t('Sales_Chart')}
         </Text>
@@ -606,23 +961,7 @@ const HomeScreen = ({navigation, route}) => {
           yAxisSuffix=" k"
           withHorizontalLines
           yAxisInterval={1} // optional, defaults to 1
-          chartConfig={{
-            backgroundColor: 'black',
-            backgroundGradientFrom: '#4287f5',
-            backgroundGradientTo: '#548bf7',
-            decimalPlaces: 0, // optional, defaults to 2dp
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            propsForVerticalLabels: {translateY: 15},
-            style: {
-              borderRadius: 0,
-            },
-            propsForDots: {
-              r: '6',
-              strokeWidth: '2',
-              stroke: '#548bf7',
-            },
-          }}
+          chartConfig={chartConfig}
           bezier
           style={{
             marginVertical: 8,
@@ -665,3 +1004,39 @@ const kFormatter = num => {
 };
 
 export default HomeScreen;
+
+const styles = StyleSheet.create({
+  cell: {
+    borderColor: 'black',
+    borderWidth: 0.5,
+    padding: 10,
+    backgroundColor: 'transparent',
+  },
+});
+
+const chartConfig = {
+  backgroundColor: 'black',
+  backgroundGradientFrom: '#4287f5',
+  backgroundGradientTo: '#548bf7',
+  decimalPlaces: 0, // optional, defaults to 2dp
+  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+  propsForVerticalLabels: {translateY: 15},
+  style: {
+    borderRadius: 0,
+  },
+  propsForDots: {
+    r: '6',
+    strokeWidth: '2',
+    stroke: '#548bf7',
+  },
+};
+
+const getRandomColor = () => {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};

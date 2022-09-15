@@ -67,7 +67,7 @@ const Container = ({navigation, route}) => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                {t('Product')}
+                {t('Products')}
               </Text>
             </View>
           ),
@@ -113,7 +113,7 @@ const Container = ({navigation, route}) => {
                   fontWeight: focused ? 'bold' : '200',
                   color: 'black',
                 }}>
-                {t('Expenses')}
+                {t('Expense')}
               </Text>
             </View>
           ),

@@ -130,6 +130,11 @@ export const ALERT = {
       {text: 'Yes', onPress: yes},
       {text: 'No'},
     ]),
+  aslogout: yes =>
+    Alert.alert('', 'Are you sure want to Logout?', [
+      {text: 'Yes', onPress: yes},
+      {text: 'No'},
+    ]),
   sus: () =>
     Alert.alert('Successfully', 'Successfully Uploaded.', [{text: 'OK'}]),
 };

@@ -14,7 +14,7 @@ import {
 import axios from 'axios';
 import Icons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'react-native-image-picker';
-import {IMAGE as I, COLOR as C} from '../../Database';
+import {IMAGE as I, COLOR as C, STYLE as s, ALERT as a} from '../../Database';
 import {MessageModalNormal} from '../MessageModal';
 
 import {useTranslation} from 'react-i18next';
@@ -37,7 +37,7 @@ const Profile = ({navigation, route}) => {
   const {token} = route.params;
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
-    // Container.InfoToken.setUserToken(null);   
+    // Container.InfoToken.setUserToken(null);
     token(null);
   };
   useEffect(() => {
@@ -169,7 +169,7 @@ const Profile = ({navigation, route}) => {
             padding: 10,
             color: 'black',
           }}>
-         {t('Change_Profile_Picture')}
+          {t('Change_Profile_Picture')}
         </Text>
         <TouchableOpacity
           style={styles.chooseimagebutton}
@@ -204,7 +204,7 @@ const Profile = ({navigation, route}) => {
               fontWeight: '500',
               color: 'black',
             }}>
-              {t('Choose_Image')}
+            {t('Choose_Image')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -217,7 +217,7 @@ const Profile = ({navigation, route}) => {
               fontWeight: '500',
               color: 'black',
             }}>
-           {t('Cancel')}
+            {t('Cancel')}
           </Text>
         </TouchableOpacity>
       </MessageModalNormal>
@@ -325,7 +325,26 @@ const Profile = ({navigation, route}) => {
     );
   };
 
+  const [settings, setSettings] = useState({language: 'mm', datascope: 'year'});
+
   console.log(route);
+
+  const SaveSettings = setting => {
+    EncryptedStorage.setItem(JSON.stringify(setting), 'settings')
+      .then(res => console.log('Res'))
+      .catch(err => console.log('err'));
+  };
+
+  const getSettings = () => {
+    EncryptedStorage.getItem('settings')
+      .then(res => {
+        console.log(res);
+        if (res !== null) {
+          setSettings(JSON.parse(res));
+        }
+      })
+      .catch(err => console.log(err));
+  };
 
   let rdco;
 
@@ -451,13 +470,17 @@ const Profile = ({navigation, route}) => {
           }}>
           <TouchableOpacity>
             <View style={styles.FirstButtonStyle}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Name')}</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>
+                {t('Name')}
+              </Text>
               <Text style={styles.buttonFont}>{pdata.name}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity>
             <View style={styles.buttonColor}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Username')}</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>
+                {t('Username')}
+              </Text>
               <Text style={styles.buttonFont}>{pdata.username}</Text>
             </View>
           </TouchableOpacity>
@@ -471,7 +494,9 @@ const Profile = ({navigation, route}) => {
           </TouchableOpacity>
           <TouchableOpacity>
             <View style={styles.LastButtonStyle}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Email')}</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>
+                {t('Email')}
+              </Text>
               <Text style={styles.buttonFont}>{pdata.email}</Text>
             </View>
           </TouchableOpacity>
@@ -490,20 +515,32 @@ const Profile = ({navigation, route}) => {
           }}>
           <TouchableOpacity>
             <View style={styles.FirstButtonStyle}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Language')}</Text>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>
+                {t('Language')}
+              </Text>
               <Text style={styles.buttonFont}>{pdata.name}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity>
             <View style={styles.buttonColor}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}></Text>
-              <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'log-out-outline'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  {t('Logout')}
+                </Text>
+              </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=> RemoveToken()}>
+          <TouchableOpacity onPress={() => a.aslogout(RemoveToken)}>
             <View style={styles.LastButtonStyle}>
-            
-              <Text style={{color: 'black', fontWeight: 'bold'}}>{t('Logout')}</Text>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'log-out-outline'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  {t('Logout')}
+                </Text>
+              </View>
             </View>
           </TouchableOpacity>
         </View>
