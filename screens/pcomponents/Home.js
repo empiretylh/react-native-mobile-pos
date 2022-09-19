@@ -31,13 +31,31 @@ import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 import {MessageModalNormal} from '../MessageModal';
 const HomeScreen = ({navigation, route}) => {
+  let settings = {};
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
   };
 
   useEffect(() => {
-    Load();
+    //  get Setting & Load Data
+    getSettings();
   }, []);
+  const getSettings = () => {
+    // Set language from i18n
+    // setSettings({...settings, ['language']: i18n.language});
+
+    EncryptedStorage.getItem('setting_data')
+      .then(res => {
+        console.log('get Settings', res);
+        if (res !== null) {
+          settings = JSON.parse(res);
+        } else {
+          settings = {datascope: 'year', language: 'en'};
+        }
+        Load();
+      })
+      .catch(err => console.log(err));
+  };
 
   const {t, i18n} = useTranslation();
 
@@ -74,7 +92,7 @@ const HomeScreen = ({navigation, route}) => {
     axios
       .get('/api/toproduct/', {
         params: {
-          time: time,
+          time: settings.datascope,
         },
       })
       .then(res => {
@@ -109,11 +127,12 @@ const HomeScreen = ({navigation, route}) => {
       });
   };
 
-  const getSalesFromServer = () => {
+  const getSalesFromServer = (type = 'DT', time = 'year', startd, endd) => {
     axios
       .get('/api/sales/', {
         params: {
           type: 'DT',
+          time: settings.datascope,
         },
       })
       .then(res => {
@@ -144,21 +163,21 @@ const HomeScreen = ({navigation, route}) => {
 
   const getExpenseFromServer = () => {
     axios
-      .get('/api/expenses/')
+      .get('/api/expenses/', {params: {time: settings.datascope}})
       .then(res => setExpenseData(res.data.DATA))
       .catch(err => console.log(err));
   };
 
   const getPurchaseFromServer = () => {
     axios
-      .get('/api/purchases/')
+      .get('/api/purchases/', {params: {time: settings.datascope}})
       .then(res => setPurchaseData(res.data.DATA))
       .catch(err => console.log(err));
   };
 
   const getOtherIncomeFromServer = () => {
     axios
-      .get('/api/otherincome/')
+      .get('/api/otherincome/', {params: {time: settings.datascope}})
       .then(res => {
         setOtherincomeData(res.data.DATA);
         setRefresh(false);
@@ -170,7 +189,8 @@ const HomeScreen = ({navigation, route}) => {
     let price = 0;
 
     data.forEach(e => {
-      price += parseInt(e.grandtotal);
+      var g_price = parseInt(e.grandtotal);
+      price += g_price;
     });
     return price;
   };

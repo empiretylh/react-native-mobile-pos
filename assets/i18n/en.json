@@ -98,7 +98,10 @@
 
     "TFSP": "Top Frequently Sales Products",
     "TMP": "Top Money Products",
-    "Price2":"Price"
+    "Price2":"Price",
+
+    "RTS":"Report Time Scope"
+    
    
   }
 }

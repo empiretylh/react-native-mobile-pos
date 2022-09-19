@@ -698,7 +698,9 @@ const ReportScreen = ({navigation}) => {
           {/* Purchase */}
           <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
-              <Text style={{...s.font_bold, color: 'black'}}>{t('Purchase')}</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Purchase')}
+              </Text>
               <TouchableOpacity onPress={() => setpurchasemodal(true)}>
                 <Icons name={'expand'} size={25} color={'#000'} />
               </TouchableOpacity>
@@ -719,7 +721,9 @@ const ReportScreen = ({navigation}) => {
             </ScrollView>
 
             <View style={styles.totalView}>
-              <Text style={{...s.font_bold, color: 'black'}}>{t('Total_Amount')}</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Total_Amount')}
+              </Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {numberWithCommas(SUM(purchaseChart)) + ' MMK'}
               </Text>
@@ -794,7 +798,9 @@ const ReportScreen = ({navigation}) => {
           <View style={{marginBottom: 5}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{...s.font_bold, color: 'black'}}>{t('Other_Income')}</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Other_Income')}
+              </Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {' '}
                 {numberWithCommas(SUM(otherincomeChart)) + ' MMK'}
@@ -828,7 +834,9 @@ const ReportScreen = ({navigation}) => {
           <View style={{marginBottom: 5}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{...s.font_bold, color: 'black'}}>{t('Expense')}</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Expense')}
+              </Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {' '}
                 {numberWithCommas(SUM(expenseChart)) + ' MMK'}
@@ -862,7 +870,9 @@ const ReportScreen = ({navigation}) => {
           <View style={{marginBottom: 5}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={{...s.font_bold, color: 'black'}}>{t('Purchase')}</Text>
+              <Text style={{...s.font_bold, color: 'black'}}>
+                {t('Purchase')}
+              </Text>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {' '}
                 {numberWithCommas(SUM(purchaseChart)) + ' MMK'}
@@ -912,11 +922,14 @@ const ReportScreen = ({navigation}) => {
     );
   };
 
-  const [profitdata, setprofitdata] = useState(null);
+  const [profitdata, setprofitdata] = useState([
+    {addData: {'': 0}, minusData: {'': 0}, result: {'': 0}},
+  ]);
+  const [pload, setpload] = useState(true);
 
   const ProfitnLossView = () => {
     useEffect(() => {
-      if (profitdata === null) {
+      if (pload) {
         FetchData();
       }
     }, []);
@@ -925,20 +938,21 @@ const ReportScreen = ({navigation}) => {
 
     const FetchData = () => {
       setrefresh(true);
-      setprofitdata(null);
+      // setprofitdata(null);
+
       axios
         .get('/api/profitnloss/')
         .then(res => {
           console.log(res.data);
-          setprofitdata(res.data);
+          if (res.data.addData) {
+            setprofitdata(res.data);
+          }
           setrefresh(false);
+          setpload(false);
         })
         .catch(err => console.log(err));
     };
 
-    if (profitdata === null) {
-      return <View></View>;
-    }
     let widthwidth = C.windowWidth * 95 - 50;
 
     let tablearr = [50, widthwidth / 3, widthwidth / 3, widthwidth / 3];
@@ -950,119 +964,132 @@ const ReportScreen = ({navigation}) => {
       justifyContent: 'center',
       padding: 5,
     };
-    return (
-      <ScrollView
-        style={{backgroundColor: 'white', flex: 1}}
-        refreshControl={
-          <RefreshControl onRefresh={FetchData} refreshing={refresh} />
-        }>
-        <Text style={{...s.bold_label}}>2022</Text>
-        <LineChart
-          data={{
-            labels: Object.keys(profitdata.addData),
-            datasets: [
-              {
-                data: Object.values(profitdata.addData),
-                color: (opacity = 1) => `rgba(13, 209, 6, ${opacity})`,
-              },
-              {
-                data: Object.values(profitdata.minusData),
-                color: (opacity = 1) => `rgba(209, 6, 33, ${opacity})`,
-              },
-            ],
-          }}
-          width={C.windowWidth * 95} // from react-native
-          height={300}
-          yAxisSuffix=" k"
-          withHorizontalLines
-          yAxisInterval={1} // optional, defaults to 1
-          verticalLabelRotation={-90}
-          chartConfig={chartConfig}
-          bezier
-          style={{
-            marginVertical: 8,
-            borderRadius: 16,
-          }}
-        />
-        <View>
-          <View style={{flex: 1, flexDirection: 'row'}}>
-            <View style={{...headerstyle, width: tablearr[0]}}>
-              <Text style={{color: 'black', textAlign: 'center'}}>{t('Time')}</Text>
+
+    if (pload === false) {
+      return (
+        <ScrollView
+          style={{backgroundColor: 'white', flex: 1}}
+          refreshControl={
+            <RefreshControl onRefresh={FetchData} refreshing={refresh} />
+          }>
+          <Text style={{...s.bold_label}}>2022</Text>
+          <LineChart
+            data={{
+              labels: Object.keys(profitdata.addData),
+              datasets: [
+                {
+                  data: Object.values(profitdata.addData),
+                  color: (opacity = 1) => `rgba(13, 209, 6, ${opacity})`,
+                },
+                {
+                  data: Object.values(profitdata.minusData),
+                  color: (opacity = 1) => `rgba(209, 6, 33, ${opacity})`,
+                },
+              ],
+            }}
+            width={C.windowWidth * 95} // from react-native
+            height={300}
+            yAxisSuffix=" k"
+            withHorizontalLines
+            yAxisInterval={1} // optional, defaults to 1
+            verticalLabelRotation={-90}
+            chartConfig={chartConfig}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+          <View>
+            <View style={{flex: 1, flexDirection: 'row'}}>
+              <View style={{...headerstyle, width: tablearr[0]}}>
+                <Text style={{color: 'black', textAlign: 'center'}}>
+                  {t('Time')}
+                </Text>
+              </View>
+              <View style={{...headerstyle, width: tablearr[1]}}>
+                <Text style={{color: 'black', textAlign: 'center'}}>
+                  {t('Income')}
+                </Text>
+              </View>
+              <View style={{...headerstyle, width: tablearr[2]}}>
+                <Text style={{color: 'black', textAlign: 'center'}}>
+                  {t('Expense&Purchase')}
+                </Text>
+              </View>
+              <View style={{...headerstyle, width: tablearr[3]}}>
+                <Text style={{color: 'black', textAlign: 'center'}}>
+                  {t('Profit&Loss')}
+                </Text>
+              </View>
             </View>
-            <View style={{...headerstyle, width: tablearr[1]}}>
-              <Text style={{color: 'black', textAlign: 'center'}}>{t('Income')}</Text>
-            </View>
-            <View style={{...headerstyle, width: tablearr[2]}}>
-              <Text style={{color: 'black', textAlign: 'center'}}>
-                {t('Expense&Purchase')}
-              </Text>
-            </View>
-            <View style={{...headerstyle, width: tablearr[3]}}>
-              <Text style={{color: 'black', textAlign: 'center'}}>
-                {t('Profit&Loss')}
-              </Text>
+            <View style={{flex: 1, flexDirection: 'row'}}>
+              <View style={{flexDirection: 'column', width: tablearr[0]}}>
+                {Object.keys(profitdata.result).map((data, index) => (
+                  <View
+                    key={index}
+                    style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
+                    <Text
+                      style={{color: 'black', textAlign: 'center'}}
+                      key={index}>
+                      {data.substring(0, 3)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              <View style={{flexDirection: 'column', width: tablearr[1]}}>
+                {Object.values(profitdata.addData).map((data, index) => (
+                  <View
+                    key={index}
+                    style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
+                    <Text
+                      style={{color: 'black', textAlign: 'right'}}
+                      key={index}>
+                      {numberWithCommas(data) + ' Ks'}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              <View style={{flexDirection: 'column', width: tablearr[2]}}>
+                {Object.values(profitdata.minusData).map((data, index) => (
+                  <View
+                    key={index}
+                    style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
+                    <Text
+                      style={{color: 'black', textAlign: 'right'}}
+                      key={index}>
+                      {numberWithCommas(data) + ' Ks'}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              <View style={{flexDirection: 'column', width: tablearr[3]}}>
+                {Object.values(profitdata.result).map((data, index) => (
+                  <View
+                    key={index}
+                    style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
+                    <Text
+                      style={{
+                        color: data <= 0 ? 'red' : 'green',
+                        textAlign: 'right',
+                      }}
+                      key={index}>
+                      {numberWithCommas(data) + ' Ks'}
+                    </Text>
+                  </View>
+                ))}
+              </View>
             </View>
           </View>
-          <View style={{flex: 1, flexDirection: 'row'}}>
-            <View style={{flexDirection: 'column', width: tablearr[0]}}>
-              {Object.keys(profitdata.result).map((data, index) => (
-                <View
-                  key={index}
-                  style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
-                  <Text
-                    style={{color: 'black', textAlign: 'center'}}
-                    key={index}>
-                    {data.substring(0, 3)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-            <View style={{flexDirection: 'column', width: tablearr[1]}}>
-              {Object.values(profitdata.addData).map((data, index) => (
-                <View
-                  key={index}
-                  style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
-                  <Text
-                    style={{color: 'black', textAlign: 'right'}}
-                    key={index}>
-                    {numberWithCommas(data) + ' Ks'}
-                  </Text>
-                </View>
-              ))}
-            </View>
-            <View style={{flexDirection: 'column', width: tablearr[2]}}>
-              {Object.values(profitdata.minusData).map((data, index) => (
-                <View
-                  key={index}
-                  style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
-                  <Text
-                    style={{color: 'black', textAlign: 'right'}}
-                    key={index}>
-                    {numberWithCommas(data) + ' Ks'}
-                  </Text>
-                </View>
-              ))}
-            </View>
-            <View style={{flexDirection: 'column', width: tablearr[3]}}>
-              {Object.values(profitdata.result).map((data, index) => (
-                <View
-                  key={index}
-                  style={{padding: 5, borderColor: 'black', borderWidth: 1}}>
-                  <Text
-                    style={{
-                      color: data <= 0 ? 'red' : 'green',
-                      textAlign: 'right',
-                    }}
-                    key={index}>
-                    {numberWithCommas(data) + ' Ks'}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
+        </ScrollView>
+      );
+    } else {
+      return (
+        <View style={{alignItems: 'center', justifyContent: 'center'}}>
+          <Text>Nothing To Show</Text>
         </View>
-      </ScrollView>
-    );
+      );
+    }
   };
 
   render_count = render_count + 1;
@@ -1108,7 +1135,9 @@ const ReportScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>{t('This_Month')}</Text>
+              <Text style={{color: 'white', padding: 10}}>
+                {t('This_Month')}
+              </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1121,7 +1150,9 @@ const ReportScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>{t('This_Year')}</Text>
+              <Text style={{color: 'white', padding: 10}}>
+                {t('This_Year')}
+              </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1134,12 +1165,16 @@ const ReportScreen = ({navigation}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>{t('Custom_Date')}</Text>
+              <Text style={{color: 'white', padding: 10}}>
+                {t('Custom_Date')}
+              </Text>
             </View>
           </TouchableOpacity>
 
           <MessageModalNormal show={cudmodal} onClose={OnClosenOpenCud}>
-            <Text style={{...s.bold_label, marginTop: 8}}>{t('Start_Date')}</Text>
+            <Text style={{...s.bold_label, marginTop: 8}}>
+              {t('Start_Date')}
+            </Text>
 
             <View
               style={{
@@ -1253,8 +1288,8 @@ const ReportScreen = ({navigation}) => {
               },
             }}>
             <Tab.Screen name={t('Table')} component={TableView} />
-            <Tab.Screen name={t("Chart")} component={ChartView} />
-            <Tab.Screen name={t("Profit&Loss")} component={ProfitnLossView} />
+            <Tab.Screen name={t('Chart')} component={ChartView} />
+            <Tab.Screen name={t('Profit&Loss')} component={ProfitnLossView} />
           </Tab.Navigator>
         </View>
       </View>

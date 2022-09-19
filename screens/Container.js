@@ -15,6 +15,7 @@ const SContainer = () => {
   axios.defaults.baseURL = 'http://192.168.43.247:8000';
   const [isloading, setIsLoading] = useState();
   const [userToken, setToken] = useState();
+
   useEffect(() => {
     GetToken();
   }, []);
@@ -30,6 +31,7 @@ const SContainer = () => {
       }
     });
   };
+
   if (isloading) {
     return (
       <View>

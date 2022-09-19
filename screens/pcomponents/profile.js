@@ -21,6 +21,7 @@ import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Container from '../Container';
+import CheckBox from '@react-native-community/checkbox';
 
 const Icon = props => <Icons {...props} color={'#000'} />;
 
@@ -42,6 +43,7 @@ const Profile = ({navigation, route}) => {
   };
   useEffect(() => {
     LoadProfile();
+    getSettings();
   }, []);
 
   const {t, i18n} = useTranslation();
@@ -51,7 +53,6 @@ const Profile = ({navigation, route}) => {
     axios
       .get('/api/profile/')
       .then(res => {
-        console.log(res.data);
         setPddata(res.data);
         setIsLoad(false);
       })
@@ -325,20 +326,20 @@ const Profile = ({navigation, route}) => {
     );
   };
 
-  const [settings, setSettings] = useState({language: 'mm', datascope: 'year'});
+  const [settings, setSettings] = useState({language: 'en', datascope: 'year'});
 
-  console.log(route);
-
-  const SaveSettings = setting => {
-    EncryptedStorage.setItem(JSON.stringify(setting), 'settings')
-      .then(res => console.log('Res'))
-      .catch(err => console.log('err'));
+  const SaveSettings = async setting => {
+    await EncryptedStorage.setItem('setting_data', JSON.stringify(setting));
+    console.log('Setting Saved', JSON.stringify(setting));
   };
 
   const getSettings = () => {
-    EncryptedStorage.getItem('settings')
+    // Set language from i18n
+    setSettings({...settings, ['language']: i18n.language});
+
+    EncryptedStorage.getItem('setting_data')
       .then(res => {
-        console.log(res);
+        console.log('get Settings', res);
         if (res !== null) {
           setSettings(JSON.parse(res));
         }
@@ -398,6 +399,20 @@ const Profile = ({navigation, route}) => {
       </View>
     );
   }
+
+  const HandleSettings = (value, name) => {
+    const setting_temp = {...settings, [name]: value};
+    setSettings(setting_temp);
+    console.log('Handle Setting,', settings);
+    if (name === 'language') {
+      i18n
+        .changeLanguage(value)
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
+    }
+    SaveSettings(setting_temp);
+  };
+
   return (
     <View style={styles.contianer}>
       <RenderChooseImageModal show={showmodal} />
@@ -513,22 +528,104 @@ const Profile = ({navigation, route}) => {
             borderRadius: 10,
             backgroundColor: '#f0f0f0',
           }}>
-          <TouchableOpacity>
-            <View style={styles.FirstButtonStyle}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>
-                {t('Language')}
-              </Text>
-              <Text style={styles.buttonFont}>{pdata.name}</Text>
+          <View style={styles.FirstButtonStyle}>
+            <Text style={{color: 'black', fontWeight: 'bold'}}>
+              {t('Language')}
+            </Text>
+            <View style={{...s.flexrow_aligncenter}}>
+              <Icons name={'language-outline'} size={30} color={'#000'} />
+              <View style={{...s.flexrow_aligncenter}}>
+                <TouchableOpacity
+                  onPress={() =>
+                    HandleSettings(
+                      settings.language === 'en' ? 'mm' : 'en',
+                      'language',
+                    )
+                  }>
+                  <View style={{...s.flexrow_aligncenter, margin: 5}}>
+                    <CheckBox
+                      value={settings.language === 'en'}
+                      onValueChange={e =>
+                        HandleSettings(e === true ? 'en' : 'mm', 'language')
+                      }
+                    />
+                    <Text style={{fontSize: 15, color: 'black', margin: 5}}>
+                      English
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    HandleSettings(
+                      settings.language === 'mm' ? 'en' : 'mm',
+                      'language',
+                    )
+                  }>
+                  <View style={{...s.flexrow_aligncenter, margin: 5}}>
+                    <CheckBox
+                      value={settings.language === 'mm'}
+                      onValueChange={e =>
+                        HandleSettings(e === true ? 'mm' : 'en', 'language')
+                      }
+                    />
+                    <Text style={{fontSize: 15, color: 'black', margin: 5}}>
+                      Myanmar
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
-          </TouchableOpacity>
+          </View>
+
           <TouchableOpacity>
             <View style={styles.buttonColor}>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>
+                {t('RTS')}
+              </Text>
               <View style={{...s.flexrow_aligncenter}}>
-                <Icons name={'log-out-outline'} size={30} color={'#000'} />
-                <Text
-                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
-                  {t('Logout')}
-                </Text>
+                <Icons name={'calendar-outline'} size={30} color={'#000'} />
+                <View style={{...s.flexrow_aligncenter}}>
+                  <TouchableOpacity
+                    onPress={() => HandleSettings('year', 'datascope')}>
+                    <View style={{...s.flexrow_aligncenter, margin: 5}}>
+                      <CheckBox
+                        value={settings.datascope === 'year'}
+                        onValueChange={e => HandleSettings('year', 'datascope')}
+                      />
+                      <Text style={{fontSize: 15, color: 'black', margin: 5}}>
+                        {settings.datascope === 'year' ? 'Year' : 'Y'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => HandleSettings('month', 'datascope')}>
+                    <View style={{...s.flexrow_aligncenter, margin: 5}}>
+                      <CheckBox
+                        value={settings.datascope === 'month'}
+                        onValueChange={e =>
+                          HandleSettings('month', 'datascope')
+                        }
+                      />
+                      <Text style={{fontSize: 15, color: 'black', margin: 5}}>
+                        {settings.datascope === 'month' ? 'Month' : 'M'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => HandleSettings('today', 'datascope')}>
+                    <View style={{...s.flexrow_aligncenter, margin: 5}}>
+                      <CheckBox
+                        value={settings.datascope === 'today'}
+                        onValueChange={e =>
+                          HandleSettings('today', 'datascope')
+                        }
+                      />
+                      <Text style={{fontSize: 15, color: 'black', margin: 5}}>
+                        {settings.datascope === 'today' ? 'Today' : 'T'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </TouchableOpacity>
