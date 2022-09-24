@@ -14,7 +14,13 @@ import {
 import axios from 'axios';
 import Icons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'react-native-image-picker';
-import {IMAGE as I, COLOR as C, STYLE as s, ALERT as a} from '../../Database';
+import {
+  IMAGE as I,
+  COLOR as C,
+  STYLE as s,
+  ALERT as a,
+  appversion,
+} from '../../Database';
 import {MessageModalNormal} from '../MessageModal';
 
 import {useTranslation} from 'react-i18next';
@@ -626,6 +632,48 @@ const Profile = ({navigation, route}) => {
                     </View>
                   </TouchableOpacity>
                 </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => console.log(appversion)}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'card-outline'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  Pricing
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => console.log(appversion)}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'mail-open-outline'} size={30} color={'#000'} />
+                <Text
+                  style={{
+                    color: 'black',
+                    fontWeight: 'bold',
+                    marginLeft: 5,
+                  }}>
+                  Feedback
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => console.log(appversion)}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Image
+                  source={I.app_logo}
+                  style={{width: 30, height: 30}}
+                  resizeMode={'contain'}
+                />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  {t('App Version') + ' ' + appversion}
+                </Text>
               </View>
             </View>
           </TouchableOpacity>

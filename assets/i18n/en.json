@@ -100,7 +100,11 @@
     "TMP": "Top Money Products",
     "Price2":"Price",
 
-    "RTS":"Report Time Scope"
+    "RTS":"Report Time Scope",
+
+    "ComputingData":"Computing Data",
+    "ComputeProfit":"Compute Profit"
+
     
    
   }

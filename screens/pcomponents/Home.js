@@ -30,8 +30,8 @@ import {Table, Row, Rows} from 'react-native-table-component';
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 import {MessageModalNormal} from '../MessageModal';
+let settings = {};
 const HomeScreen = ({navigation, route}) => {
-  let settings = {};
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
   };
@@ -59,6 +59,7 @@ const HomeScreen = ({navigation, route}) => {
 
   const {t, i18n} = useTranslation();
 
+  const [Sales_Data, setSales_Data] = useState([]);
   const [salesData, setSalesData] = useState([]);
   const [productData, setProductData] = useState([]);
   const [expenseData, setExpenseData] = useState([]);
@@ -86,6 +87,8 @@ const HomeScreen = ({navigation, route}) => {
     LoadProfile();
 
     getTopProduct();
+
+    getSalesChartFServer();
   };
 
   const getTopProduct = (time = 'year') => {
@@ -133,6 +136,24 @@ const HomeScreen = ({navigation, route}) => {
         params: {
           type: 'DT',
           time: settings.datascope,
+        },
+      })
+      .then(res => {
+        setSales_Data(res.data.DATA);
+
+        // setTimeout(() => {
+        //   getSalesChartFromServer(res.data.DATA, 't');
+        // }, 1000);
+      })
+      .catch(err => console.log(err));
+  };
+
+  const getSalesChartFServer = (type = 'DT', time = 'year', startd, endd) => {
+    axios
+      .get('/api/sales/', {
+        params: {
+          type: 'DT',
+          time: 'year',
         },
       })
       .then(res => {
@@ -626,7 +647,7 @@ const HomeScreen = ({navigation, route}) => {
                     fontSize: 20,
                     color: 'white',
                   }}>
-                  {numberWithCommas(SumSales(salesData))} MMK
+                  {numberWithCommas(SumSales(Sales_Data))} MMK
                 </Text>
               </View>
               <TouchableOpacity
@@ -888,27 +909,32 @@ const HomeScreen = ({navigation, route}) => {
                 </View>
 
                 <ScrollView nestedScrollEnabled={true}>
-                  {topProduct.map((item, index) => (
-                    <View>
-                      <View style={{flex: 1, flexDirection: 'row'}}>
-                        <View style={{...styles.cell, width: tablearr[0]}}>
-                          <Text style={{color: 'black', textAlign: 'center'}}>
-                            {index + 1}
-                          </Text>
-                        </View>
-                        <View style={{...styles.cell, width: tablearr[1]}}>
-                          <Text style={{color: 'black', textAlign: 'center'}}>
-                            {item.name}
-                          </Text>
-                        </View>
-                        <View style={{...styles.cell, width: tablearr[2]}}>
-                          <Text style={{color: 'black', textAlign: 'right'}}>
-                            {numberWithCommas(item.price) + ' MMK'}
-                          </Text>
+                  {topProduct
+                    .sort(
+                      (i1, i2) =>
+                        parseInt(i2.price, 10) - parseInt(i1.price, 10),
+                    )
+                    .map((item, index) => (
+                      <View>
+                        <View style={{flex: 1, flexDirection: 'row'}}>
+                          <View style={{...styles.cell, width: tablearr[0]}}>
+                            <Text style={{color: 'black', textAlign: 'center'}}>
+                              {index + 1}
+                            </Text>
+                          </View>
+                          <View style={{...styles.cell, width: tablearr[1]}}>
+                            <Text style={{color: 'black', textAlign: 'center'}}>
+                              {item.name}
+                            </Text>
+                          </View>
+                          <View style={{...styles.cell, width: tablearr[2]}}>
+                            <Text style={{color: 'black', textAlign: 'right'}}>
+                              {numberWithCommas(item.price) + ' MMK'}
+                            </Text>
+                          </View>
                         </View>
                       </View>
-                    </View>
-                  ))}
+                    ))}
                 </ScrollView>
               </View>
             </ScrollView>

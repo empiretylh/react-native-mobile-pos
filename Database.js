@@ -83,6 +83,8 @@ export const IMAGE = {
   d3: require('./assets/color/d3.png'),
   d4: require('./assets/color/d4.png'),
 
+  app_logo: require('./assets/image/app_logo.png'),
+
   np: require('./assets/image/logo.png'),
   loadgif: require('./assets/image/loading.gif'),
   spinnerloadgif: require('./assets/image/spinnerloading.gif'),
