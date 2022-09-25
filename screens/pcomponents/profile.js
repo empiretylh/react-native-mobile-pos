@@ -28,6 +28,7 @@ import '../../assets/i18n/i18n';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Container from '../Container';
 import CheckBox from '@react-native-community/checkbox';
+import {TextInput} from 'react-native-gesture-handler';
 
 const Icon = props => <Icons {...props} color={'#000'} />;
 
@@ -333,6 +334,8 @@ const Profile = ({navigation, route}) => {
   };
 
   const [settings, setSettings] = useState({language: 'en', datascope: 'year'});
+  const [fbshow, setFbshow] = useState(false);
+  const [feedback, setFeedback] = useState();
 
   const SaveSettings = async setting => {
     await EncryptedStorage.setItem('setting_data', JSON.stringify(setting));
@@ -419,10 +422,49 @@ const Profile = ({navigation, route}) => {
     SaveSettings(setting_temp);
   };
 
+  const FeedbackModal = () => (
+    <View>
+      <Text style={{fontSize: 18, color: 'black'}}>Feedback</Text>
+      <Text style={{color: 'black'}}>Type your Feedback</Text>
+      <TextInput
+        multiline
+        placeholder="Type your feedback here"
+        style={{...inputS, color: '#0f0f0f'}}
+        onChangeText={e => setFeedback(e)}
+      />
+      <TouchableOpacity
+        onPress={() => {
+          if (feedback) {
+            PostFeedBack(feedback);
+          } else {
+            a.rqf();
+          }
+        }}
+        style={{...s.blue_button, marginTop: 8, padding: 10}}>
+        <Text style={{...s.bold_label, color: 'white'}}>
+          {t('Send FeedBack')}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const OnCloseFbShow = () => setFbshow(!fbshow);
+  const PostFeedBack = message => {
+    axios
+      .post('/api/feedback/', {message: message})
+      .then(res => {
+        console.log(res);
+        OnCloseFbShow();
+      })
+      .catch(err => console.log(err));
+  };
+
   return (
     <View style={styles.contianer}>
       <RenderChooseImageModal show={showmodal} />
-
+      <MessageModalNormal show={fbshow} onClose={OnCloseFbShow}>
+        {FeedbackModal()}
+      </MessageModalNormal>
       <ScrollView style={styles.contianer}>
         <View style={styles.profileimage}>
           <View
@@ -511,6 +553,16 @@ const Profile = ({navigation, route}) => {
                 {t('Phone_Number')}
               </Text>
               <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.buttonColor}>
+              <Text style={{color: 'black', fontWeight: 'bold'}}>
+                {t('Address')}
+              </Text>
+              <Text style={styles.buttonFont}>
+                {pdata.address ? pdata.address : 'No Address'}
+              </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity>
@@ -647,7 +699,7 @@ const Profile = ({navigation, route}) => {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log(appversion)}>
+          <TouchableOpacity onPress={() => setFbshow(true)}>
             <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
               <View style={{...s.flexrow_aligncenter}}>
                 <Icons name={'mail-open-outline'} size={30} color={'#000'} />
@@ -751,3 +803,15 @@ const styles = StyleSheet.create({
 });
 
 export default Profile;
+
+const inputS = {
+  ...s.flexrow_aligncenter_j_between,
+  borderRadius: 15,
+  minHeight: 45,
+  maxHeight: 100,
+  borderColor: 'black',
+  borderWidth: 1.5,
+  padding: 10,
+  paddingRight: 10,
+  marginTop: 10,
+};
