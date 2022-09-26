@@ -466,6 +466,7 @@ const Profile = ({navigation, route}) => {
         {FeedbackModal()}
       </MessageModalNormal>
       <ScrollView style={styles.contianer}>
+
         <View style={styles.profileimage}>
           <View
             style={{

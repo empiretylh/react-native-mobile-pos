@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,29 @@ import {
 import Icons from 'react-native-vector-icons/Ionicons';
 import {IMAGE} from '../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import {STYLE as s} from '../../Database';
+import axios from 'axios';
 
 const Pricing = ({navigation, route}) => {
   const [visible, Setvisible] = useState(false);
 
+  useEffect(() => {
+    requestPrice();
+  }, []);
+
+  const requestPrice = () => {
+    axios
+      .get('/api/pricing/')
+      .then(res => console.log(res.data))
+      .catch(err => console.log(err));
+  };
+
   return (
     <View style={styles.container}>
-      <Text>Pricing</Text>
+      <Text style={{...s.bold_label, color: 'black', fontSize: 18}}>
+        Pricing
+      </Text>
+      <View style={{flexDirection: 'row'}}></View>
     </View>
   );
 };
@@ -25,7 +41,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f0f0f0',
-    margin: 5,
+    margin: 10,
   },
   appbar: {
     padding: 5,
