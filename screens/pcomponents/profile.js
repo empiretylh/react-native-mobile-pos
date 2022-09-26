@@ -688,7 +688,7 @@ const Profile = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => console.log(appversion)}>
+          <TouchableOpacity onPress={() => navigation.navigate('pricing')}>
             <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
               <View style={{...s.flexrow_aligncenter}}>
                 <Icons name={'card-outline'} size={30} color={'#000'} />

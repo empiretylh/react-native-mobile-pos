@@ -9,6 +9,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import {View, Text} from 'react-native';
 import Register from './SignUp';
 import Profile from './pcomponents/profile';
+import Pricing from './pcomponents/pricing';
 
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
@@ -69,6 +70,11 @@ const SContainer = () => {
             <Stack.Screen
               name="profile"
               component={Profile}
+              initialParams={{token: setToken}}
+            />
+            <Stack.Screen
+              name="pricing"
+              component={Pricing}
               initialParams={{token: setToken}}
             />
           </>
