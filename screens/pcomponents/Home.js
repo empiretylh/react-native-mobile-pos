@@ -30,6 +30,8 @@ import {Table, Row, Rows} from 'react-native-table-component';
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 import {MessageModalNormal} from '../MessageModal';
+import Pricing from './pricing';
+
 let settings = {};
 const HomeScreen = ({navigation, route}) => {
   const RemoveToken = () => {
@@ -566,6 +568,11 @@ const HomeScreen = ({navigation, route}) => {
     alignItems: 'center',
     justifyContent: 'center',
   };
+  if (pdata) {
+    if (!pdata.is_plan && !pdata.is_superuser) {
+      return <Pricing route={{params: route.params}} />;
+    }
+  }
 
   return (
     <ScrollView

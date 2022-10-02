@@ -142,6 +142,7 @@ export const MessageModalNormal = ({
   onClose,
   width,
   nobackExit,
+  height,
 }) => {
   // const backAction = () => {
   //   console.log('What');
@@ -173,6 +174,7 @@ export const MessageModalNormal = ({
         <View
           style={{
             width: width ? width : '80%',
+            height: height ? height : height,
             backgroundColor: 'white',
             borderRadius: 15,
             padding: 10,

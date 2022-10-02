@@ -11,39 +11,92 @@ import {
 import Icons from 'react-native-vector-icons/Ionicons';
 import {IMAGE} from '../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
-import {STYLE as s, COLOR as C} from '../../Database';
+import {
+  STYLE as s,
+  COLOR as C,
+  IMAGE as I,
+  ALERT as A,
+  isArrayhasData,
+} from '../../Database';
 import axios from 'axios';
+import {ScrollView} from 'react-native-gesture-handler';
+import Loading from './extra/Loading';
 
 const Pricing = ({navigation, route}) => {
-  const [visible, Setvisible] = useState(false);
+  const [modalVisible, SetmodalVisible] = useState(false);
 
   const [pricing, setPricing] = useState(null);
+  const [requestPrice, setRequestPrice] = useState(null);
+
+  const {token} = route.params;
+
+  const RemoveToken = () => {
+    EncryptedStorage.removeItem('secure_token');
+    // Container.InfoToken.setUserToken(null);
+    token(null);
+  };
 
   useEffect(() => {
     GetPrice();
   }, []);
 
   const GetPrice = () => {
+    SetmodalVisible(true);
     axios
       .get('/api/pricing/')
       .then(res => {
         console.log(res.data);
         setPricing(res.data.pricing);
+        setRequestPrice(res.data.pr_request);
+        SetmodalVisible(false);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        SetmodalVisible(false);
+      });
   };
 
   const RequestPrice = id => {
-    console.log('Requesting Price')
-    axios
-      .post('/api/pricing/', {type: id})
-      .then(res => {
-        console.log(res.data);
-      })
-      .catch(err => console.log(err));
+    console.log('Requesting Price');
+    if (isArrayhasData(requestPrice)) {
+      A.c_b();
+    } else {
+      SetmodalVisible(true);
+      axios
+        .post('/api/pricing/', {type: id})
+        .then(res => {
+          console.log(res.data);
+          SetmodalVisible(false);
+          GetPrice();
+        })
+        .catch(err => {
+          console.log(err);
+          SetmodalVisible(false);
+        });
+    }
   };
 
-  const Plan = item => {
+  const DeleteRequest = id => {
+    console.log('Deleteing Request Price');
+    SetmodalVisible(true);
+    axios
+      .delete('/api/pricing/', {
+        params: {
+          type: id,
+        },
+      })
+      .then(res => {
+        console.log(res.data);
+        SetmodalVisible(false);
+        GetPrice();
+      })
+      .catch(err => {
+        console.log(err);
+        SetmodalVisible(false);
+      });
+  };
+
+  const Plan = (item, request) => {
     return (
       <View style={{flexDirection: 'column'}}>
         <View style={{flexDirection: 'row'}}>
@@ -59,7 +112,13 @@ const Pricing = ({navigation, route}) => {
                 alignItems: 'center',
                 width: (C.windowWidth * 90) / 3.5,
               }}>
-              <Text style={{color: 'black', fontSize: 20, fontWeight: 'bold'}}>
+              <Text
+                style={{
+                  color: 'black',
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                }}>
                 {item.title}
               </Text>
               <Text style={{color: 'black', fontSize: 15}}>
@@ -117,64 +176,142 @@ const Pricing = ({navigation, route}) => {
           </View>
         </View>
         <TouchableOpacity
-          style={{
-            ...s.blue_button,
-            padding: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }} 
-          onPress={()=>RequestPrice(item.id)}
-          >
-          <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
-            Buy
-          </Text>
-          <Text style={{fontSize: 19, color: 'yellow', fontWeight: 'bold'}}>
-            {' '}
-            {item.title}{' '}
-          </Text>
-          <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
-            Package
-          </Text>
+          style={[
+            {
+              ...s.blue_button,
+              padding: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+            request && {...s.black_button},
+          ]}
+          onPress={() =>
+            request ? DeleteRequest(item.id) : RequestPrice(item.id)
+          }>
+          {request ? (
+            <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
+              Cancel Request
+            </Text>
+          ) : (
+            <>
+              <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
+                Buy{' '}
+              </Text>
+              <Text style={{fontSize: 19, color: 'yellow', fontWeight: 'bold'}}>
+                {item.title}{' '}
+              </Text>
+              <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>
+                Package
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
+        {request ? (
+          <TouchableOpacity style={{...s.blue_button}}>
+            <Text style={{color: 'white', fontWeight: 'bold'}}>
+              How to pay money
+            </Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     );
   };
 
-  if (pricing) {
+  if (pricing && requestPrice) {
     return (
-      <View style={styles.container}>
-        <Text style={{...s.bold_label, color: 'white', fontSize: 20}}>
-          Pricing
-        </Text>
+      <ScrollView style={styles.container}>
+        <Loading
+          modal={true}
+          show={modalVisible}
+          onClose={() => SetmodalVisible(false)}
+          infotext={'Loading'}
+        />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+          <Text style={{...s.bold_label, color: 'white', fontSize: 20}}>
+            Pricing
+          </Text>
+          <TouchableOpacity onPress={() => RemoveToken()}>
+            <Text style={{color: 'white'}}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Request Plan */}
+        {isArrayhasData(requestPrice) ? (
+          <View
+            style={{
+              flexDirection: 'column',
+              backgroundColor: 'yellow',
+              padding: 2,
+              marginTop: 15,
+              borderRadius: 15,
+              alignItems: 'center',
+            }}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Image
+                source={I.app_logo}
+                style={{width: 30, height: 30}}
+                resizeMode={'contain'}
+              />
+              <Text
+                style={{
+                  ...s.bold_label,
+                  color: 'black',
+                  fontSize: 18,
+                  marginLeft: 5,
+                }}>
+                Requested Plan
+              </Text>
+            </View>
+            <View style={{margin: 2, marginTop: 0}}>
+              {requestPrice.map((item, index) => (
+                <View>{Plan(item.rq_price, true)}</View>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
+        {/* Plans */}
         <View
           style={{
             flexDirection: 'column',
             backgroundColor: 'white',
-            padding: 8,
+            padding: 2,
             marginTop: 15,
             borderRadius: 15,
             alignItems: 'center',
           }}>
-          <View style={{alignItems: 'center'}}>
-            <Text style={{...s.bold_label, color: 'black', fontSize: 18}}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image
+              source={I.app_logo}
+              style={{width: 30, height: 30}}
+              resizeMode={'contain'}
+            />
+            <Text
+              style={{
+                ...s.bold_label,
+                color: 'black',
+                fontSize: 18,
+                marginLeft: 5,
+              }}>
               PLANS
             </Text>
           </View>
-          <View style={{margin: 2}}>
+          <View style={{margin: 2, marginTop: 0}}>
             {pricing.map((item, index) => (
               <View>{Plan(item)}</View>
             ))}
           </View>
         </View>
-      </View>
+      </ScrollView>
     );
   }
-  return (
-    <View>
-      <Text>Loading</Text>
-    </View>
-  );
+  return <Loading />;
 };
 
 const styles = StyleSheet.create({

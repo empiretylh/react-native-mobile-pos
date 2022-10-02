@@ -466,7 +466,6 @@ const Profile = ({navigation, route}) => {
         {FeedbackModal()}
       </MessageModalNormal>
       <ScrollView style={styles.contianer}>
-
         <View style={styles.profileimage}>
           <View
             style={{
@@ -689,7 +688,14 @@ const Profile = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('pricing')}>
+          <TouchableOpacity
+            onPress={() => {
+              console.log(pdata.is_superuser);
+              navigation.navigate({
+                name: pdata.is_superuser ? 'admin_pricing' : 'pricing',
+                params: route.params,
+              });
+            }}>
             <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
               <View style={{...s.flexrow_aligncenter}}>
                 <Icons name={'card-outline'} size={30} color={'#000'} />

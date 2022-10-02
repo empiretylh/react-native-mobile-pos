@@ -10,7 +10,7 @@ import {View, Text} from 'react-native';
 import Register from './SignUp';
 import Profile from './pcomponents/profile';
 import Pricing from './pcomponents/pricing';
-
+import AdminPricing from './pcomponents/adminpricing';
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
   axios.defaults.baseURL = 'http://192.168.43.247:8000';
@@ -75,6 +75,11 @@ const SContainer = () => {
             <Stack.Screen
               name="pricing"
               component={Pricing}
+              initialParams={{token: setToken}}
+            />
+            <Stack.Screen
+              name="admin_pricing"
+              component={AdminPricing}
               initialParams={{token: setToken}}
             />
           </>
