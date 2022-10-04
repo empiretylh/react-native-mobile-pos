@@ -23,7 +23,8 @@ const Container = ({navigation, route}) => {
         tabBarShowLabel: false,
         tabBarStyle: {
           padding: 10,
-          paddingBottom: 15,
+          paddingBottom: 20,
+          height:80,
         },
       }}>
       <Tab.Screen

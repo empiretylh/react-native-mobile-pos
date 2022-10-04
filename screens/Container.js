@@ -11,6 +11,7 @@ import Register from './SignUp';
 import Profile from './pcomponents/profile';
 import Pricing from './pcomponents/pricing';
 import AdminPricing from './pcomponents/adminpricing';
+import Loading from './pcomponents/extra/Loading';
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
   axios.defaults.baseURL = 'http://192.168.43.247:8000';
@@ -34,11 +35,7 @@ const SContainer = () => {
   };
 
   if (isloading) {
-    return (
-      <View>
-        <Text>Loading</Text>
-      </View>
-    );
+    return <Loading />;
   }
 
   return (

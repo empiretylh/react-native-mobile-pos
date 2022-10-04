@@ -29,6 +29,7 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import Container from '../Container';
 import CheckBox from '@react-native-community/checkbox';
 import {TextInput} from 'react-native-gesture-handler';
+import Loading from '../pcomponents/extra/Loading';
 
 const Icon = props => <Icons {...props} color={'#000'} />;
 
@@ -403,9 +404,7 @@ const Profile = ({navigation, route}) => {
   }
   if (pdata === null) {
     return (
-      <View>
-        <Text>Loading...</Text>
-      </View>
+     <Loading/>
     );
   }
 

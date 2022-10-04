@@ -140,7 +140,7 @@ export const ALERT = {
   sus: () =>
     Alert.alert('Successfully', 'Successfully Uploaded.', [{text: 'OK'}]),
   c_b: () =>
-    Alert.alert('Error', 'You cannot buy package when you has requsted plan.', [
+    Alert.alert('Error', 'The package cannot be purchased after the plan has been requested.', [
       {text: 'OK'},
     ]),
 };

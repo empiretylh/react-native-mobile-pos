@@ -16,6 +16,7 @@ import {
   TouchableOpacityBase,
   Button,
   TurboModuleRegistry,
+  Modal,
   TextInput,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
@@ -31,7 +32,11 @@ import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 import {MessageModalNormal} from '../MessageModal';
 import Pricing from './pricing';
-
+Date.prototype.addDays = function (days) {
+  var date = new Date(this.valueOf());
+  date.setDate(date.getDate() + days);
+  return date;
+};
 let settings = {};
 const HomeScreen = ({navigation, route}) => {
   const RemoveToken = () => {
@@ -126,6 +131,7 @@ const HomeScreen = ({navigation, route}) => {
       .then(res => {
         console.log(res.data);
         setPddata(res.data);
+        ComputeWarningDate(res.data);
       })
       .catch(res => {
         console.log(res);
@@ -563,15 +569,42 @@ const HomeScreen = ({navigation, route}) => {
 
   let tablearr = [50, widthwidth / 2, widthwidth / 2, widthwidth / 3];
 
+  const [d_w_modal, setD_w_modal] = useState(false);
+  const [d_w_day, setD_w_day] = useState(1);
+  const [price_modal, setprice_modal] = useState(false);
   const headerstyle = {
     ...styles.cell,
     alignItems: 'center',
     justifyContent: 'center',
   };
-  if (pdata) {
-    if (!pdata.is_plan && !pdata.is_superuser) {
-      return <Pricing route={{params: route.params}} />;
+
+  const ComputeWarningDate = data => {
+    const end_date = new Date(data.end_d);
+    const today_date = new Date();
+    var Difference_In_Time = end_date - today_date;
+    var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+
+    console.log(Math.round(Difference_In_Days));
+
+    if (Difference_In_Days <= 5) {
+      setD_w_modal(true);
+      setD_w_day(Math.round(Difference_In_Days));
     }
+
+    if (data) {
+      if (Difference_In_Days <= 0) {
+        setprice_modal(true);
+      }
+      console.log(data.end_d, 'PD Data end');
+    }
+  };
+
+  if (price_modal) {
+    return (
+      <Modal show={price_modal}>
+        <Pricing route={{params: route.params}} navigation={navigation}/>
+      </Modal>
+    );
   }
 
   return (
@@ -580,6 +613,7 @@ const HomeScreen = ({navigation, route}) => {
       style={s.Container}
       refreshControl={<RefreshControl onRefresh={Load} refreshing={refresh} />}>
       {/* appbar */}
+
       <MessageModalNormal show={showSO} onClose={onCloseSO} width={'100%'}>
         <View style={{alignItems: 'center'}}>
           <Text style={{...s.font_bold, color: 'black', padding: 5}}>
@@ -593,6 +627,35 @@ const HomeScreen = ({navigation, route}) => {
           style={{backgroundColor: 'white'}}
         />
       </MessageModalNormal>
+      <MessageModalNormal
+        show={d_w_modal}
+        onClose={() => {
+          setD_w_modal(false);
+        }}>
+        <View style={{alignItems: 'center', justifyContent: 'center'}}>
+          <Text style={{color: 'black', fontWeight: 'bold'}}>Date Warning</Text>
+          <Text style={{color: 'black', fontSize: 20, fontWeight: 'bold'}}>
+            {d_w_day} Days Left
+          </Text>
+          <Text style={{color: 'black'}}>
+            Only {d_w_day} days left for the plan to expire
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={{...s.blue_button, padding: 8}}
+          onPress={() =>
+            navigation.navigate({name: 'pricing', params: route.params})
+          }>
+          <Text style={{color: 'white'}}>See Plan</Text>
+        </TouchableOpacity>
+        {}
+        <TouchableOpacity
+          style={{...s.blue_button, padding: 8}}
+          onPress={() => setD_w_modal(false)}>
+          <Text style={{color: 'white'}}>Close</Text>
+        </TouchableOpacity>
+      </MessageModalNormal>
+
       {EditQty()}
       <View
         style={{
@@ -623,6 +686,7 @@ const HomeScreen = ({navigation, route}) => {
           )}
         </TouchableOpacity>
       </View>
+
       {/* view */}
       <View style={{flex: 1}}>
         <TouchableHighlight
@@ -1037,7 +1101,11 @@ const HomeScreen = ({navigation, route}) => {
           <Rows data={salesTable} textStyle={{margin: 6, color: 'black'}} />
         </Table>
         <View
-          style={{...s.flexrow_aligncenter_j_between, margin: 10, padding: 5}}>
+          style={{
+            ...s.flexrow_aligncenter_j_between,
+            margin: 10,
+            padding: 5,
+          }}>
           <Text style={{...s.font_bold, color: 'black'}}>
             {t('Total_Amount')}
           </Text>

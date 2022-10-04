@@ -4,12 +4,13 @@ import {
   View,
   Text,
   StyleSheet,
+  Linking,
   Image,
   FlatList,
   TouchableOpacity,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
-import {IMAGE} from '../Database';
+
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {
   STYLE as s,
@@ -27,6 +28,7 @@ const Pricing = ({navigation, route}) => {
 
   const [pricing, setPricing] = useState(null);
   const [requestPrice, setRequestPrice] = useState(null);
+  const [pdata, setPddata] = useState(null);
 
   const {token} = route.params;
 
@@ -38,7 +40,20 @@ const Pricing = ({navigation, route}) => {
 
   useEffect(() => {
     GetPrice();
+    LoadProfile();
   }, []);
+
+  const LoadProfile = () => {
+    axios
+      .get('/api/profile/')
+      .then(res => {
+        console.log(res.data);
+        setPddata(res.data);
+      })
+      .catch(res => {
+        console.log(res);
+      });
+  };
 
   const GetPrice = () => {
     SetmodalVisible(true);
@@ -176,6 +191,7 @@ const Pricing = ({navigation, route}) => {
           </View>
         </View>
         <TouchableOpacity
+          disabled={modalVisible}
           style={[
             {
               ...s.blue_button,
@@ -208,7 +224,11 @@ const Pricing = ({navigation, route}) => {
           )}
         </TouchableOpacity>
         {request ? (
-          <TouchableOpacity style={{...s.blue_button}}>
+          <TouchableOpacity
+            style={{...s.blue_button}}
+            onPress={() =>
+              Linking.openURL(axios.defaults.baseURL + '/howtopaymoney/')
+            }>
             <Text style={{color: 'white', fontWeight: 'bold'}}>
               How to pay money
             </Text>
@@ -218,7 +238,7 @@ const Pricing = ({navigation, route}) => {
     );
   };
 
-  if (pricing && requestPrice) {
+  if (pricing && requestPrice && pdata) {
     return (
       <ScrollView style={styles.container}>
         <Loading
@@ -236,10 +256,57 @@ const Pricing = ({navigation, route}) => {
           <Text style={{...s.bold_label, color: 'white', fontSize: 20}}>
             Pricing
           </Text>
-          <TouchableOpacity onPress={() => RemoveToken()}>
-            <Text style={{color: 'white'}}>Log Out</Text>
+
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate({name: 'profile', params: route.params})
+            }>
+            {pdata === null ? (
+              <Image
+                source={I.profile}
+                style={{width: 40, height: 40, borderRadius: 30}}
+              />
+            ) : (
+              <Image
+                source={
+                  pdata.profileimage
+                    ? {
+                        uri: axios.defaults.baseURL + pdata.profileimage,
+                      }
+                    : I.profile
+                }
+                style={{width: 40, height: 40, borderRadius: 30}}
+              />
+            )}
           </TouchableOpacity>
         </View>
+        {pdata.is_plan ? (
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 5,
+              borderRadius: 15,
+              marginTop: 15,
+            }}>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 18,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>
+              You have a purchased plan
+            </Text>
+            <Text
+              style={{
+                color: 'red',
+                fontSize: 15,
+                textAlign: 'center',
+              }}>
+              Your plan will be expire in {new Date(pdata.end_d).toDateString()}
+            </Text>
+          </View>
+        ) : null}
 
         {/* Request Plan */}
         {isArrayhasData(requestPrice) ? (

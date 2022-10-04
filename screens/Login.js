@@ -79,7 +79,7 @@ const LoginScreen = ({navigation,route}) => {
         Login
       </Text>
       <Image
-        source={IMAGE.np}
+        source={IMAGE.app_logo}
         style={{width: '100%', height: COLOR.windowHeight * 30}}
         resizeMode={'contain'}
       />
