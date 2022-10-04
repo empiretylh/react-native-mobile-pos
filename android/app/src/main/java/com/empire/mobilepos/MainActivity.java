@@ -1,4 +1,4 @@
-package com.creditsolution;
+package com.empire.mobilepos;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
@@ -12,7 +12,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "creditsolution";
+    return "Mobile POS";
   }
 
   /**

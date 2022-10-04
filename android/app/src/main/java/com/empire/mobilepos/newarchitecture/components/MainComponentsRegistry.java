@@ -1,4 +1,4 @@
-package com.creditsolution.newarchitecture.components;
+package com.empire.mobilepos.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
