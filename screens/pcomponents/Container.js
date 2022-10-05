@@ -12,6 +12,8 @@ import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
+
+
 const Tab = createBottomTabNavigator();
 const Container = ({navigation, route}) => {
   const bottomIconsize = 25;

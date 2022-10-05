@@ -12,6 +12,9 @@ import Profile from './pcomponents/profile';
 import Pricing from './pcomponents/pricing';
 import AdminPricing from './pcomponents/adminpricing';
 import Loading from './pcomponents/extra/Loading';
+
+import SplashScreen from 'react-native-splash-screen';
+
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
   axios.defaults.baseURL = 'http://192.168.43.247:8000';
@@ -34,10 +37,9 @@ const SContainer = () => {
     });
   };
 
-  if (isloading) {
-    return <Loading />;
+  if (isloading == false) {
+    SplashScreen.hide();
   }
-
   return (
     <NavigationContainer>
       <Stack.Navigator
