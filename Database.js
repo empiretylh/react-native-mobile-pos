@@ -86,41 +86,10 @@ export const IMAGE = {
   app_logo: require('./assets/image/app_logo.png'),
 
   np: require('./assets/image/logo.png'),
-  loadgif: require('./assets/image/loading.gif'),
+  thura: require('./assets/image/i.png'),
+
   spinnerloadgif: require('./assets/image/spinnerloading.gif'),
   profile: require('./assets/image/profile_images.jpeg'),
-  viber: require('./assets/image/viber.png'),
-  call: require('./assets/image/call.png'),
-  fb: require('./assets/image/fb.png'),
-  map: require('./assets/image/googlemaps.jpeg'),
-  send: require('./assets/image/send.png'),
-  send2: require('./assets/image/send2.png'),
-  thura: require('./assets/image/i.png'),
-  lisa: require('./assets/image/lisa.jpeg'),
-  charlie: require('./assets/image/charlie.jpeg'),
-  jisoo: require('./assets/image/jissio.jpeg'),
-  selna: require('./assets/image/selna.jpeg'),
-  rose: require('./assets/image/rose.jpg'),
-  ig: require('./assets/image/instagram/iglogo.png'),
-
-  pic1: require('./assets/image/instagram/pic1.jpg'),
-  pic2: require('./assets/image/instagram/pic2.jpg'),
-  pic3: require('./assets/image/instagram/pic3.jpg'),
-  pic4: require('./assets/image/instagram/pic4.webp'),
-  pic5: require('./assets/image/instagram/pic5.jpg'),
-  pic6: require('./assets/image/instagram/pic6.png'),
-
-  yt: require('./assets/image/youtube/youtube.png'),
-  short: require('./assets/image/youtube/short.png'),
-  stay: require('./assets/image/youtube/stay.jpeg'),
-  allweknow: require('./assets/image/youtube/allweknow.jpeg'),
-  mars: require('./assets/image/youtube/mars.jpeg'),
-  mon: require('./assets/image/youtube/mon.jpeg'),
-  saveme: require('./assets/image/youtube/saveme.jpeg'),
-  choy: require('./assets/image/youtube/choy.jpeg'),
-  ghost: require('./assets/image/youtube/ghost.jpeg'),
-
-  jb: require('./assets/image/youtube/jb.jpeg'),
 };
 
 export const ALERT = {
@@ -140,9 +109,11 @@ export const ALERT = {
   sus: () =>
     Alert.alert('Successfully', 'Successfully Uploaded.', [{text: 'OK'}]),
   c_b: () =>
-    Alert.alert('Error', 'The package cannot be purchased after the plan has been requested.', [
-      {text: 'OK'},
-    ]),
+    Alert.alert(
+      'Error',
+      'The package cannot be purchased after the plan has been requested.',
+      [{text: 'OK'}],
+    ),
 };
 export const numberWithCommas = (x = 0) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -152,30 +123,5 @@ export const isArrayhasData = (arr = []) => {
   return arr.length >= 1;
 };
 
-export const baseUrl = 'https://npweb.pythonanywhere.com';
+export const baseUrl = 'https://empirepos.pythonanywhere.com';
 export const appversion = '1.0';
-
-export const isEdit = {
-  isEdit: false,
-  type: null,
-  data: null,
-
-  set ChangeEdit(n) {
-    this.isEdit = n;
-  },
-  get getEdit() {
-    return this.isEdit;
-  },
-  set setData(n) {
-    this.data = n;
-  },
-  get getData() {
-    return this.isEdit;
-  },
-  set setType(n) {
-    this.type = n;
-  },
-  get getType() {
-    return this.type;
-  },
-};
