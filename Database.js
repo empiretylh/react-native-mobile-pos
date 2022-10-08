@@ -85,10 +85,6 @@ export const IMAGE = {
 
   app_logo: require('./assets/image/app_logo.png'),
 
-<<<<<<< HEAD
-=======
-  np: require('./assets/image/logo.png'),
->>>>>>> refs/remotes/origin/master
   thura: require('./assets/image/i.png'),
 
   spinnerloadgif: require('./assets/image/spinnerloading.gif'),
@@ -127,9 +123,6 @@ export const isArrayhasData = (arr = []) => {
 };
 
 export const baseUrl = 'https://empirepos.pythonanywhere.com';
-<<<<<<< HEAD
 
 // export const baseUrl = 'http://192.168.43.247:8000';
-=======
->>>>>>> refs/remotes/origin/master
 export const appversion = '1.0';

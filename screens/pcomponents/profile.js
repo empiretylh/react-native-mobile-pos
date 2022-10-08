@@ -8,21 +8,14 @@ import {
   Modal,
   Image,
   TouchableOpacity,
-<<<<<<< HEAD
   PermissionsAndroid,
   TouchableWithoutFeedback,
   Linking,
-=======
-  TouchableWithoutFeedback,
->>>>>>> refs/remotes/origin/master
   Text,
 } from 'react-native';
 import axios from 'axios';
 import Icons from 'react-native-vector-icons/Ionicons';
-<<<<<<< HEAD
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-=======
->>>>>>> refs/remotes/origin/master
 import * as ImagePicker from 'react-native-image-picker';
 import {
   IMAGE as I,
@@ -52,20 +45,14 @@ const Profile = ({navigation, route}) => {
   const [imagedata, setImageData] = useState([]);
   const [isPostSuccess, setIspostsuccess] = useState();
 
-<<<<<<< HEAD
   const [clickcount, setClickCount] = useState(0);
 
-=======
->>>>>>> refs/remotes/origin/master
   const [isLoad, setIsLoad] = useState(false);
   const {token} = route.params;
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
     // Container.InfoToken.setUserToken(null);
-<<<<<<< HEAD
 
-=======
->>>>>>> refs/remotes/origin/master
     token(null);
   };
   useEffect(() => {
@@ -356,10 +343,7 @@ const Profile = ({navigation, route}) => {
   const [settings, setSettings] = useState({language: 'en', datascope: 'year'});
   const [fbshow, setFbshow] = useState(false);
   const [feedback, setFeedback] = useState();
-<<<<<<< HEAD
   const [showthura, setShowThura] = useState(false);
-=======
->>>>>>> refs/remotes/origin/master
 
   const SaveSettings = async setting => {
     await EncryptedStorage.setItem('setting_data', JSON.stringify(setting));
@@ -382,20 +366,6 @@ const Profile = ({navigation, route}) => {
 
   let rdco;
 
-<<<<<<< HEAD
-=======
-  const randomcolor = () => {
-    let maxVal = 0xffffff; // 16777215
-    let randomNumber = Math.random() * maxVal;
-    randomNumber = Math.floor(randomNumber);
-    randomNumber = randomNumber.toString(16);
-    let randColor = randomNumber.padStart(6, 0);
-    console.log(randColor.toUpperCase());
-    rdco = `#${randColor.toUpperCase()}`;
-    return `#${randColor.toUpperCase()}`;
-  };
-
->>>>>>> refs/remotes/origin/master
   const bwcolor = color => {
     if (color.includes('F')) {
       return 'white';
@@ -428,16 +398,9 @@ const Profile = ({navigation, route}) => {
     var zeros = new Array(len).join('0');
     return (zeros + str).slice(-len);
   }
-<<<<<<< HEAD
 
   if (pdata === null) {
     return <Loading />;
-=======
-  if (pdata === null) {
-    return (
-     <Loading/>
-    );
->>>>>>> refs/remotes/origin/master
   }
 
   const HandleSettings = (value, name) => {
@@ -479,7 +442,6 @@ const Profile = ({navigation, route}) => {
     </View>
   );
 
-<<<<<<< HEAD
   const Thura_Modal = () => (
     <View
       style={{
@@ -531,8 +493,6 @@ const Profile = ({navigation, route}) => {
     </View>
   );
 
-=======
->>>>>>> refs/remotes/origin/master
   const OnCloseFbShow = () => setFbshow(!fbshow);
   const PostFeedBack = message => {
     axios
@@ -544,7 +504,6 @@ const Profile = ({navigation, route}) => {
       .catch(err => console.log(err));
   };
 
-<<<<<<< HEAD
   const HandleVersionCount = () => {
     if (clickcount === 3) {
       setClickCount(0);
@@ -558,15 +517,12 @@ const Profile = ({navigation, route}) => {
     setClickCount(0);
   };
 
-=======
->>>>>>> refs/remotes/origin/master
   return (
     <View style={styles.contianer}>
       <RenderChooseImageModal show={showmodal} />
       <MessageModalNormal show={fbshow} onClose={OnCloseFbShow}>
         {FeedbackModal()}
       </MessageModalNormal>
-<<<<<<< HEAD
       <MessageModalNormal
         show={showthura}
         onClose={onCloseShowThura}
@@ -576,8 +532,6 @@ const Profile = ({navigation, route}) => {
         backgroundColor={'black'}>
         {Thura_Modal()}
       </MessageModalNormal>
-=======
->>>>>>> refs/remotes/origin/master
       <ScrollView style={styles.contianer}>
         <View style={styles.profileimage}>
           <View
@@ -834,11 +788,7 @@ const Profile = ({navigation, route}) => {
               </View>
             </View>
           </TouchableOpacity>
-<<<<<<< HEAD
           <TouchableOpacity onPress={() => HandleVersionCount()}>
-=======
-          <TouchableOpacity onPress={() => console.log(appversion)}>
->>>>>>> refs/remotes/origin/master
             <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
               <View style={{...s.flexrow_aligncenter}}>
                 <Image

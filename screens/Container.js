@@ -21,10 +21,7 @@ const SContainer = () => {
 
   useEffect(() => {
     GetToken();
-<<<<<<< HEAD
     console.log('Get Tokens');
-=======
->>>>>>> refs/remotes/origin/master
   }, []);
 
   const GetToken = () => {
@@ -41,11 +38,7 @@ const SContainer = () => {
     });
   };
 
-<<<<<<< HEAD
   if (!isloading || userToken) {
-=======
-  if (!isloading && userToken) {
->>>>>>> refs/remotes/origin/master
     SplashScreen.hide();
     return (
       <NavigationContainer>

@@ -18,14 +18,10 @@ import Icons from 'react-native-vector-icons/Ionicons';
 import LoadingModal from './Loading';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
-<<<<<<< HEAD
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
 };
 const LoginScreen = ({navigation, route}) => {
-=======
-const LoginScreen = ({navigation,route}) => {
->>>>>>> refs/remotes/origin/master
   const {token} = route.params;
   const [data, setData] = useState();
   const [isfocus, setIsFocus] = useState({
@@ -48,11 +44,7 @@ const LoginScreen = ({navigation,route}) => {
         axios.defaults.headers.common = {
           Authorization: `Token ${res.data.token}`,
         };
-<<<<<<< HEAD
         token(res.data.token);
-=======
-        token(res.data.token)
->>>>>>> refs/remotes/origin/master
       })
       .catch(err => {
         console.log(JSON.stringify(err));
@@ -70,10 +62,7 @@ const LoginScreen = ({navigation,route}) => {
 
   const HandleChange = (name, e) => {
     const temp = {...data, [name]: e};
-<<<<<<< HEAD
 
-=======
->>>>>>> refs/remotes/origin/master
     setData(temp);
     console.log(temp);
   };
@@ -108,21 +97,14 @@ const LoginScreen = ({navigation,route}) => {
             marginTop: 10,
           }}
           placeholder={'Username'}
-<<<<<<< HEAD
           value={data ? (data.username ? data.username : '') : null}
           onChangeText={e => HandleChange('username', e.replaceAllTxt(' ', ''))}
-=======
-          onChangeText={e => HandleChange('username', e)}
->>>>>>> refs/remotes/origin/master
           onFocus={e => {
             let temp = {username: true, password: false};
             setIsFocus(temp);
             console.log(isfocus);
           }}
-<<<<<<< HEAD
           autoComplete={'username'}
-=======
->>>>>>> refs/remotes/origin/master
         />
         <Text style={{...STYLE.normal_label, marginTop: 10}}>Password </Text>
         <View
@@ -136,11 +118,7 @@ const LoginScreen = ({navigation,route}) => {
           <TextInput
             style={{
               flex: 1,
-<<<<<<< HEAD
               fontWeight: 'bold',
-=======
-              fontWeight:'bold'
->>>>>>> refs/remotes/origin/master
             }}
             placeholder={'Password'}
             onChangeText={e => HandleChange('password', e)}
