@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<<<<<<< HEAD
 
+=======
+	<!-- android_large___1 colors -->
+
+	<color name="colorPrimary">#FFFFFFFF</color>
+	<color name="colorPrimaryDark">#FFFFFFFF</color>
+	<color name="colorAccent">#D81B60</color>
+	<color name="purple_200">#FFBB86FC</color>
+	<color name="purple_500">#FF6200EE</color>
+	<color name="purple_700">#FF3700B3</color>
+	<color name="teal_200">#FF03DAC5</color>
+	<color name="teal_700">#FF018786</color>
+>>>>>>> refs/remotes/origin/master
 	<color name="black">#FF000000</color>
 	<color name="white">#FFFFFFFF</color>
 
 	<color name="_bg__android_large___1_ek2_color">#FFFFFF</color>
+<<<<<<< HEAD
 	<color name="mobile_pos_color">#000000</color>
+=======
+		<color name="mobile_pos_color">#000000</color>
+>>>>>>> refs/remotes/origin/master
 </resources>

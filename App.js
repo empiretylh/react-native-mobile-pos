@@ -1,15 +1,52 @@
+<<<<<<< HEAD
 import React from 'react';
 // Import all the components we are going to use
 import {StyleSheet} from 'react-native';
 
 import Container from './screens/Container';
+=======
+import React, {useState} from 'react';
+// Import all the components we are going to use
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  Text,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+
+// Import FBSDK
+import {
+  LoginButton,
+  AccessToken,
+  GraphRequest,
+  GraphRequestManager,
+} from 'react-native-fbsdk';
+import axios from 'axios';
+import Login from './screens/Login';
+import Container from './screens/Container';
+import Home from './screens/Home';
+import Messenger from './screens/Messenger';
+import Instagram from './screens/Instagram';
+import Youtube from './screens/Youtube';
+import Facebook from './screens/faceboook';
+>>>>>>> refs/remotes/origin/master
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+<<<<<<< HEAD
   }
   state = {};
 
+=======
+   
+  }
+  state = {};
+
+
+>>>>>>> refs/remotes/origin/master
   render() {
     return <Container />;
   }

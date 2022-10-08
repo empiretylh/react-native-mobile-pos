@@ -228,12 +228,15 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+<<<<<<< HEAD
          release {
       storeFile file('empirepos.keystore')
       storePassword 'empirepos'
       keyAlias 'empirepos'
       keyPassword 'empirepos'
     }
+=======
+>>>>>>> refs/remotes/origin/master
     }
     buildTypes {
         debug {
@@ -242,7 +245,11 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
+<<<<<<< HEAD
             signingConfig signingConfigs.release
+=======
+            signingConfig signingConfigs.debug
+>>>>>>> refs/remotes/origin/master
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }

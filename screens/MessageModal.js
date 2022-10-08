@@ -142,8 +142,11 @@ export const MessageModalNormal = ({
   onClose,
   width,
   nobackExit,
+<<<<<<< HEAD
   radius = 15,
   backgroundColor = 'white',
+=======
+>>>>>>> refs/remotes/origin/master
   height,
 }) => {
   // const backAction = () => {
@@ -177,8 +180,13 @@ export const MessageModalNormal = ({
           style={{
             width: width ? width : '80%',
             height: height ? height : height,
+<<<<<<< HEAD
             backgroundColor: backgroundColor,
             borderRadius: radius,
+=======
+            backgroundColor: 'white',
+            borderRadius: 15,
+>>>>>>> refs/remotes/origin/master
             padding: 10,
           }}>
           {children}

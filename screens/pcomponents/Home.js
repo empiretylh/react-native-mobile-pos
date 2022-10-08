@@ -668,7 +668,6 @@ const HomeScreen = ({navigation, route}) => {
           ...s.flexrow_aligncenter_j_between,
           padding: 8,
         }}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Image
             source={IMAGE.app_logo}
             style={{width: 30, height: 30}}
@@ -679,9 +678,6 @@ const HomeScreen = ({navigation, route}) => {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() =>
-            navigation.navigate({name: 'profile', params: route.params})
-          }>
           {pdata === null ? (
             <Image
               source={IMAGE.profile}
