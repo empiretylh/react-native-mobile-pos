@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<color name="black">#FF000000</color>
+	<color name="white">#FFFFFFFF</color>
+
+	<color name="_bg__android_large___1_ek2_color">#FFFFFF</color>
+	<color name="mobile_pos_color">#000000</color>
+</resources>
