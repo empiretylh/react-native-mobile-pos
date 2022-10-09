@@ -6,18 +6,8 @@
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
         <item name="android:windowDisablePreview">true</item>
 
-<<<<<<< HEAD
-=======
-        <item name="colorPrimary">@color/colorPrimary</item>
-<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-<item name="colorAccent">@color/colorAccent</item>
->>>>>>> refs/remotes/origin/master
 
 
     </style>
 
 </resources>
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/master

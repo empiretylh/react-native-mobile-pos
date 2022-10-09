@@ -105,7 +105,10 @@
     "ComputingData":"Computing Data",
     "ComputeProfit":"Compute Profit",
   
-    "Address":"Address"
+    "Address":"Address",
+
+    "Price3":"Price"
+    
    
   }
 }

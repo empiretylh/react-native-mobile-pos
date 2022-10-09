@@ -35,6 +35,7 @@ import * as ImagePicker from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import ProductField from './extra/productfield';
 import Purchase from './Purchase';
+import Loading from '../Loading';
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 const Stack = createNativeStackNavigator();
@@ -67,6 +68,8 @@ const Product = ({navigation}) => {
   const [categoryData, setCategoryData] = useState([]);
   const [ProductData, setProductData] = useState([]);
   const [load, setLoad] = useState(false);
+
+  const [isUpload, setIsUpload] = useState(false);
 
   const GetCategoryFromServer = () => {
     setpRefreshing(true);
@@ -107,6 +110,7 @@ const Product = ({navigation}) => {
   };
 
   const PostProductsToServer = (pd, pic) => {
+    setIsUpload(true);
     const d = new FormData();
     d.append('name', pd.name);
     d.append('price', pd.price);
@@ -131,11 +135,13 @@ const Product = ({navigation}) => {
           category: value,
         });
         Load();
+        setIsUpload(false);
       })
       .catch(err => a.spe());
   };
 
   const PutProductsToServer = (pd, pic, id) => {
+    setIsUpload(true);
     const d = new FormData();
     d.append('id', id);
     d.append('name', pd.name);
@@ -161,6 +167,7 @@ const Product = ({navigation}) => {
           category: value,
         });
         Load();
+        setIsUpload(false);
       })
       .catch(err => a.spe());
   };
@@ -608,7 +615,7 @@ const Product = ({navigation}) => {
                   }
                 />
                 <Text style={{...s.bold_label, marginTop: 5}}>
-                  {t('Price')}
+                  {t('Price3')}
                 </Text>
                 <TextInput
                   style={{
@@ -618,7 +625,7 @@ const Product = ({navigation}) => {
 
                     ...inputS,
                   }}
-                  placeholder={'Price'}
+                  placeholder={t('Price3')}
                   keyboardType={'number-pad'}
                   defaultValue={editpd.price}
                   onChangeText={e =>
@@ -645,6 +652,7 @@ const Product = ({navigation}) => {
                 />
 
                 <TouchableOpacity
+                  disabled={isUpload}
                   onPress={() => {
                     if (
                       editpd.name &&
@@ -836,6 +844,7 @@ const Product = ({navigation}) => {
 
   return (
     <View style={{...s.Container}}>
+      <Loading show={isUpload} infotext={'Creating Product'} />
       <MessageModalNormal show={filtershow} onClose={onCloseFiltershow}>
         <View>
           <Text style={{...s.bold_label}}>Sort Product</Text>
@@ -958,7 +967,7 @@ const Product = ({navigation}) => {
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'qty')
               }
             />
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price')}</Text>
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price3')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -967,7 +976,7 @@ const Product = ({navigation}) => {
 
                 ...inputS,
               }}
-              placeholder={t('Price')}
+              placeholder={t('Price3')}
               keyboardType={'number-pad'}
               value={pdtData.price}
               onChangeText={e =>
@@ -1007,7 +1016,9 @@ const Product = ({navigation}) => {
                 }}
               />
             </View> */}
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Description')}</Text>
+            <Text style={{...s.bold_label, marginTop: 5}}>
+              {t('Description')}
+            </Text>
             <TextInput
               style={{
                 padding: 10,
@@ -1023,6 +1034,7 @@ const Product = ({navigation}) => {
             />
 
             <TouchableOpacity
+              disabled={isUpload}
               onPress={() => {
                 if (
                   pdtData.name &&
@@ -1077,6 +1089,7 @@ const Product = ({navigation}) => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity
+            disabled={isUpload}
             onPress={() => {
               if (categorytext) {
                 PostCategoryToServer();
