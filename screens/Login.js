@@ -160,6 +160,9 @@ const LoginScreen = ({navigation, route}) => {
           </View>
         </TouchableOpacity>
       </KeyboardAvoidingView>
+      <Text style={{color: 'black', textAlign: 'center', bottom: 0}}>
+        Copyright © 2022
+      </Text>
     </ScrollView>
   );
 };

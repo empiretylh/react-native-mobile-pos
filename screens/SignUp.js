@@ -26,6 +26,7 @@ import {
   validateShopName,
   validateUsername,
 } from './Validation';
+import {use} from 'i18next';
 
 const Stack = createNativeStackNavigator();
 
@@ -93,14 +94,22 @@ const SignUp = ({navigation, route}) => {
     return (
       <ScrollView style={styles.container}>
         <LoadingModal show={load} />
-        <Text
-          style={{
-            ...STYLE.bold_label,
-            marginTop: 5,
-            marginBottom: 5,
-          }}>
-          Register
-        </Text>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Image
+            source={IMAGE.app_logo}
+            style={{width: 30, height: 30}}
+            resizeMode={'contain'}
+          />
+          <Text
+            style={{
+              ...STYLE.bold_label,
+              marginTop: 5,
+              marginBottom: 5,
+              marginLeft: 5,
+            }}>
+            Register
+          </Text>
+        </View>
         <KeyboardAvoidingView
           style={{flex: 1, position: 'relative', marginTop: 5, padding: 10}}>
           <Text style={{...STYLE.normal_label, marginTop: 10, marginLeft: 5}}>
@@ -116,8 +125,8 @@ const SignUp = ({navigation, route}) => {
             <TextInput
               style={{
                 flex: 1,
-                fontWeight:'bold',
-                 fontSize:18
+                fontWeight: 'bold',
+                fontSize: 18,
               }}
               placeholder={'Username'}
               onChangeText={e =>
@@ -147,8 +156,8 @@ const SignUp = ({navigation, route}) => {
             <TextInput
               style={{
                 flex: 1,
-                fontWeight:'bold',
-                fontSize:18                
+                fontWeight: 'bold',
+                fontSize: 18,
               }}
               placeholder={'Shop Name'}
               onChangeText={e => HandleChange('name', e, validateShopName(e))}
@@ -156,6 +165,37 @@ const SignUp = ({navigation, route}) => {
             <TouchableOpacity onPress={() => setVisible(!visible)}>
               <Icons
                 name={isValidation.name ? 'checkmark-circle' : 'close-circle'}
+                size={25}
+                color={'#000'}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text style={{...STYLE.normal_label, marginTop: 10, marginLeft: 5}}>
+            Address
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              ...STYLE.defaultTextInput,
+            }}>
+            <TextInput
+              style={{
+                flex: 1,
+                fontWeight: 'bold',
+                fontSize: 18,
+              }}
+              placeholder={'Address'}
+              onChangeText={e =>
+                HandleChange('address', e, validateShopName(e))
+              }
+            />
+            <TouchableOpacity onPress={() => setVisible(!visible)}>
+              <Icons
+                name={
+                  isValidation.address ? 'checkmark-circle' : 'close-circle'
+                }
                 size={25}
                 color={'#000'}
               />
@@ -174,8 +214,8 @@ const SignUp = ({navigation, route}) => {
             <TextInput
               style={{
                 flex: 1,
-                fontWeight:'bold',
-                fontSize:18
+                fontWeight: 'bold',
+                fontSize: 18,
               }}
               placeholder={'Phone Number'}
               onChangeText={e =>
@@ -207,8 +247,8 @@ const SignUp = ({navigation, route}) => {
             <TextInput
               style={{
                 flex: 1,
-                fontWeight:'bold',
-                fontSize:18
+                fontWeight: 'bold',
+                fontSize: 18,
               }}
               placeholder={'Email'}
               keyboardType={'email-address'}
@@ -251,18 +291,28 @@ const SignUp = ({navigation, route}) => {
     );
   };
   const Second = ({navigation}) => {
-    const [password, setPassword] = useState();
+    const [password, setPassword] = useState(null);
+    const [repassword, setRePassword] = useState('');
     const [visible, setVisible] = useState(true);
     return (
       <ScrollView style={styles.container}>
-        <Text
-          style={{
-            ...STYLE.bold_label,
-            marginTop: 5,
-            marginBottom: 5,
-          }}>
-          Register
-        </Text>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Image
+            source={IMAGE.app_logo}
+            style={{width: 30, height: 30}}
+            resizeMode={'contain'}
+          />
+          <Text
+            style={{
+              ...STYLE.bold_label,
+              marginTop: 5,
+              marginBottom: 5,
+              marginLeft: 5,
+            }}>
+            Create Password
+          </Text>
+        </View>
+
         <KeyboardAvoidingView
           style={{flex: 1, position: 'relative', marginTop: 5, padding: 10}}>
           <Text style={{...STYLE.normal_label, marginTop: 10, marginLeft: 5}}>
@@ -278,7 +328,7 @@ const SignUp = ({navigation, route}) => {
             <TextInput
               style={{
                 flex: 1,
-                fontWeight:'bold'
+                fontWeight: 'bold',
               }}
               placeholder={'Password'}
               onChangeText={e => setPassword(e)}
@@ -292,12 +342,44 @@ const SignUp = ({navigation, route}) => {
               />
             </TouchableOpacity>
           </View>
-
+          <Text style={{...STYLE.normal_label, marginTop: 10, marginLeft: 5}}>
+            Re-type Password
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              ...STYLE.defaultTextInput,
+            }}>
+            <TextInput
+              style={{
+                flex: 1,
+                fontWeight: 'bold',
+              }}
+              placeholder={'Password'}
+              onChangeText={e => setRePassword(e)}
+              secureTextEntry={visible}
+            />
+            <TouchableOpacity onPress={() => setVisible(!visible)}>
+              <Icons
+                name={
+                  repassword === password ? 'checkmark-circle' : 'close-circle'
+                }
+                size={25}
+                color={'#000'}
+              />
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity
             onPress={() => {
-              let temp = {...data, ['password']: password};
-              setGData(temp);
-              RegisterToServer(temp);
+              if (repassword === password) {
+                let temp = {...data, ['password']: password};
+                setGData(temp);
+                RegisterToServer(temp);
+              } else {
+                Alert.alert('Error', "Didn't match passwords", [{text: 'OK'}]);
+              }
             }}>
             <View style={{...STYLE.blue_button, marginTop: 5, padding: 15}}>
               <Text
@@ -309,6 +391,9 @@ const SignUp = ({navigation, route}) => {
               </Text>
             </View>
           </TouchableOpacity>
+          <Text style={{color: 'black', textAlign: 'center'}}>
+          Don't forget your password. Make sure your password is secure and easy to remember.
+          </Text>
         </KeyboardAvoidingView>
       </ScrollView>
     );

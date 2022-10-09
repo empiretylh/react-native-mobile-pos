@@ -263,6 +263,7 @@ const Product = ({navigation}) => {
           type: response.assets[0].type,
         };
 
+        
         setImage(source);
         console.log(source, 'The ending...');
       }
