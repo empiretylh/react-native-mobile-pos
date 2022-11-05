@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -26,6 +27,9 @@ import {
 } from '../../../Database';
 import axios from 'axios';
 import {numberWithCommas} from '../../../Database';
+import SwitchToCart from './SwitchToCart';
+import PDITEM from './pditem';
+import {CartContext} from '../context/CartContext';
 
 const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
   const [open, setOpen] = useState(false);
@@ -34,7 +38,9 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
 
   const [ProductData, setProductData] = useState();
   const [categoryData, setCategoryData] = useState();
-  const [sp, setSp] = useState();
+
+  const [searchtext, setSearchText] = useState('');
+  const [categoryId, setCategoryId] = useState('All');
 
   const SetOpenModal = () => {
     setOpen(true);
@@ -49,7 +55,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
       .then(res => {
         res.data = res.data.filter(e => e.qty > 0);
         setProductData(res.data);
-        setSp(res.data);
+
         setLoad(false);
       })
       .catch(err => a.spe());
@@ -66,210 +72,32 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
     });
   };
 
-  const CategoryToText = id => {
-    if (ProductData && categoryData) {
-      const c = categoryData.filter(item => item.value == id);
+  const ProductFilter = useMemo(() => {
+    if (ProductData && categoryId) {
+      const data = ProductData.filter(e => {
+        var b = e.name.replaceAllTxt(' ', '').toLowerCase();
 
-      return c ? c[0].label : '...';
+        var c = searchtext.replaceAllTxt(' ', '').toLowerCase();
+
+        return (
+          (categoryId === 'All' ? true : e.category === categoryId) &&
+          b.includes(c)
+        );
+      });
+      return data;
     }
-    return '...';
-  };
+    return ProductData;
+  }, [searchtext, ProductData, categoryId]);
 
-  const SearchProducts = text => {
-    const data = ProductData.filter(e => {
-      console.log(e.name);
-      console.log(text);
-      console.log(e.name === text);
-      var b = e.name.replaceAllTxt(' ', '').toLowerCase();
-
-      var f = e.description.replaceAllTxt(' ', '').toLowerCase();
-      var d = CategoryToText(e.category).replaceAllTxt(' ', '').toLowerCase();
-      var c = text.replaceAllTxt(' ', '').toLowerCase();
-
-      return b.includes(c) || d.includes(c) || f.includes(c);
-    });
-    console.log(data, 'what');
-    setSp(data);
-  };
-
-  const SwitchToCart = ({setValue, onAdd, item, selectedItem}) => {
-    let sitem = selectedItem[0];
-    if (selectedItem[0] ? selectedItem[0].check : false) {
-      return (
-        <View style={{...s.flexrow_aligncenter_j_center}}>
-          <TouchableOpacity
-            onPress={() => setValue(0, sitem.name)}
-            style={{
-              padding: 5,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'red',
-              borderRadius: 50,
-              margin: 5,
-            }}>
-            <Icon name={'close'} size={25} color={'#fff'} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setValue(parseInt(sitem.qty - 1), sitem.name)}
-            style={{
-              padding: 5,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'red',
-              borderRadius: 10,
-              margin: 5,
-            }}>
-            <Icon name={'remove'} size={25} color={'#fff'} />
-          </TouchableOpacity>
-          <TextInput
-            style={{
-              width: 35,
-              height: 35,
-              backgroundColor: 'white',
-              fontSize: 20,
-              padding: 0,
-              color: 'black',
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}
-            defaultValue={'1'}
-            value={sitem.qty.toString()}
-            onChangeText={e => {
-              if (parseInt(e) > item.qty) {
-                a.lqy();
-              } else {
-                setValue(parseInt(e), sitem.name);
-              }
-            }}
-            maxLength={4}
-            keyboardType={'numeric'}
-            selectTextOnFocus
-          />
-
-          <TouchableOpacity
-            onPress={() => {
-              if (sitem.qty >= item.qty) {
-                a.lqy();
-              } else {
-                setValue(parseInt(sitem.qty + 1), sitem.name);
-              }
-            }}
-            style={{
-              padding: 5,
-
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'blue',
-              borderRadius: 10,
-              margin: 5,
-            }}>
-            <Icon name={'add'} size={25} color={'#fff'} />
-          </TouchableOpacity>
-        </View>
-      );
-    }
-    return (
-      <TouchableOpacity
-        style={{backgroundColor: 'green', padding: 10, borderRadius: 15}}
-        onPress={() => {
-          onAdd(item);
-        }}>
-        <MIcon name="cart-plus" size={25} color={'#fff'} />
-      </TouchableOpacity>
-    );
-  };
+  console.log('re render Products Field');
 
   const ProductView = () => {
     const [CartData, setCartData] = useState([]);
 
-    const onAdd = item => {
-      let v = item.id;
-      let d = {
-        name: item.id,
-        qty: 1,
-        price: item.price,
-        check: true,
-        total: item.price,
-        pdname: item.name,
-      };
-      const joined = CartData.concat(d);
-      setCartData(joined);
-
-      console.log(joined);
-    };
-
-    const SetValue = (value, name) => {
-      let cartdata = [...CartData];
-      let index = cartdata.findIndex(it => it.name === name);
-      if (value === 0) {
-        cartdata = cartdata.filter(a => a.name !== name);
-        console.log(index);
-      } else {
-        cartdata[index] = {
-          ...cartdata[index],
-          ['qty']: parseInt(value) || 1,
-        };
-        cartdata[index] = {
-          ...cartdata[index],
-          ['total']: cartdata[index].price * cartdata[index].qty,
-        };
-      }
-
-      setCartData(cartdata);
-    };
-    const PDITEM = ({item}) => {
-      return (
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#f0f0f0',
-            padding: 10,
-            margin: 5,
-            flexDirection: 'row',
-            alignItems: 'center',
-            borderRadius: 15,
-          }}>
-          <Image
-            source={{
-              uri:
-                item.pic === '/media/null'
-                  ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
-                  : axios.defaults.baseURL + item.pic,
-            }}
-            style={{width: 50, height: 50}}
-            resizeMode={'cover'}
-            resizeMethod={'resize'}
-          />
-          <View style={{flexDirection: 'column'}}>
-            <View style={{...s.flexrow_aligncenter_j_center}}>
-              <Text style={{...s.bold_label, margin: 5}}>{item.name}</Text>
-              <Text
-                style={{
-                  ...s.normal_label,
-
-                  padding: 5,
-                  backgroundColor: C.blackbutton,
-
-                  color: 'white',
-                }}>
-                {item.qty}{' '}
-              </Text>
-            </View>
-            <Text style={{...s.normal_label, margin: 5}}>
-              {numberWithCommas(item.price)} MMK
-            </Text>
-          </View>
-          <View style={{position: 'absolute', right: 5, bottom: 0}}>
-            <SwitchToCart
-              onAdd={onAdd}
-              item={item}
-              setValue={SetValue}
-              selectedItem={CartData.filter(e => e.name === item.id)}
-            />
-          </View>
-        </View>
-      );
-    };
+    const data_bridge = useMemo(
+      () => ({CartData, setCartData}),
+      [CartData, setCartData],
+    );
 
     const SumTotal = cd => {
       let amount = 0;
@@ -307,6 +135,8 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
       );
     };
 
+    console.log('re render Products View');
+
     if (load) {
       <View
         style={{
@@ -321,19 +151,9 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
         />
       </View>;
     }
-    const [selectc, setselectc] = useState('All');
-    const ChooseCategory = category_value => {
-      setselectc(category_value);
-      const pd = [...ProductData];
-      if (category_value !== 'All') {
-        const temp = pd.filter(item => item.category === category_value);
-        setSp(temp);
-      } else {
-        setSp(pd);
-      }
-    };
+
     return (
-      <>
+      <CartContext.Provider value={data_bridge}>
         <KeyboardAvoidingView style={{flex: 1, padding: 0}}>
           <View style={{flexDirection: 'column', padding: 5}}>
             <View
@@ -353,7 +173,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
                   fontWeight: '900',
                 }}
                 placeholder={'Search Products'}
-                onChangeText={e => SearchProducts(e)}
+                onChangeText={e => setSearchText(e)}
               />
               <Icon name={'search'} size={20} color={'#000'} />
             </View>
@@ -364,12 +184,12 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
                 }}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}>
-                <TouchableOpacity onPress={e => ChooseCategory('All')}>
+                <TouchableOpacity onPress={e => setCategoryId('All')}>
                   <Text
                     style={{
                       backgroundColor:
-                        selectc === 'All' ? C.blackbutton : '#f0f0f0',
-                      color: selectc === 'All' ? 'white' : 'black',
+                        categoryId === 'All' ? C.blackbutton : '#f0f0f0',
+                      color: categoryId === 'All' ? 'white' : 'black',
                       padding: 10,
                       marginLeft: 5,
                       marginRight: 5,
@@ -381,12 +201,12 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
                 {categoryData.map((item, index) => (
                   <TouchableOpacity
                     key={index}
-                    onPress={e => ChooseCategory(item.value)}>
+                    onPress={e => setCategoryId(item.value)}>
                     <Text
                       style={{
                         backgroundColor:
-                          selectc === item.value ? C.blackbutton : '#f0f0f0',
-                        color: selectc === item.value ? 'white' : 'black',
+                          categoryId === item.value ? C.blackbutton : '#f0f0f0',
+                        color: categoryId === item.value ? 'white' : 'black',
                         padding: 10,
                         marginLeft: 5,
                         marginRight: 5,
@@ -407,10 +227,11 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
                   onRefresh={GetProdcutsFromServer}
                 />
               }
+              initialNumToRender={10} //
               keyboardShouldPersistTaps={'always'}
               removeClippedSubviews={false}
               style={{backgroundColor: C.white}}
-              data={sp}
+              data={ProductFilter}
               renderItem={PDITEM}
               keyExtractor={i => i.id}
             />
@@ -463,7 +284,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
             />
           </View>
         </KeyboardAvoidingView>
-      </>
+      </CartContext.Provider>
     );
   };
 
@@ -500,7 +321,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
             <TouchableOpacity
               style={{padding: 5}}
               onPress={() => SetOpenModal()}>
-              <Text>Add Products</Text>
+              <Text>Choose Prodcuts</Text>
             </TouchableOpacity>
           )}
         </View>

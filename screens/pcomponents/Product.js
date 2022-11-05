@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,7 @@ import {
   COLOR as C,
   ALERT as a,
   numberWithCommas,
+  isArrayhasData,
 } from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -51,13 +52,17 @@ const Product = ({navigation}) => {
     EncryptedStorage.removeItem('secure_token');
   };
 
+  const renderCount = useRef(0);
+
   const {t, i18n} = useTranslation();
 
   const [apmodal, setapmodal] = useState(false);
   const [cmodal, setcmodal] = useState(false);
   const [pmodal, setpmodal] = useState(false);
 
-  const onCloseapmodal = () => setapmodal(false);
+  const onOpenAndCloseAPModal = useCallback(e => {
+    setapmodal(prev => !prev);
+  }, []);
   const onClosecmodal = () => setcmodal(false);
   const onClosepmodal = () => setpmodal(false);
 
@@ -263,7 +268,6 @@ const Product = ({navigation}) => {
           type: response.assets[0].type,
         };
 
-        
         setImage(source);
         console.log(source, 'The ending...');
       }
@@ -520,7 +524,7 @@ const Product = ({navigation}) => {
     };
 
     return (
-      <View>
+      <View style={{flex: 1}}>
         {editpd ? (
           <MessageModalNormal
             show={editpdshow}
@@ -782,18 +786,28 @@ const Product = ({navigation}) => {
             </TouchableOpacity>
           </View>
         </MessageModalNormal>
-        <FlatList
-          refreshControl={
-            <RefreshControl
-              refreshing={prefreshing}
-              onRefresh={GetProdcutsFromServer}
-            />
-          }
-          style={{backgroundColor: C.white}}
-          data={sp}
-          renderItem={PDITEM}
-          keyExtractor={i => i.id}
-        />
+
+        {isArrayhasData(sp) ? (
+          <FlatList
+            refreshControl={
+              <RefreshControl
+                refreshing={prefreshing}
+                onRefresh={GetProdcutsFromServer}
+              />
+            }
+            style={{backgroundColor: C.white}}
+            data={sp}
+            renderItem={PDITEM}
+            keyExtractor={i => i.id}
+          />
+        ) : (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{color: 'black', fontWeight: 'bold'}}>
+              No Products, Click + Button to add products
+            </Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -815,18 +829,27 @@ const Product = ({navigation}) => {
     };
     return (
       <View>
-        <FlatList
-          data={categoryData.reverse()}
-          refreshControl={
-            <RefreshControl
-              refreshing={prefreshing}
-              onRefresh={GetCategoryFromServer}
-            />
-          }
-          renderItem={PDITEM}
-          keyExtractor={i => i.id}
-          style={{backgroundColor: 'white'}}
-        />
+        {isArrayhasData(categoryData) ? (
+          <FlatList
+            data={categoryData.reverse()}
+            refreshControl={
+              <RefreshControl
+                refreshing={prefreshing}
+                onRefresh={GetCategoryFromServer}
+              />
+            }
+            renderItem={PDITEM}
+            keyExtractor={i => i.id}
+            style={{backgroundColor: 'white'}}
+          />
+        ) : (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{color: 'black', fontWeight: 'bold'}}>
+              No Category, Click + Button to add category
+            </Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -1111,13 +1134,13 @@ const Product = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </MessageModalNormal>
-      <MessageModalNormal show={apmodal} onClose={onCloseapmodal}>
+      <MessageModalNormal show={apmodal} onClose={onOpenAndCloseAPModal}>
         <View>
           <TouchableOpacity
             onPress={() => {
               setcmodal(true);
 
-              onCloseapmodal();
+              onOpenAndCloseAPModal();
             }}>
             <View style={{...s.flexrow_aligncenter, padding: 10}}>
               <Icons name={'duplicate-outline'} size={30} color={'#000'} />
@@ -1130,7 +1153,7 @@ const Product = ({navigation}) => {
             onPress={() => {
               setpmodal(true);
               setImage(null);
-              onCloseapmodal();
+              onOpenAndCloseAPModal();
             }}>
             <View style={{...s.flexrow_aligncenter, padding: 10}}>
               <MIcons
@@ -1264,7 +1287,7 @@ const Product = ({navigation}) => {
         <TouchableOpacity
           onPress={() => {
             console.log('apmodal');
-            setapmodal(true);
+            onOpenAndCloseAPModal();
           }}>
           <Icons name={'add'} size={35} color={'#fff'} />
         </TouchableOpacity>

@@ -29,7 +29,6 @@ String.prototype.replaceAllTxt = function replaceAll(search, replace) {
 const Purchase = ({navigation}) => {
   const [load, setLoad] = useState(false);
 
-
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
@@ -159,7 +158,9 @@ const Purchase = ({navigation}) => {
             />
           </View>
 
-          <Text style={{...s.bold_label, marginTop: 8}}>{t('Description')}</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>
+            {t('Description')}
+          </Text>
           <TextInput
             style={{
               ...inputS,
@@ -199,7 +200,12 @@ const Purchase = ({navigation}) => {
           ...s.flexrow_aligncenter_j_between,
           padding: 8,
         }}>
-        <Text style={{...s.bold_label, fontSize: 23}}>{t('Purchase')}</Text>
+        <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icons name={'arrow-back'} size={30} color={'#000'} />
+          </TouchableOpacity>
+          <Text style={{...s.bold_label, fontSize: 23}}>{t('Purchase')}</Text>
+        </View>
         <View style={{flexDirection: 'row'}}>
           <Text style={{...s.bold_label, marginRight: 10}}></Text>
           <TouchableOpacity onPress={() => navigation.navigate('report')}>

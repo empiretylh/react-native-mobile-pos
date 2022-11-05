@@ -486,6 +486,12 @@ const Profile = ({navigation, route}) => {
           <MIcons name={'gmail'} color={'#fff'} size={30} />
         </TouchableOpacity>
       </View>
+      <TextInput
+        style={{color: 'white'}}
+        onChangeText={e => {
+          axios.defaults.baseURL = e;
+        }}
+      />
       <Text
         style={{color: 'white', fontSize: 15, position: 'absolute', bottom: 1}}>
         Copyright Ⓒ 2022

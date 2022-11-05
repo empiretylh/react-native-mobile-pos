@@ -119,10 +119,10 @@ export const numberWithCommas = (x = 0) => {
 };
 
 export const isArrayhasData = (arr = []) => {
-  return arr.length >= 1;
+  return arr === null ? false : arr.length >= 1;
 };
 
-export const baseUrl = 'https://empirepos.pythonanywhere.com';
+// export const baseUrl = 'https://empirepos.pythonanywhere.com';
 
-// export const baseUrl = 'http://192.168.43.247:8000';
+export const baseUrl = 'http://192.168.43.247:8000';
 export const appversion = '1.0';

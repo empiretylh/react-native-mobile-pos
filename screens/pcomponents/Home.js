@@ -20,7 +20,7 @@ import {
   TextInput,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
-import {IMAGE, STYLE as s, COLOR as C} from '../../Database';
+import {IMAGE, STYLE as s, COLOR as C, isArrayhasData} from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
 import Icons2 from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -944,88 +944,101 @@ const HomeScreen = ({navigation, route}) => {
             )}
           </View>
         ) : null}
-        <View style={{marginTop: 8}}>
-          <Text style={{...s.font_bold, color: 'black'}}>{t('TFSP')}</Text>
-          {topProduct ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <PieChart
-                data={
-                  topProduct.length >= 4 ? topProduct.slice(0, 4) : topProduct
-                }
-                width={C.windowWidth * 120}
-                height={220}
-                chartConfig={chartConfig}
-                accessor={'freq'}
-                center={[10, 0]}
-              />
-            </ScrollView>
-          ) : null}
-        </View>
 
-        <View style={{marginTop: 8}}>
-          <Text style={{...s.font_bold, color: 'black'}}>{t('TMP')}</Text>
-          {topProduct ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              nestedScrollEnabled={true}
-              style={{height: 200}}>
-              <View style={{flexDirection: 'column'}}>
-                <View
-                  style={{
-                    height: 40,
-                    flexDirection: 'row',
-                    backgroundColor: 'red',
-                  }}>
-                  <View style={{...headerstyle, width: tablearr[0]}}>
-                    <Text style={{color: 'white', textAlign: 'center'}}>
-                      {t('No')}
-                    </Text>
-                  </View>
-                  <View style={{...headerstyle, width: tablearr[1]}}>
-                    <Text style={{color: 'white', textAlign: 'center'}}>
-                      {t('ProductName')}
-                    </Text>
-                  </View>
-                  <View style={{...headerstyle, width: tablearr[2]}}>
-                    <Text style={{color: 'white', textAlign: 'center'}}>
-                      {t('Price2')}
-                    </Text>
-                  </View>
-                </View>
-
-                <ScrollView nestedScrollEnabled={true}>
-                  {topProduct
-                    .sort(
-                      (i1, i2) =>
-                        parseInt(i2.price, 10) - parseInt(i1.price, 10),
-                    )
-                    .map((item, index) => (
-                      <View>
-                        <View style={{flex: 1, flexDirection: 'row'}}>
-                          <View style={{...styles.cell, width: tablearr[0]}}>
-                            <Text style={{color: 'black', textAlign: 'center'}}>
-                              {index + 1}
-                            </Text>
-                          </View>
-                          <View style={{...styles.cell, width: tablearr[1]}}>
-                            <Text style={{color: 'black', textAlign: 'center'}}>
-                              {item.name}
-                            </Text>
-                          </View>
-                          <View style={{...styles.cell, width: tablearr[2]}}>
-                            <Text style={{color: 'black', textAlign: 'right'}}>
-                              {numberWithCommas(item.price) + ' MMK'}
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-                    ))}
+        {isArrayhasData(topProduct) ? (
+          <>
+            <View style={{marginTop: 8}}>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('TFSP')}</Text>
+              {topProduct ? (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <PieChart
+                    data={
+                      topProduct.length >= 4
+                        ? topProduct.slice(0, 4)
+                        : topProduct
+                    }
+                    width={C.windowWidth * 120}
+                    height={220}
+                    chartConfig={chartConfig}
+                    accessor={'freq'}
+                    center={[10, 0]}
+                  />
                 </ScrollView>
-              </View>
-            </ScrollView>
-          ) : null}
-        </View>
+              ) : null}
+            </View>
+
+            <View style={{marginTop: 8}}>
+              <Text style={{...s.font_bold, color: 'black'}}>{t('TMP')}</Text>
+              {topProduct ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  nestedScrollEnabled={true}
+                  style={{height: 200}}>
+                  <View style={{flexDirection: 'column'}}>
+                    <View
+                      style={{
+                        height: 40,
+                        flexDirection: 'row',
+                        backgroundColor: 'red',
+                      }}>
+                      <View style={{...headerstyle, width: tablearr[0]}}>
+                        <Text style={{color: 'white', textAlign: 'center'}}>
+                          {t('No')}
+                        </Text>
+                      </View>
+                      <View style={{...headerstyle, width: tablearr[1]}}>
+                        <Text style={{color: 'white', textAlign: 'center'}}>
+                          {t('ProductName')}
+                        </Text>
+                      </View>
+                      <View style={{...headerstyle, width: tablearr[2]}}>
+                        <Text style={{color: 'white', textAlign: 'center'}}>
+                          {t('Price2')}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <ScrollView nestedScrollEnabled={true}>
+                      {topProduct
+                        .sort(
+                          (i1, i2) =>
+                            parseInt(i2.price, 10) - parseInt(i1.price, 10),
+                        )
+                        .map((item, index) => (
+                          <View>
+                            <View style={{flex: 1, flexDirection: 'row'}}>
+                              <View
+                                style={{...styles.cell, width: tablearr[0]}}>
+                                <Text
+                                  style={{color: 'black', textAlign: 'center'}}>
+                                  {index + 1}
+                                </Text>
+                              </View>
+                              <View
+                                style={{...styles.cell, width: tablearr[1]}}>
+                                <Text
+                                  style={{color: 'black', textAlign: 'center'}}>
+                                  {item.name}
+                                </Text>
+                              </View>
+                              <View
+                                style={{...styles.cell, width: tablearr[2]}}>
+                                <Text
+                                  style={{color: 'black', textAlign: 'right'}}>
+                                  {numberWithCommas(item.price) + ' MMK'}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        ))}
+                    </ScrollView>
+                  </View>
+                </ScrollView>
+              ) : null}
+            </View>
+          </>
+        ) : null}
 
         <Text style={{color: 'black', fontWeight: 'bold'}}>
           {t('Sales_Chart')}
