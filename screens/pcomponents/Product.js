@@ -25,6 +25,7 @@ import {
   ALERT as a,
   numberWithCommas,
   isArrayhasData,
+  UnitId,
 } from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -43,6 +44,24 @@ const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
 import {nullLiteralTypeAnnotation} from '@babel/types';
+
+import {
+  InterstitialAd,
+  AdEventType,
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from 'react-native-google-mobile-ads';
+
+const adUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : UnitId.interstitial;
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['fashion', 'clothing'],
+});
+
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
@@ -813,6 +832,9 @@ const Product = ({navigation}) => {
   };
 
   const CategoryView = ({navigation}) => {
+
+
+
     const PDITEM = ({item}) => {
       return (
         <View
@@ -829,6 +851,13 @@ const Product = ({navigation}) => {
     };
     return (
       <View>
+        <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
         {isArrayhasData(categoryData) ? (
           <FlatList
             data={categoryData.reverse()}
@@ -1296,7 +1325,42 @@ const Product = ({navigation}) => {
   );
 };
 
+
 const Container = ({navigation}) => {
+
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setLoaded(true);
+      },
+    );
+
+    // Start loading the interstitial straight away
+    interstitial.load();
+
+    // Unsubscribe from events on unmount
+    return unsubscribe;
+  }, []);
+
+
+  if(loaded){
+    try{
+      interstitial.show();
+    }catch(e){
+      console.log('Ad could not loaded')
+
+    }
+   
+  }
+
+  // No advert ready to show yet
+  if (!loaded) {
+    return null;
+  }
+
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name={'cproduct'} component={Product} />

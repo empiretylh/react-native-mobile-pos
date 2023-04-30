@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
-import {STYLE as s, ALERT as a, numberWithCommas} from '../../Database';
+import {STYLE as s, ALERT as a, numberWithCommas, UnitId} from '../../Database';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {TextInput} from 'react-native-gesture-handler';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -20,8 +20,8 @@ import Loading from '../Loading';
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 const Stack = createNativeStackNavigator();
-
 import axios from 'axios';
+import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
@@ -100,6 +100,13 @@ const Purchase = ({navigation}) => {
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{flex: 1, padding: 10}}>
+        <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
           <Text style={{...s.bold_label, marginTop: 8}}>{t('Title')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
@@ -186,6 +193,15 @@ const Purchase = ({navigation}) => {
             </Text>
           </TouchableOpacity>
         </View>
+        <View style={{flex:1,alignItems:'center'}}>
+        <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.MEDIUM_RECTANGLE}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+          </View>
       </ScrollView>
     );
   };

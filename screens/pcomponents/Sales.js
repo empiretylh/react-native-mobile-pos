@@ -21,6 +21,7 @@ import {
   COLOR as C,
   ALERT as a,
   numberWithCommas,
+  UnitId,
 } from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -40,6 +41,19 @@ import axios from 'axios';
 import {nullLiteralTypeAnnotation} from '@babel/types';
 import ProductField from './extra/productfield';
 
+import {
+  InterstitialAd,
+  AdEventType,
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from 'react-native-google-mobile-ads';
+
+const interstitial = InterstitialAd.createForAdRequest(UnitId.interstitial, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['fashion', 'clothing'],
+});
+
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
 };
@@ -47,6 +61,7 @@ String.prototype.replaceAllTxt = function replaceAll(search, replace) {
 const Sales = ({navigation}) => {
   const [ProductData, setProductData] = useState([]);
   const [load, setLoad] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const {t, i18n} = useTranslation();
 
@@ -159,6 +174,14 @@ const Sales = ({navigation}) => {
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{padding: 5}}>
+
+        <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
           <Text style={{...s.bold_label}}>{t('Customer_Name')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
@@ -189,9 +212,7 @@ const Sales = ({navigation}) => {
             defaultValue={tax + ''}
             onChangeText={e => (e === '' ? setTax(0) : setTax(e))}
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>
-            {t('Discount')}
-          </Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>{t('Discount')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
             placeholder={t('Discount')}
@@ -239,6 +260,14 @@ const Sales = ({navigation}) => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.MEDIUM_RECTANGLE}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
       </ScrollView>
     );
   };
@@ -301,6 +330,7 @@ const Sales = ({navigation}) => {
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{flex: 1, padding: 10}}>
+        
           <Text style={{...s.bold_label, marginTop: 8}}>{t('Title')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
@@ -388,12 +418,62 @@ const Sales = ({navigation}) => {
               {t('Create_Receipt')}
             </Text>
           </TouchableOpacity>
+
+          <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+            <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+            <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
         </View>
       </ScrollView>
     );
   };
 
   const [focusView, setFocusView] = useState('p');
+
+  useEffect(() => {
+    const unsubscribe = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setLoaded(true);
+      },
+    );
+
+    // Start loading the interstitial straight away
+    interstitial.load();
+
+    // Unsubscribe from events on unmount
+    return unsubscribe;
+  }, []);
+
+  if (loaded) {
+    try {
+      interstitial.show();
+    } catch (e) {
+      console.log('Ad could not loaded');
+    }
+  }
+
+  // No advert ready to show yet
+  if (!loaded) {
+    return null;
+  }
 
   return (
     <KeyboardAvoidingView style={{...s.Container}}>

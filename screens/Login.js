@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -13,10 +13,24 @@ import {
   Alert,
 } from 'react-native';
 import axios from 'axios';
-import {IMAGE, COLOR, STYLE} from '../Database';
+import {IMAGE, COLOR, STYLE, UnitId} from '../Database';
 import Icons from 'react-native-vector-icons/Ionicons';
 import LoadingModal from './Loading';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from 'react-native-google-mobile-ads';
+
+const adUnitId = __DEV__
+  ? TestIds.INTERSTITIAL
+  : UnitId.interstitial;
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitId, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['fashion', 'clothing'],
+});
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
@@ -70,6 +84,28 @@ const LoginScreen = ({navigation, route}) => {
   const SaveToken = async token => {
     await EncryptedStorage.setItem('secure_token', token);
   };
+
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setLoaded(true);
+      },
+    );
+
+    // Start loading the interstitial straight away
+    interstitial.load();
+
+    // Unsubscribe from events on unmount
+    return unsubscribe;
+  }, []);
+
+  // No advert ready to show yet
+  if (!loaded) {
+    return null;
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -148,7 +184,16 @@ const LoginScreen = ({navigation, route}) => {
             </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('register')}>
+        <TouchableOpacity
+          onPress={() => {
+            try{
+              interstitial.show();
+              navigation.navigate('register');
+            }catch(e){
+              navigation.navigate('register');
+
+            }          
+          }}>
           <View style={{...STYLE.black_button, marginTop: 5, padding: 15}}>
             <Text
               style={{

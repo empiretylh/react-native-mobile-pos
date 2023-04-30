@@ -126,3 +126,15 @@ export const baseUrl = 'https://empirepos.pythonanywhere.com';
 
 // export const baseUrl = 'http://192.168.43.247:8000';
 export const appversion = '1.0';
+
+
+export const UnitId = {
+  appopen : 'ca-app-pub-3940256099942544/3419835294',
+  banner : 'ca-app-pub-3940256099942544/6300978111',
+  interstitial : 'ca-app-pub-3940256099942544/1033173712',
+  interstitialvideo: 'ca-app-pub-3940256099942544/8691691433',
+  rewarded: 'ca-app-pub-3940256099942544/5224354917',
+  rewarded_interstitial : 'ca-app-pub-3940256099942544/5354046379',
+  native_advanced : 'ca-app-pub-3940256099942544/2247696110',
+  native_advanced_video : 'ca-app-pub-3940256099942544/1044960115',
+}

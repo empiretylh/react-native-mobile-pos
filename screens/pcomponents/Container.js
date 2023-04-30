@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React,{useEffect,useState} from 'react';
 import {View, Text} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from './Home';
@@ -13,11 +13,11 @@ import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 
-
 const Tab = createBottomTabNavigator();
 const Container = ({navigation, route}) => {
   const bottomIconsize = 25;
   const {t, i18n} = useTranslation();
+
   return (
     <Tab.Navigator
       screenOptions={{

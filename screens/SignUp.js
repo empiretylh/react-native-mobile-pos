@@ -14,7 +14,7 @@ import {
   ListView,
 } from 'react-native';
 import axios from 'axios';
-import {IMAGE, COLOR, STYLE} from '../Database';
+import {IMAGE, COLOR, STYLE, UnitId} from '../Database';
 import Icons from 'react-native-vector-icons/Ionicons';
 import LoadingModal from './Loading';
 import EncryptedStorage from 'react-native-encrypted-storage';
@@ -27,6 +27,15 @@ import {
   validateUsername,
 } from './Validation';
 import {use} from 'i18next';
+
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+  GAMBannerAd,
+} from 'react-native-google-mobile-ads';
+
+const adUnitId = UnitId.banner;
 
 const Stack = createNativeStackNavigator();
 
@@ -286,6 +295,13 @@ const SignUp = ({navigation, route}) => {
               </Text>
             </View>
           </TouchableOpacity>
+          <BannerAd
+            unitId={adUnitId}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
         </KeyboardAvoidingView>
       </ScrollView>
     );
@@ -392,8 +408,18 @@ const SignUp = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
           <Text style={{color: 'black', textAlign: 'center'}}>
-          Don't forget your password. Make sure your password is secure and easy to remember.
+            Don't forget your password. Make sure your password is secure and
+            easy to remember.
           </Text>
+          <View style={{flex: 1,alignItems:'center',marginTop:5}}>
+            <GAMBannerAd
+              unitId={adUnitId}
+              sizes={[BannerAdSize.MEDIUM_RECTANGLE]}
+              requestOptions={{
+                requestNonPersonalizedAdsOnly: true,
+              }}
+            />
+          </View>
         </KeyboardAvoidingView>
       </ScrollView>
     );

@@ -7,8 +7,6 @@ import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Register from './SignUp';
 import Profile from './pcomponents/profile';
-import Pricing from './pcomponents/pricing';
-import AdminPricing from './pcomponents/adminpricing';
 import Loading from './pcomponents/extra/Loading';
 import {baseUrl} from '../Database';
 import SplashScreen from 'react-native-splash-screen';
@@ -69,16 +67,6 @@ const SContainer = () => {
               <Stack.Screen
                 name="profile"
                 component={Profile}
-                initialParams={{token: setToken}}
-              />
-              <Stack.Screen
-                name="pricing"
-                component={Pricing}
-                initialParams={{token: setToken}}
-              />
-              <Stack.Screen
-                name="admin_pricing"
-                component={AdminPricing}
                 initialParams={{token: setToken}}
               />
             </>
