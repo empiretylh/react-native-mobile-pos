@@ -162,6 +162,9 @@ const Sales = ({navigation}) => {
             onPress={() => {
               setSuccess(false);
               navigation.navigate('s');
+              try {
+                interstitial.load();
+              } catch (e) {}
             }}
             style={{
               borderRadius: 15,
@@ -174,8 +177,7 @@ const Sales = ({navigation}) => {
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{padding: 5}}>
-
-        <BannerAd
+          <BannerAd
             unitId={UnitId.banner}
             size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
             requestOptions={{
@@ -250,6 +252,7 @@ const Sales = ({navigation}) => {
                   discount,
                   sumGrandTotal(totalAmount, tax, discount),
                 );
+                interstitial.load();
               } else {
                 a.rqf();
               }
@@ -260,14 +263,15 @@ const Sales = ({navigation}) => {
             </Text>
           </TouchableOpacity>
         </View>
-
-        <BannerAd
+        <View style={{flex: 1, alignItems: 'center'}}>
+          <BannerAd
             unitId={UnitId.banner}
             size={BannerAdSize.MEDIUM_RECTANGLE}
             requestOptions={{
               requestNonPersonalizedAdsOnly: true,
             }}
           />
+        </View>
       </ScrollView>
     );
   };
@@ -315,10 +319,18 @@ const Sales = ({navigation}) => {
     return (
       <ScrollView style={{backgroundColor: 'white'}}>
         <Loading show={isCreate} infotext={'Creating Other Income Receipt'} />
-        <MessageModalNormal show={isSucces} onClose={() => setSuccess(false)}>
+        <MessageModalNormal
+          show={isSucces}
+          onClose={() => {
+            setSuccess(false);
+            interstitial.show();
+          }}>
           <Text style={{...s.bold_label}}>{t('RSC')}</Text>
           <TouchableOpacity
-            onPress={() => setSuccess(false)}
+            onPress={() => {
+              setSuccess(false);
+              interstitial.show();
+            }}
             style={{
               borderRadius: 15,
               justifyContent: 'center',
@@ -330,7 +342,6 @@ const Sales = ({navigation}) => {
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{flex: 1, padding: 10}}>
-        
           <Text style={{...s.bold_label, marginTop: 8}}>{t('Title')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
@@ -409,6 +420,7 @@ const Sales = ({navigation}) => {
             onPress={() => {
               if (incomedata.title && incomedata.price) {
                 CreateOtherIncome(incomedata);
+                interstitial.load();
               } else {
                 a.rqf();
               }
@@ -426,14 +438,14 @@ const Sales = ({navigation}) => {
               requestNonPersonalizedAdsOnly: true,
             }}
           />
-            <BannerAd
+          <BannerAd
             unitId={UnitId.banner}
             size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
             requestOptions={{
               requestNonPersonalizedAdsOnly: true,
             }}
           />
-            <BannerAd
+          <BannerAd
             unitId={UnitId.banner}
             size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
             requestOptions={{

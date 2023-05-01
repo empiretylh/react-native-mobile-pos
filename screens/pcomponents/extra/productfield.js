@@ -24,12 +24,21 @@ import {
   COLOR as C,
   IMAGE as i,
   ALERT as a,
+  UnitId,
 } from '../../../Database';
 import axios from 'axios';
 import {numberWithCommas} from '../../../Database';
 import SwitchToCart from './SwitchToCart';
 import PDITEM from './pditem';
 import {CartContext} from '../context/CartContext';
+
+import {
+  InterstitialAd,
+  AdEventType,
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from 'react-native-google-mobile-ads';
 
 const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
   const [open, setOpen] = useState(false);
@@ -177,6 +186,13 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
               />
               <Icon name={'search'} size={20} color={'#000'} />
             </View>
+            <BannerAd
+              unitId={UnitId.banner}
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+              requestOptions={{
+                requestNonPersonalizedAdsOnly: true,
+              }}
+            />
             {categoryData ? (
               <ScrollView
                 style={{

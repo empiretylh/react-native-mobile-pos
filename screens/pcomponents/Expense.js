@@ -25,6 +25,7 @@ import {
   COLOR as C,
   ALERT as a,
   numberWithCommas,
+  UnitId,
 } from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -43,6 +44,14 @@ const Stack = createNativeStackNavigator();
 import axios from 'axios';
 import {nullLiteralTypeAnnotation} from '@babel/types';
 import ProductField from './extra/productfield';
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+  BannerAd,
+  BannerAdSize,
+} from 'react-native-google-mobile-ads';
+
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
@@ -50,7 +59,6 @@ String.prototype.replaceAllTxt = function replaceAll(search, replace) {
 const Expense = ({navigation}) => {
   const [ProductData, setProductData] = useState([]);
   const [load, setLoad] = useState(false);
-
 
   const {t, i18n} = useTranslation();
 
@@ -134,6 +142,13 @@ const Expense = ({navigation}) => {
           </TouchableOpacity>
         </MessageModalNormal>
         <View style={{flex: 1, padding: 10}}>
+        <BannerAd 
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
           <Text style={{...s.bold_label, marginTop: 8}}>{t('Title')}</Text>
           <TextInput
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
@@ -192,7 +207,9 @@ const Expense = ({navigation}) => {
             />
           </View>
 
-          <Text style={{...s.bold_label, marginTop: 8}}>{t('Description')}</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>
+            {t('Description')}
+          </Text>
           <TextInput
             style={{
               ...inputS,
@@ -217,6 +234,15 @@ const Expense = ({navigation}) => {
               {t('Create_Receipt')}
             </Text>
           </TouchableOpacity>
+          <View style={{flex:1,alignItems:'center'}}>
+          <BannerAd 
+            unitId={UnitId.banner}
+            size={BannerAdSize.MEDIUM_RECTANGLE}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
+          </View>
         </View>
       </ScrollView>
     );

@@ -19,7 +19,7 @@ import {
   Button,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
-import {IMAGE as I, STYLE as s, COLOR as C} from '../../Database';
+import {IMAGE as I, STYLE as s, COLOR as C, UnitId} from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
@@ -33,6 +33,22 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
+
+import {
+  InterstitialAd,
+  AdEventType,
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+} from 'react-native-google-mobile-ads';
+
+
+const interstitial = InterstitialAd.createForAdRequest(UnitId.interstitial, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['fashion', 'clothing'],
+});
+
+
 const Tab = createMaterialTopTabNavigator();
 
 let render_count = 0;
@@ -627,6 +643,14 @@ const ReportScreen = ({navigation}) => {
               </Text>
             </View>
           </View>
+
+          <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
           {/* OtherIncome */}
           <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
@@ -661,6 +685,14 @@ const ReportScreen = ({navigation}) => {
               </Text>
             </View>
           </View>
+
+          <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
           {/* Expense */}
           <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
@@ -695,6 +727,14 @@ const ReportScreen = ({navigation}) => {
               </Text>
             </View>
           </View>
+
+          <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
           {/* Purchase */}
           <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
@@ -729,6 +769,14 @@ const ReportScreen = ({navigation}) => {
               </Text>
             </View>
           </View>
+
+          <BannerAd
+            unitId={UnitId.banner}
+            size={BannerAdSize.MEDIUM_RECTANGLE}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          />
         </ScrollView>
       );
     }
@@ -934,8 +982,14 @@ const ReportScreen = ({navigation}) => {
       .get('/api/profitnloss/')
       .then(res => {
         console.log(res.data);
+        try{
+          interstitial.show();
+        }catch(e){
+          console.log('Ad Loading Error');
+        }
         if (res.data.addData) {
           setprofitdata(res.data);
+
         }
         setPLRefresh(false);
       })
@@ -968,7 +1022,7 @@ const ReportScreen = ({navigation}) => {
               <Text>{t('ComputingData')}</Text>
             </View>
           ) : null}
-          <TouchableOpacity onPress={() => FetchData()}>
+          <TouchableOpacity onPress={() =>{ FetchData(); interstitial.load(); }}>
             <View
               style={{
                 padding: 15,
@@ -1120,12 +1174,11 @@ const ReportScreen = ({navigation}) => {
           </ScrollView>
         );
       } else {
-       
         return ComputeScreen();
       }
     } else {
       // console.log(profitdata.addData.length,'What  The');
-      
+
       return ComputeScreen();
     }
     // return ComputeScreen();
