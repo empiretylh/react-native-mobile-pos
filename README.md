@@ -71,7 +71,7 @@ export const UnitId = {
 ```
 ## Export Apk
  After updating your Ad Units, you can export an APK file for production using the following setps:
- 1. Download the keystore from this link: http://thuralinhtut.com/empirepos.keystore, or you can create your own keystore
+ 1. Download the keystore from this link: (https://drive.google.com/file/d/19bIxXoJDlrscxzNgdmGegaOh-IhxIHFc/view?usp=sharing), or you can create your own keystore
  2. Copy the keystore file to the follwing directory: ``/react-native-mobile-pos/android/app/``.
  3. Open the terminal in ``/react-native-mobile-pos/android`` and run the following command line.
      ```
