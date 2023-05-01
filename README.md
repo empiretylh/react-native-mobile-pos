@@ -1,5 +1,7 @@
 # react-native-mobile-pos
 Mobile POS (Mobile App)
+
+Target Sdk Version : 31
 ## Installation
 
 - Open a terminal window and navigate to the directory where you want to clone the GitHub repository.
