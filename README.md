@@ -58,7 +58,7 @@ https://support.google.com/admob/answer/9989980?hl=en&ref_topic=7384409&sjid=463
   - Banner : https://support.google.com/admob/answer/7311346?hl=en&ref_topic=7384409&sjid=4635969408345971373-AP
   - Interstital : https://support.google.com/admob/answer/7311435?hl=en&ref_topic=7384409&sjid=4635969408345971373-AP
 
-  After creating the Ad Units, copy the Ad Unit IDs for both types of ads. Then, open the ``Database.js``` file located in the project's root folder. Find the UnitId and paste the Ad Unit ID for each type of ad as shown below:
+  After creating the Ad Units, copy the Ad Unit IDs for both types of ads. Then, open the ``Database.js`` file located in the project's root folder. Find the UnitId and paste the Ad Unit ID for each type of ad as shown below:
 
 ```javascript
 ...
@@ -67,3 +67,13 @@ export const UnitId = {
   interstitial : 'ca-app-pub-3940256099942544/1033173712',
 }
 ```
+## Export Apk
+ After updating your Ad Units, you can export an APK file for production using the following setps:
+ 1. Download the keystore from this link: http://thuralinhtut.com/empirepos.keystore, or you can create your own keystore
+ 2. Copy the keystore file to the follwing directory: ``/react-native-mobile-pos/android/app/``.
+ 3. Open the terminal in ``/react-native-mobile-pos/android`` and run the following command line.
+     ```
+       ./gradlew assembleRelease
+     ```
+ 4. Once the process is complete, you can find the ``release.apk`` file in the follwing directory.
+     ```/react-native-mobile-pos/android/app/build/outputs/apk/release```
