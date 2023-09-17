@@ -19,7 +19,7 @@ const SContainer = () => {
 
   useEffect(() => {
     GetToken();
-    console.log('Get Tokens');
+   
   }, []);
 
   const GetToken = () => {

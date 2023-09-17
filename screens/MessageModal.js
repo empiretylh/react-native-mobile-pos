@@ -146,11 +146,6 @@ export const MessageModalNormal = ({
   backgroundColor = 'white',
   height,
 }) => {
-  // const backAction = () => {
-  //   console.log('What');
-
-  //   return true;
-  // };
 
   return (
     <Modal

@@ -197,8 +197,6 @@ const HomeScreen = ({navigation, route}) => {
       .get('/api/products/')
       .then(res => {
         setProductData(res.data);
-        console.log('LESStock : ', showLS);
-        console.log('STockOUT : ', showSO);
         if (showLS === true) {
           LessStockProducts();
         } else {

@@ -288,7 +288,6 @@ const Product = ({navigation}) => {
         };
 
         setImage(source);
-        console.log(source, 'The ending...');
       }
     });
   };

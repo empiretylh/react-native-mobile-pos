@@ -46,23 +46,19 @@ const LoginScreen = ({navigation, route}) => {
   const [load, setLoad] = useState(false);
 
   const LoginToServer = () => {
-    console.log(data);
+    
     setLoad(true);
     axios
       .post('/auth/login/', data, {timeout: 5000})
       .then(res => {
         setLoad(false);
-        console.log(res.data.token);
-        SaveToken(res.data.token);
-
-        axios.defaults.headers.common = {
+            axios.defaults.headers.common = {
           Authorization: `Token ${res.data.token}`,
         };
         token(res.data.token);
       })
       .catch(err => {
-        console.log(JSON.stringify(err));
-        console.log(err);
+      
         if (err.response.status == 400) {
           Alert.alert('Login Failed', 'Username or Password is incorrect.', [
             {
@@ -78,7 +74,7 @@ const LoginScreen = ({navigation, route}) => {
     const temp = {...data, [name]: e};
 
     setData(temp);
-    console.log(temp);
+  
   };
 
   const SaveToken = async token => {
@@ -138,7 +134,6 @@ const LoginScreen = ({navigation, route}) => {
           onFocus={e => {
             let temp = {username: true, password: false};
             setIsFocus(temp);
-            console.log(isfocus);
           }}
           autoComplete={'username'}
         />
@@ -161,7 +156,7 @@ const LoginScreen = ({navigation, route}) => {
             onFocus={e => {
               let temp = {username: false, password: true};
               setIsFocus(temp);
-              console.log(isfocus);
+          
             }}
             secureTextEntry={visible}
           />
