@@ -1166,6 +1166,19 @@ const Product = ({navigation}) => {
               </Text>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setpmodal(true);
+              setImage(null);
+              onOpenAndCloseAPModal();
+            }}>
+            <View style={{...s.flexrow_aligncenter, padding: 10}}>
+              <MIcons name="publish" size={30} color={'#000'} />
+              <Text style={{...s.bold_label, marginLeft: 5}}>
+                {t('IW_Excel')}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </MessageModalNormal>
 

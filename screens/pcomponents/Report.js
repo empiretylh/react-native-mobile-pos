@@ -1,7 +1,7 @@
 /* eslint-disable no-extend-native */
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,8 @@ import {
   TouchableOpacityBase,
   TextInput,
   Button,
+  Linking,
+  ToastAndroid,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
 import {IMAGE as I, STYLE as s, COLOR as C} from '../../Database';
@@ -33,6 +35,30 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
+import RNFetchBlob from 'rn-fetch-blob';
+import {PermissionsAndroid} from 'react-native';
+
+const requestStoragePermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'Storage Permission',
+        message: 'App needs access to your storage to download files.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('Storage permission granted');
+    } else {
+      console.log('Storage permission denied');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 const Tab = createMaterialTopTabNavigator();
 
 let render_count = 0;
@@ -56,147 +82,157 @@ const ReportScreen = ({navigation}) => {
   const [refresh, setRefresh] = useState();
   const [load, setLoad] = useState(false);
 
-  const Load = (
-    type = '',
-    time = 'today',
-    startd = new Date(),
-    endd = new Date(),
-  ) => {
-    setRefresh(true);
+  const Load = useCallback(
+    (type = '', time = 'today', startd = new Date(), endd = new Date()) => {
+      setRefresh(true);
 
-    getProductFromServer();
+      getProductFromServer();
 
-    getExpenseFromServer(
-      type,
-      time,
-      startd.toLocaleDateString(),
-      endd.toLocaleDateString(),
-    );
+      getExpenseFromServer(
+        type,
+        time,
+        startd.toLocaleDateString(),
+        endd.toLocaleDateString(),
+      );
 
-    getPurchaseFromServer(
-      type,
-      time,
-      startd.toLocaleDateString(),
-      endd.toLocaleDateString(),
-    );
+      getPurchaseFromServer(
+        type,
+        time,
+        startd.toLocaleDateString(),
+        endd.toLocaleDateString(),
+      );
 
-    getOtherIncomeFromServer(
-      type,
-      time,
-      startd.toLocaleDateString(),
-      endd.toLocaleDateString(),
-    );
+      getOtherIncomeFromServer(
+        type,
+        time,
+        startd.toLocaleDateString(),
+        endd.toLocaleDateString(),
+      );
 
-    getSalesFromServer(
-      type,
-      time,
-      startd.toLocaleDateString(),
-      endd.toLocaleDateString(),
-    );
-  };
-  const getSalesFromServer = (type = '', time = 'today', startd, endd) => {
-    console.log('Fetching Sales Data');
-    setSaleTableData(null);
-    setSalesData(null);
-    axios
-      .get('/api/sales/', {
-        params: {
-          type: type,
-          time: time,
-          startd: startd,
-          endd: endd,
-        },
-      })
-      .then(res => {
-        console.log('Fetch Data from Sales Data');
-        setloadtext(t('LoadSales'));
-        setSaleChartLabel(res.data.CHART_LABEL);
-        if (res.data.CHART_DATA.length >= 1)
-          setSaleChartData(res.data.CHART_DATA);
-        setSalesData(res.data.DATA);
-        // ComputeSalesData(res.data, time);
-        console.log('Successfully Setted Data ');
-      })
-      .catch(err => console.log(err));
-  };
+      getSalesFromServer(
+        type,
+        time,
+        startd.toLocaleDateString(),
+        endd.toLocaleDateString(),
+      );
+    },
+    [],
+  );
 
-  const getProductFromServer = () => {
+  const getSalesFromServer = useCallback(
+    (type = '', time = 'today', startd, endd) => {
+      console.log('Fetching Sales Data');
+      setSaleTableData(null);
+      setSalesData(null);
+      axios
+        .get('/api/sales/', {
+          params: {
+            type: type,
+            time: time,
+            startd: startd,
+            endd: endd,
+          },
+        })
+        .then(res => {
+          console.log('Fetch Data from Sales Data');
+          setloadtext(t('LoadSales'));
+          setSaleChartLabel(res.data.CHART_LABEL);
+          if (res.data.CHART_DATA.length >= 1)
+            setSaleChartData(res.data.CHART_DATA);
+          setSalesData(res.data.DATA);
+          // ComputeSalesData(res.data, time);
+          console.log('Successfully Setted Data ');
+        })
+        .catch(err => console.log(err));
+    },
+    [],
+  );
+
+  const getProductFromServer = useCallback(() => {
     axios
       .get('/api/products/')
       .then(res => setProductData(res.data))
       .catch(err => console.log(err));
-  };
+  }, []);
 
-  const getExpenseFromServer = (type = '', time = 'today', startd, endd) => {
-    setExpenseTable(null);
-    axios
-      .get('/api/expenses/', {
-        params: {
-          type: type,
-          time: time,
-          startd: startd,
-          endd: endd,
-        },
-      })
-      .then(res => {
-        setloadtext(t('LoadExpense'));
-        setExpenseData(res.data.DATA);
-        if (res.data.CHART_DATA.length >= 1)
-          setexpenseChart(res.data.CHART_DATA);
-        setexpenseLabel(res.data.CHART_LABEL);
-      })
-      .catch(err => console.log(err));
-  };
+  const getExpenseFromServer = useCallback(
+    (type = '', time = 'today', startd, endd) => {
+      setExpenseTable(null);
+      axios
+        .get('/api/expenses/', {
+          params: {
+            type: type,
+            time: time,
+            startd: startd,
+            endd: endd,
+          },
+        })
+        .then(res => {
+          setloadtext(t('LoadExpense'));
+          setExpenseData(res.data.DATA);
+          if (res.data.CHART_DATA.length >= 1)
+            setexpenseChart(res.data.CHART_DATA);
+          setexpenseLabel(res.data.CHART_LABEL);
+        })
+        .catch(err => console.log(err));
+    },
+    [],
+  );
 
-  const getPurchaseFromServer = (type = '', time = 'today', startd, endd) => {
-    setPurchaseTable(null);
+  const getPurchaseFromServer = useCallback(
+    (type = '', time = 'today', startd, endd) => {
+      setPurchaseTable(null);
 
-    axios
-      .get('/api/purchases/', {
-        params: {
-          type: type,
-          time: time,
-          startd: startd,
-          endd: endd,
-        },
-      })
-      .then(res => {
-        setloadtext(t('LoadPurchase'));
-        setPurchaseData(res.data.DATA);
-        if (res.data.CHART_DATA.length >= 1)
-          setpurchaseChart(res.data.CHART_DATA);
-        setpurchaseLabel(res.data.CHART_LABEL);
+      axios
+        .get('/api/purchases/', {
+          params: {
+            type: type,
+            time: time,
+            startd: startd,
+            endd: endd,
+          },
+        })
+        .then(res => {
+          setloadtext(t('LoadPurchase'));
+          setPurchaseData(res.data.DATA);
+          if (res.data.CHART_DATA.length >= 1)
+            setpurchaseChart(res.data.CHART_DATA);
+          setpurchaseLabel(res.data.CHART_LABEL);
 
-        // ComputeOtherIncomeData(res.data, time, 'purchase');
-      })
-      .catch(err => console.log(err));
-  };
+          // ComputeOtherIncomeData(res.data, time, 'purchase');
+        })
+        .catch(err => console.log(err));
+    },
+    [],
+  );
 
-  const getOtherIncomeFromServer = (
-    type = '',
-    time = 'today',
-    startd,
-    endd,
-  ) => {
-    setOtherIncomeTable(null);
-    axios
-      .get('/api/otherincome/', {
-        params: {
-          type: type,
-          time: time,
-          startd: startd,
-          endd: endd,
-        },
-      })
-      .then(res => {
-        setloadtext(t('LoadOtherIncome'));
-        setOtherincomeData(res.data.DATA);
-        if (res.data.CHART_DATA.length >= 1)
-          setOtherIncomeChart(res.data.CHART_DATA);
-        setOtherIncomeLabel(res.data.CHART_LABEL);
-      })
-      .catch(err => console.log(err));
-  };
+  const getOtherIncomeFromServer = useCallback(
+    (type = '', time = 'today', startd, endd) => {
+      setOtherIncomeTable(null);
+      axios
+        .get('/api/otherincome/', {
+          params: {
+            type: type,
+            time: time,
+            startd: startd,
+            endd: endd,
+          },
+        })
+        .then(res => {
+          setloadtext(t('LoadOtherIncome'));
+          setOtherincomeData(res.data.DATA);
+          if (res.data.CHART_DATA.length >= 1)
+            setOtherIncomeChart(res.data.CHART_DATA);
+          setOtherIncomeLabel(res.data.CHART_LABEL);
+        })
+        .catch(err => console.log(err));
+    },
+    [],
+  );
+
+  useEffect(() => {
+    Load();
+  }, [Load]);
 
   const SumSales = data => {
     let price = 0;
@@ -926,6 +962,12 @@ const ReportScreen = ({navigation}) => {
 
   const [PLRefresh, setPLRefresh] = useState(false);
 
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  console.log(currentYear); // Output: 2023
+
+  const reqtypeRef = useRef(null);
+
   const FetchData = () => {
     setPLRefresh(true);
     // setprofitdata(null);
@@ -940,6 +982,86 @@ const ReportScreen = ({navigation}) => {
         setPLRefresh(false);
       })
       .catch(err => console.log(err));
+  };
+
+  // Request Profit and Loss excel format from  django server
+  // path('api/exportprofitnloss/', apiview.ExcelExportProfitandLoss.as_view(),
+  //        name='export_profitnloss'),
+  const reqPNLoss = async () => {
+    requestStoragePermission();
+    const {dirs} = RNFetchBlob.fs;
+    const pathToWrite = `${dirs.DownloadDir}/ProfitnLoss.xlsx`;
+
+    // User fetch url from axios.defualts.baseURL also auth token headers
+
+    RNFetchBlob.config({
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: pathToWrite,
+        description: 'Excel File',
+        mime: 'application/octet-stream',
+        mediaScannable: true,
+      },
+    })
+      //Use axios.defaults.baseURL
+      .fetch('GET', axios.defaults.baseURL + '/api/exportprofitnloss/', {
+        //Use authorization from axios.defaults.headers
+        Authorization: axios.defaults.headers.common['Authorization'],
+        'Content-Type': 'application/json',
+      })
+      .then(res => {
+        console.log('The file saved to ', res.path());
+        ToastAndroid.show('File Saved to ' + res.path(), ToastAndroid.SHORT);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  // Reuquest all report excel file it has parameter like `api/otherincome` using RNFetchBlob
+
+  const reqAllReportExcel = async (type = '', time = 'today', startd, endd) => {
+    requestStoragePermission();
+    const {dirs} = RNFetchBlob.fs;
+    const pathToWrite = `${dirs.DownloadDir}/AllReport.xlsx`;
+
+    // User fetch url from axios.defualts.baseURL also auth token headers
+    const params = new URLSearchParams({
+      type: type,
+      time: time,
+      startd: startd.toLocaleDateString(),
+      endd: endd.toLocaleDateString(),
+    });
+    RNFetchBlob.config({
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: pathToWrite,
+        description: 'Excel File',
+        mime: 'application/octet-stream',
+        mediaScannable: true,
+      },
+    })
+      //Use axios.defaults.baseURL
+      .fetch(
+        'GET',
+        axios.defaults.baseURL + '/api/exportallreport/?' + params.toString(),
+        {
+          //Use authorization from axios.defaults.headers
+          Authorization: axios.defaults.headers.common['Authorization'],
+          'Content-Type': 'application/json',
+        },
+      )
+      .then(res => {
+        console.log('The file saved to ', res.path());
+        ToastAndroid.show('File Saved to ' + res.path(), ToastAndroid.SHORT);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   const ProfitnLossView = () => {
@@ -992,7 +1114,15 @@ const ReportScreen = ({navigation}) => {
             refreshControl={
               <RefreshControl onRefresh={FetchData} refreshing={PLRefresh} />
             }>
-            <Text style={{...s.bold_label}}>2022</Text>
+            <TouchableOpacity
+              style={{...s.blue_button, padding: 10}}
+              onPress={reqPNLoss}>
+              <Text style={{...s.bold_label, color: 'white'}}>
+                Export Excel
+              </Text>
+            </TouchableOpacity>
+
+            <Text style={{...s.bold_label}}>{currentYear}</Text>
             <LineChart
               data={{
                 labels: Object.keys(profitdata.addData),
@@ -1120,12 +1250,11 @@ const ReportScreen = ({navigation}) => {
           </ScrollView>
         );
       } else {
-       
         return ComputeScreen();
       }
     } else {
       // console.log(profitdata.addData.length,'What  The');
-      
+
       return ComputeScreen();
     }
     // return ComputeScreen();
@@ -1137,12 +1266,38 @@ const ReportScreen = ({navigation}) => {
     // {/* appbar */}
     <View style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{flexDirection: 'column'}}>
-        <View
-          style={{
-            ...s.flexrow_aligncenter_j_between,
-            padding: 8,
-          }}>
-          <Text style={{...s.bold_label, fontSize: 23}}>{t('Report')}</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <View
+            style={{
+              ...s.flexrow_aligncenter_j_between,
+              padding: 8,
+            }}>
+            <Text style={{...s.bold_label, fontSize: 23}}>{t('Report')}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              if (reqtypeRef === 'today') {
+                reqAllReportExcel('', 'today');
+              } else if (reqtypeRef === 'month') {
+                reqAllReportExcel('', 'month');
+              } else if (reqtypeRef === 'year') {
+                reqAllReportExcel('', 'year');
+              } else {
+                reqAllReportExcel('', 'custom', sdate, edate);
+              }
+            }}>
+            <View
+              style={{
+                ...s.blue_button,
+                padding: 10,
+                marginTop: 10,
+                marginRight: 10,
+              }}>
+              <Text style={{...s.bold_label, color: 'white'}}>
+                {t('Export_Excel')}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
         <ScrollView
           style={{
@@ -1153,7 +1308,10 @@ const ReportScreen = ({navigation}) => {
           nestedScrollEnabled={true}>
           <TouchableOpacity
             underlayColor="white"
-            onPress={() => Load('', 'today')}>
+            onPress={() => {
+              Load('', 'today');
+              reqtypeRef.current = 'today';
+            }}>
             <View
               style={{
                 alignItems: 'center',
@@ -1166,7 +1324,10 @@ const ReportScreen = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             underlayColor="white"
-            onPress={() => Load('', 'month')}>
+            onPress={() => {
+              Load('', 'month');
+              reqtypeRef.current = 'month';
+            }}>
             <View
               style={{
                 alignItems: 'center',
@@ -1181,7 +1342,10 @@ const ReportScreen = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             underlayColor="white"
-            onPress={() => Load('', 'year')}>
+            onPress={() => {
+              Load('', 'year');
+              reqtypeRef.current = 'year';
+            }}>
             <View
               style={{
                 alignItems: 'center',
@@ -1305,6 +1469,7 @@ const ReportScreen = ({navigation}) => {
             <TouchableOpacity
               onPress={() => {
                 Load('', 'custom', sdate, edate);
+                reqtypeRef.current = 'custom';
                 OnClosenOpenCud();
               }}
               style={{...s.blue_button, marginTop: 8, padding: 10}}>
