@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import org.reactnative.camera.RNCameraPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -15,6 +16,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.horcrux.svg.SvgPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
+import org.reactnative.camera.RNCameraPackage;
+
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -32,7 +35,7 @@ public class MainApplication extends Application implements ReactApplication {
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
           // packages.add(new SvgPackage());
-          // packages.add(new SplashScreenReactPackage());
+          // packages.add(new RNCameraPackage());
           return packages;
         }
 

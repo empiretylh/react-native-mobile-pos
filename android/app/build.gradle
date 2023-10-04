@@ -142,6 +142,8 @@ android {
         versionName "1.0.1"
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
+        missingDimensionStrategy 'react-native-camera', 'general'
+
         if (isNewArchitectureEnabled()) {
             // We configure the NDK build only if you decide to opt-in for the New Architecture.
             externalNativeBuild {
@@ -270,6 +272,8 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     implementation project(':react-native-splash-screen')
+
+    implementation project(':react-native-camera')
 
 
     //noinspection GradleDynamicVersion

@@ -17,6 +17,7 @@ import {
   PermissionsAndroid,
   RefreshControl,
   ToastAndroid,
+  Vibration,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
 import {
@@ -43,11 +44,14 @@ import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 import DocumentPicker from 'react-native-document-picker';
 
+import {RNCamera} from 'react-native-camera';
+
 const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
 import {nullLiteralTypeAnnotation} from '@babel/types';
 import RNFetchBlob from 'rn-fetch-blob';
+import {set} from 'react-native-reanimated';
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
@@ -337,7 +341,7 @@ const Product = ({navigation}) => {
   const [prefreshing, setpRefreshing] = useState(false);
   const [sp, setSp] = useState(ProductData);
 
-  const [selectable, setSelectable] = useState(true);
+  const [selectable, setSelectable] = useState(false);
 
   const SearchProducts = text => {
     const data = ProductData.filter(e => {
@@ -464,9 +468,6 @@ const Product = ({navigation}) => {
       const {dirs} = RNFetchBlob.fs;
       const pathToWrite = `${dirs.DownloadDir}/Products_BarCodeData.pdf`;
 
-      // Use fetch url from axios.defaults.baseURL also auth token headers
-      console.log('heere another one');
-
       RNFetchBlob.config({
         fileCache: true,
         addAndroidDownloads: {
@@ -476,7 +477,7 @@ const Product = ({navigation}) => {
           description: 'PDF File',
           mime: 'application/pdf',
           mediaScannable: true,
-          appendExt : 'pdf',
+          appendExt: 'pdf',
         },
       })
         .fetch(
@@ -1124,6 +1125,26 @@ const Product = ({navigation}) => {
     onCloseFiltershow();
   };
 
+  const onBarCodeRead = barcodeData => {
+    // console.log(e, parseInt(e));
+    const productId = parseInt(
+      barcodeData.substring(0, barcodeData.length - 1),
+    );
+    const product = ProductData.filter(item => item.id === productId);
+
+    if (product.length > 0) {
+      console.log('Product found:', product);
+      Vibration.vibrate(100); // Vibrate for 500 milliseconds
+      setSp(product);
+      onCloseBarCodeModal();
+    } else {
+      console.log('Product not found');
+    }
+  };
+  const [barcodemodal, setBarCodeModal] = useState(false);
+
+  const onCloseBarCodeModal = () => setBarCodeModal(false);
+
   return (
     <View style={{...s.Container}}>
       <Loading show={isUpload} infotext={'Creating Product'} />
@@ -1418,6 +1439,12 @@ const Product = ({navigation}) => {
         </View>
       </MessageModalNormal>
 
+      <BarcodeScanner
+        onBarcodeRead={onBarCodeRead}
+        show={barcodemodal}
+        onClose={onCloseBarCodeModal}
+      />
+
       {/* appbar */}
       <View
         style={{
@@ -1450,7 +1477,16 @@ const Product = ({navigation}) => {
           placeholder={t('Search_Products')}
           onChangeText={e => SearchProducts(e)}
         />
+
         <Icons name={'search'} size={20} color={'#000'} />
+        <TouchableOpacity onPress={() => setBarCodeModal(true)}>
+          <Icons
+            name={'barcode-outline'}
+            size={25}
+            color={'#000'}
+            style={{marginLeft: 10}}
+          />
+        </TouchableOpacity>
       </View>
       <View style={{...s.flexrow_aligncenter_j_center}}>
         <TouchableOpacity onPress={() => setFilterShow(true)}>
@@ -1559,6 +1595,37 @@ const Container = ({navigation}) => {
 };
 
 export default Container;
+
+const BarcodeScanner = ({onBarcodeRead, onClose, show}) => {
+  const onBarCodeRead = e => {
+    onBarcodeRead(e.data);
+    // onClose();
+  };
+
+  return (
+    <Modal visible={show} onRequestClose={onClose}>
+      <View style={{flex: 1}}>
+        <RNCamera
+          style={{flex: 1, width: '100%', height: '100%'}}
+          onBarCodeRead={onBarCodeRead}
+          captureAudio={false}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera',
+            buttonPositive: 'Ok',
+            buttonNegative: 'Cancel',
+          }}
+        />
+      </View>
+
+      <Text> is this Camera OK?</Text>
+
+      <TouchableOpacity onPress={onClose}>
+        <Text>Close</Text>
+      </TouchableOpacity>
+    </Modal>
+  );
+};
 
 const inputS = {
   ...s.flexrow_aligncenter_j_between,
