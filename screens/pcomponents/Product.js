@@ -16,6 +16,7 @@ import {
   BackHandler,
   PermissionsAndroid,
   RefreshControl,
+  ToastAndroid,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
 import {
@@ -35,17 +36,43 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import * as ImagePicker from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import ProductField from './extra/productfield';
+import ProductList from './extra/productlist';
 import Purchase from './Purchase';
 import Loading from '../Loading';
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
+import DocumentPicker from 'react-native-document-picker';
+
 const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
 import {nullLiteralTypeAnnotation} from '@babel/types';
+import RNFetchBlob from 'rn-fetch-blob';
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
+};
+
+const requestStoragePermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'Storage Permission',
+        message: 'App needs access to your storage to download files.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('Storage permission granted');
+    } else {
+      console.log('Storage permission denied');
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 const Product = ({navigation}) => {
   const RemoveToken = () => {
@@ -310,6 +337,8 @@ const Product = ({navigation}) => {
   const [prefreshing, setpRefreshing] = useState(false);
   const [sp, setSp] = useState(ProductData);
 
+  const [selectable, setSelectable] = useState(true);
+
   const SearchProducts = text => {
     const data = ProductData.filter(e => {
       console.log(e.name);
@@ -332,6 +361,8 @@ const Product = ({navigation}) => {
   const onCloseFiltershow = () => {
     setFilterShow(false);
   };
+
+  const SelectProductItem = () => {};
 
   const ProductView = ({navigation}) => {
     console.log('product view');
@@ -416,71 +447,175 @@ const Product = ({navigation}) => {
       });
     };
 
+    const [selectedItemId, setSelectedItemId] = useState([]);
+
+    // Add to selected id, if id is already in selected id, remove it from selected id
+    const onSelect = itemId => {
+      if (selectedItemId.includes(itemId)) {
+        setSelectedItemId(selectedItemId.filter(id => id !== itemId));
+      } else {
+        setSelectedItemId([...selectedItemId, itemId]);
+      }
+    };
+
+    const ExportBarcode = async selectedItemsIds => {
+      console.log(JSON.stringify(selectedItemsIds), 'SelectedItemsIds.....');
+      requestStoragePermission();
+      const {dirs} = RNFetchBlob.fs;
+      const pathToWrite = `${dirs.DownloadDir}/Products_BarCodeData.pdf`;
+
+      // Use fetch url from axios.defaults.baseURL also auth token headers
+      console.log('heere another one');
+
+      RNFetchBlob.config({
+        fileCache: true,
+        addAndroidDownloads: {
+          useDownloadManager: true,
+          notification: true,
+          path: pathToWrite,
+          description: 'PDF File',
+          mime: 'application/pdf',
+          mediaScannable: true,
+          appendExt : 'pdf',
+        },
+      })
+        .fetch(
+          'GET',
+          axios.defaults.baseURL +
+            '/api/exportbarcode/?sid=' +
+            JSON.stringify(selectedItemsIds),
+          {
+            'Content-Type': 'application/json',
+            Authorization: axios.defaults.headers.common['Authorization'],
+          },
+        )
+        .then(res => {
+          console.log(res);
+          ToastAndroid.show('Downloaded', ToastAndroid.SHORT);
+        })
+        .catch(err => console.log(err));
+      // Use axios.defaults.baseURL
+    };
+
     const PDITEM = ({item}) => {
-      return (
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#f0f0f0',
-            padding: 10,
-            margin: 5,
-            flexDirection: 'row',
-            borderRadius: 15,
-          }}>
-          <Image
-            source={{
-              uri:
-                item.pic === '/media/null'
-                  ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
-                  : axios.defaults.baseURL + item.pic,
+      if (selectable) {
+        return (
+          <TouchableOpacity
+            key={item.id}
+            style={{
+              flex: 1,
+              backgroundColor: '#f0f0f0',
+              padding: 10,
+              margin: 5,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderRadius: 15,
+              borderWidth: selectedItemId.includes(item.id) ? 2 : 0,
+              borderColor: selectedItemId.includes(item.id)
+                ? 'blue'
+                : 'transparent',
             }}
-            style={{width: 100, height: 100}}
-          />
-          <View style={{marginLeft: 10}}>
-            <Text style={{...s.bold_label, fontSize: 18}}>{item.name}</Text>
+            onPress={() => {
+              if (selectedItemId.includes(item.id)) {
+                setSelectedItemId(selectedItemId.filter(id => id !== item.id));
+              } else {
+                setSelectedItemId([...selectedItemId, item.id]);
+              }
+            }}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Text style={{...s.bold_label, fontSize: 15}}>{item.name}</Text>
+              <Text style={{...s.bold_label, fontSize: 15}}>
+                {numberWithCommas(item.price)} Ks
+              </Text>
+            </View>
+            {selectedItemId.includes(item.id) ? (
+              <View style={{marginLeft: 20}}>
+                <Icons name={'checkmark-circle'} size={30} color={'blue'} />
+              </View>
+            ) : (
+              <View style={{marginLeft: 20}}>
+                <Icons
+                  name={'checkmark-circle-outline'}
+                  size={30}
+                  color={'blue'}
+                />
+              </View>
+            )}
+          </TouchableOpacity>
+        );
+      } else {
+        return (
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: '#f0f0f0',
+              padding: 10,
+              margin: 5,
+              flexDirection: 'row',
+              borderRadius: 15,
+            }}>
+            <Image
+              source={{
+                uri:
+                  item.pic === '/media/null' || item.pic === null
+                    ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
+                    : axios.defaults.baseURL + item.pic,
+              }}
+              style={{width: 100, height: 100}}
+            />
+            <View style={{marginLeft: 10}}>
+              <Text style={{...s.bold_label, fontSize: 18}}>{item.name}</Text>
+              <Text
+                style={{
+                  ...s.normal_label,
+                  backgroundColor: C.bluecolor,
+                  color: 'white',
+                  padding: 3,
+                  borderRadius: 15,
+
+                  marginTop: 5,
+                }}>
+                {CategoryToText(item.category)}
+              </Text>
+
+              <Text style={{...s.bold_label, fontSize: 15, marginTop: 5}}>
+                {numberWithCommas(item.price)} MMK
+              </Text>
+            </View>
+            <View style={{position: 'absolute', right: 5, top: 8}}>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowed(true);
+                  seteditpd(item);
+                }}>
+                <Icons name={'create-outline'} size={30} color={'#000'} />
+              </TouchableOpacity>
+            </View>
             <Text
               style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 ...s.normal_label,
-                backgroundColor: C.bluecolor,
+                backgroundColor: 'red',
                 color: 'white',
-                padding: 3,
-                borderRadius: 15,
-
-                marginTop: 5,
+                padding: 5,
+                borderBottomRightRadius: 15,
+                borderTopLeftRadius: 15,
+                fontWeight: 'bold',
               }}>
-              {CategoryToText(item.category)}
-            </Text>
-
-            <Text style={{...s.bold_label, fontSize: 15, marginTop: 5}}>
-              {numberWithCommas(item.price)} MMK
+              {item.qty}
             </Text>
           </View>
-          <View style={{position: 'absolute', right: 5, top: 8}}>
-            <TouchableOpacity
-              onPress={() => {
-                setShowed(true);
-                seteditpd(item);
-              }}>
-              <Icons name={'create-outline'} size={30} color={'#000'} />
-            </TouchableOpacity>
-          </View>
-          <Text
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              ...s.normal_label,
-              backgroundColor: 'red',
-              color: 'white',
-              padding: 5,
-              borderBottomRightRadius: 15,
-              borderTopLeftRadius: 15,
-              fontWeight: 'bold',
-            }}>
-            {item.qty}
-          </Text>
-        </View>
-      );
+        );
+      }
     };
 
     const onCloseShow = () => {
@@ -523,6 +658,18 @@ const Product = ({navigation}) => {
       seteditpd(temp);
     };
 
+    const selectAll = () => {
+      if (selectable) {
+        if (selectable) {
+          if (selectedItemId.length === sp.length) {
+            setSelectedItemId([]);
+          } else {
+            setSelectedItemId(sp.map(item => item.id));
+          }
+        }
+      }
+    };
+
     return (
       <View style={{flex: 1}}>
         {editpd ? (
@@ -548,6 +695,7 @@ const Product = ({navigation}) => {
                   }}
                   style={{width: '100%', height: 180, backgroundColor: 'black'}}
                 />
+
                 <View style={{...s.flexrow_aligncenter_j_between}}>
                   <TouchableOpacity onPress={() => LaunchCamera()}>
                     <Icons
@@ -788,18 +936,74 @@ const Product = ({navigation}) => {
         </MessageModalNormal>
 
         {isArrayhasData(sp) ? (
-          <FlatList
-            refreshControl={
-              <RefreshControl
-                refreshing={prefreshing}
-                onRefresh={GetProdcutsFromServer}
-              />
-            }
-            style={{backgroundColor: C.white}}
-            data={sp}
-            renderItem={PDITEM}
-            keyExtractor={i => i.id}
-          />
+          <View>
+            {selectable ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-around',
+                }}>
+                <TouchableOpacity onPress={selectAll}>
+                  <View
+                    style={{
+                      ...s.flexrow_aligncenter_j_center,
+                      padding: 10,
+                      ...s.blue_button,
+                    }}>
+                    <Text>
+                      {selectedItemId.length === sp.length
+                        ? 'Deselect All'
+                        : 'Select All'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <Text style={{...s.bold_label, fontSize: 20}}>
+                  {selectedItemId.length} selected
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    ExportBarcode(selectedItemId);
+                    setSelectable(prev => !prev);
+                  }}>
+                  <View
+                    style={{
+                      ...s.flexrow_aligncenter_j_center,
+                      padding: 10,
+                      ...s.blue_button,
+                    }}>
+                    <Text>Export BarCode</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectable(prev => !prev);
+                  }}>
+                  <View
+                    style={{
+                      ...s.flexrow_aligncenter_j_center,
+                      padding: 10,
+                      ...s.black_button,
+                      backgroundColor: 'red',
+                    }}>
+                    <Icons name="close" size={15} color={'white'} />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+            <FlatList
+              refreshControl={
+                <RefreshControl
+                  refreshing={prefreshing}
+                  onRefresh={GetProdcutsFromServer}
+                />
+              }
+              style={{backgroundColor: C.white}}
+              data={sp}
+              renderItem={PDITEM}
+              keyExtractor={i => i.id}
+            />
+          </View>
         ) : (
           <View
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -854,6 +1058,60 @@ const Product = ({navigation}) => {
     );
   };
 
+  const [isImporting, setIsImporting] = useState(false);
+
+  const handleExcelImport = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message: 'App needs access to your storage to download files.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        const res = await DocumentPicker.pick({
+          type: [DocumentPicker.types.xls, DocumentPicker.types.xlsx],
+        });
+        console.log(res);
+        let data = new FormData();
+
+        const source = {
+          uri: res[0].uri,
+          name: res[0].name,
+          type: res[0].type,
+        };
+
+        data.append('file', source);
+
+        setIsImporting(true);
+        axios
+          .post('/api/excelproductreport/', data, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then(res => {
+            console.log(res.data);
+            setIsImporting(false);
+            onOpenAndCloseAPModal();
+            Load();
+          })
+          .catch(err => {
+            setIsImporting(false);
+            onOpenAndCloseAPModal();
+          });
+      } else {
+        console.log('Storage permission denied');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const [focusView, setFocusView] = useState('p');
 
   const SortProduct = type => {
@@ -869,6 +1127,7 @@ const Product = ({navigation}) => {
   return (
     <View style={{...s.Container}}>
       <Loading show={isUpload} infotext={'Creating Product'} />
+      <Loading show={isImporting} infotext={'Importing Product from Excel'} />
       <MessageModalNormal show={filtershow} onClose={onCloseFiltershow}>
         <View>
           <Text style={{...s.bold_label}}>Sort Product</Text>
@@ -1007,39 +1266,6 @@ const Product = ({navigation}) => {
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'price')
               }
             />
-            {/* <Text style={{...s.bold_label, marginTop: 5}}>Date</Text>
-            <View style={{...s.flexrow_aligncenter_j_center, ...inputS}}>
-              <TextInput
-                style={{
-                  flex: 1,
-                  padding: 10,
-                  fontSize: 16,
-                  fontWeight: '900',
-                }}
-                placeholder={'Date'}
-                value={date.toLocaleDateString()}
-                defaultValue={date.toLocaleDateString()}
-                onChangeText={e => onHandlePdtData(date, 'date')}
-              />
-              <TouchableOpacity onPress={() => setDopen(true)}>
-                <Icons name={'calendar'} size={25} color={'#000'} />
-              </TouchableOpacity>
-              <DatePicker
-                modal
-                open={dopen}
-                date={date}
-                mode={'date'}
-                onConfirm={date => {
-                  setDopen(false);
-                  setDate(date);
-                  console.log(date);
-                  onHandlePdtData(date, 'date');
-                }}
-                onCancel={() => {
-                  setDopen(false);
-                }}
-              />
-            </View> */}
             <Text style={{...s.bold_label, marginTop: 5}}>
               {t('Description')}
             </Text>
@@ -1168,14 +1394,24 @@ const Product = ({navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              setpmodal(true);
-              setImage(null);
-              onOpenAndCloseAPModal();
+              handleExcelImport();
             }}>
             <View style={{...s.flexrow_aligncenter, padding: 10}}>
               <MIcons name="publish" size={30} color={'#000'} />
               <Text style={{...s.bold_label, marginLeft: 5}}>
                 {t('IW_Excel')}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setSelectable(prev => !prev);
+              onOpenAndCloseAPModal();
+            }}>
+            <View style={{...s.flexrow_aligncenter, padding: 10}}>
+              <MIcons name="barcode" size={30} color={'#000'} />
+              <Text style={{...s.bold_label, marginLeft: 5}}>
+                Export Barcode
               </Text>
             </View>
           </TouchableOpacity>
@@ -1296,13 +1532,17 @@ const Product = ({navigation}) => {
           position: 'absolute',
           bottom: 55,
           right: 20,
+          width: 50,
+          height: 50,
+          alignItems: 'center',
+          justifyContent: 'center',
         }}>
         <TouchableOpacity
           onPress={() => {
             console.log('apmodal');
             onOpenAndCloseAPModal();
           }}>
-          <Icons name={'add'} size={35} color={'#fff'} />
+          <Icons name={'pencil'} size={25} color={'#fff'} />
         </TouchableOpacity>
       </View>
     </View>

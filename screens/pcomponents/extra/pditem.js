@@ -29,7 +29,7 @@ const PDITEM = ({item}) => {
       <Image
         source={{
           uri:
-            item.pic === '/media/null'
+            item.pic === '/media/null' || item.pic === null
               ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
               : axios.defaults.baseURL + item.pic,
         }}
