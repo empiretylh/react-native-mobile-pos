@@ -1,0 +1,305 @@
+/* eslint-disable react-native/no-inline-styles */
+import React, {useState, useEffect, useContext, useMemo, useRef} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  FlatList,
+  Modal,
+} from 'react-native';
+import {CartContext} from '../context/CartContext';
+import {numberWithCommas} from '../../../Database';
+import {
+  STYLE as s,
+  COLOR as C,
+  IMAGE as i,
+  ALERT as a,
+} from '../../../Database';
+import Icon from 'react-native-vector-icons/Ionicons';
+import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const headerLabel = {
+  flex: 1,
+  ...s.normal_label,
+  backgroundColor: '#70c9cc',
+  justifyContent: 'center',
+  color: 'black',
+  flex: 1,
+  padding: 2,
+  textAlign: 'center',
+  borderColor: 'black',
+  borderWidth: 1,
+};
+const CTITEM = ({item, onUpdate, onRemove}) => {
+  const [qty, setQty] = useState(item.qty.toString());
+  const [price, setPrice] = useState(item.price.toString());
+  const [pdname, setPdName] = useState(item.pdname.toString());
+  const qtyInputRef = useRef(null);
+  const priceInputRef = useRef(null);
+  const pdnameRef = useRef(null);
+
+  const handlePdNameChange = value => {
+    setPdName(value);
+    onUpdate({...item, pdname: value});
+  };
+
+  const handleQtyChange = value => {
+    setQty(value);
+    const newQty = parseInt(value, 10);
+    const newTotal = newQty * item.price;
+    onUpdate({...item, qty: newQty, total: newTotal});
+  };
+
+  const handlePriceChange = value => {
+    setPrice(value);
+    const newPrice = parseFloat(value);
+    const newTotal = item.qty * newPrice;
+    onUpdate({...item, price: newPrice, total: newTotal});
+  };
+
+  const labelstyle = {
+    ...s.normal_label,
+    color: 'black',
+    flex: 1,
+    padding: 2,
+    textAlign: 'center',
+    borderColor: 'black',
+    borderWidth: 1,
+  };
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+      }}>
+      <TextInput
+        ref={pdnameRef}
+        style={{
+          backgroundColor: '#42a1f5',
+          borderRadius: 5,
+          borderWidth: 1,
+          borderColor: 'black',
+
+          ...s.bold_label,
+          color: 'white',
+          flex: 1,
+          padding: 2,
+          textAlign: 'center',
+        }}
+        value={pdname}
+        onChangeText={handlePdNameChange}
+        keyboardType="text"
+      />
+
+      <TextInput
+        ref={qtyInputRef}
+        style={{
+          backgroundColor: '#42a1f5',
+          borderRadius: 5,
+          borderWidth: 1,
+          borderColor: 'black',
+
+          ...s.bold_label,
+          color: 'white',
+          flex: 1,
+          padding: 2,
+          textAlign: 'center',
+        }}
+        value={qty}
+        onChangeText={handleQtyChange}
+        keyboardType="numeric"
+        selectTextOnFocus={true}
+      />
+      <TextInput
+        ref={priceInputRef}
+        style={{
+          backgroundColor: '#42a1f5',
+          borderRadius: 5,
+          borderWidth: 1,
+          borderColor: 'black',
+
+          ...s.bold_label,
+          color: 'white',
+          flex: 1,
+          padding: 2,
+          textAlign: 'center',
+        }}
+        value={price}
+        onChangeText={handlePriceChange}
+        keyboardType="numeric"
+        selectTextOnFocus={true}
+      />
+      <Text style={{...labelstyle, textAlign: 'right'}}>
+        {numberWithCommas(item.total)}
+      </Text>
+      {/*Remove Item from cartdata using filter and with remove icon */}
+      <TouchableOpacity
+        onPress={() => {
+          onRemove(item.name);
+        }}>
+        <Icon name="trash-outline" size={30} color="red" />
+      </TouchableOpacity>
+    </View>
+  );
+};
+/* Implemet Product Data from Context and useFlat list and use CartList */
+
+const CartView = ({setTotalAmount, show, onClose}) => {
+  const {CartData, setCartData} = useContext(CartContext);
+
+  const SumTotal = useMemo(() => {
+    console.log('here');
+    if (CartData.length === 0) return 0;
+
+    let amount = 0;
+    CartData.forEach(e => {
+      amount += parseInt(e.total, 10);
+    });
+    setTotalAmount(amount);
+    return amount;
+  }, [CartData, setTotalAmount]);
+
+  const handleItemUpdate = newItem => {
+    const newCartData = CartData.map(item => {
+      if (item.name === newItem.name) {
+        return newItem;
+      } else {
+        return item;
+      }
+    });
+    setCartData(newCartData);
+  };
+
+  const addNewItem = () => {
+    const d = {
+      name: new Date().getTime().toString(),
+      qty: 1,
+      price: 0,
+      total: 0,
+      pdname: '',
+    };
+    setCartData([...CartData, d]);
+  };
+
+  const handleItemRemove = itemId => {
+    const newCartData = CartData.filter(item => item.name !== itemId);
+    setCartData(newCartData);
+  };
+  //if  pdname , qty , price are empty , show alert
+  const handleSave = () => {
+    const newCartData = CartData.filter(
+      item => item.pdname === '' || item.qty === 0 || item.price === 0,
+    );
+
+    console.log(newCartData.length)
+
+    if (newCartData.length > 0) {
+      a.rqf();
+      return;
+    }
+    onClose();
+  };
+
+  return (
+    <Modal visible={show} onRequestClose={onClose}>
+      <View style={{flex: 1, padding: 10}}>
+        <View style={{flexDirection: 'row'}}>
+          <View style={{...s.flexrow_aligncenter_j_between}}>
+            <Icon
+              name="cart-outline"
+              size={30}
+              color="black"
+              style={{marginRight: 10}}
+            />
+            <Text style={{...s.normal_label, ...s.bold_label, fontSize: 30}}>
+              Edit Cart
+            </Text>
+          </View>
+
+          <View style={{flexDirection: 'row', position: 'absolute', right: 0}}>
+            
+          <MIcons
+              name={'package-variant'}
+              size={30}
+              color={'#000'}
+              onPress={addNewItem}
+              style={{marginRight:8}}
+            />
+            <Icon
+              name="close"
+              size={30}
+              color="black"
+              onPress={handleSave}
+              style={{top: 0, right: 0}}
+            />
+          </View>
+        </View>
+
+        <FlatList
+          ListHeaderComponent={() => (
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+              }}>
+              <Text style={{...headerLabel}}>Product Name</Text>
+              <Text style={headerLabel}>Qty</Text>
+              <Text style={headerLabel}>Price</Text>
+              <Text style={headerLabel}>Total Price</Text>
+              <Text style={headerLabel}>Action</Text>
+            </View>
+          )}
+          contentContainerStyle={{
+            flexDirection: 'column',
+            marginTop: 10,
+          }}
+          style={{backgroundColor: C.white}}
+          data={CartData}
+          renderItem={({item}) => (
+            <CTITEM
+              item={item}
+              onUpdate={handleItemUpdate}
+              onRemove={handleItemRemove}
+            />
+          )}
+          keyExtractor={item => item.name}
+        />
+
+        <View style={{bottom: 0, alignItems: 'center'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              padding: 5,
+            }}>
+            <Text style={{...s.bold_label}}>Total Amount :</Text>
+            <Text style={{...s.bold_label}}>
+              {numberWithCommas(SumTotal)} MMK
+            </Text>
+          </View>
+          {/*Touchable Opacity */}
+
+          <TouchableOpacity
+            style={{
+              ...s.blue_button,
+              flexDirection: 'row',
+              justifyContent: 'center',
+              width: C.windowWidth * 90,
+            }}
+            onPress={() => {
+              handleSave();
+            }}>
+            <Text style={{...s.bold_label, color: C.white}}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+export default CartView;

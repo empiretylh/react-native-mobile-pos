@@ -12,7 +12,9 @@ import AdminPricing from './pcomponents/adminpricing';
 import Loading from './pcomponents/extra/Loading';
 import {baseUrl} from '../Database';
 import SplashScreen from 'react-native-splash-screen';
-
+import ReceiptView from './pcomponents/sales/ReceiptView';
+import FindPrinter from './pcomponents/extra/FindPrinter';
+import SetPrinter from './pcomponents/print/setPrint';
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
   axios.defaults.baseURL = baseUrl;
@@ -67,10 +69,25 @@ const SContainer = () => {
                 initialParams={{token: setToken}}
               />
               <Stack.Screen
+                name="salesvoucher"
+                component={ReceiptView}
+                initialParams={{token: setToken}}
+              />
+              <Stack.Screen
+                name="netPrinter"
+                component={FindPrinter}
+                initialParams={{token: setToken}}
+              />
+              <Stack.Screen
                 name="profile"
                 component={Profile}
                 initialParams={{token: setToken}}
               />
+              <Stack.Screen
+              name="printers"
+              component={SetPrinter}
+              initialParams={{token: setToken}}
+            />
               <Stack.Screen
                 name="pricing"
                 component={Pricing}

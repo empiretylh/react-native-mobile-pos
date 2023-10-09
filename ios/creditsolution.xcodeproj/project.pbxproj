@@ -36,6 +36,7 @@
 		FB25D7B8F25F4946B67F2BF5 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 95CBF51440244175B7DA7DCD /* Roboto-Regular.ttf */; };
 		64196BBC307B4FC38A8930AC /* Roboto-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 614560D3A77E4956A78E9EB5 /* Roboto-Thin.ttf */; };
 		E51DA09FD9634FF180DDA354 /* Roboto-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 77F80357095D4CB08048279B /* Roboto-ThinItalic.ttf */; };
+		1350C923CFD84F15A23EA11D /* libRNBluetoothEscposPrinter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF869480C8FD4E07888A92DF /* libRNBluetoothEscposPrinter.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +89,8 @@
 		95CBF51440244175B7DA7DCD /* Roboto-Regular.ttf */ = {isa = PBXFileReference; name = "Roboto-Regular.ttf"; path = "../assets/fonts/Roboto-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		614560D3A77E4956A78E9EB5 /* Roboto-Thin.ttf */ = {isa = PBXFileReference; name = "Roboto-Thin.ttf"; path = "../assets/fonts/Roboto-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		77F80357095D4CB08048279B /* Roboto-ThinItalic.ttf */ = {isa = PBXFileReference; name = "Roboto-ThinItalic.ttf"; path = "../assets/fonts/Roboto-ThinItalic.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		DEC50BB22A8E47B6861A85A1 /* RNBluetoothEscposPrinter.xcodeproj */ = {isa = PBXFileReference; name = "RNBluetoothEscposPrinter.xcodeproj"; path = "../node_modules/react-native-bluetooth-escpos-printer/ios/RNBluetoothEscposPrinter.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		CF869480C8FD4E07888A92DF /* libRNBluetoothEscposPrinter.a */ = {isa = PBXFileReference; name = "libRNBluetoothEscposPrinter.a"; path = "libRNBluetoothEscposPrinter.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +107,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0C80B921A6F3F58F76C31292 /* libPods-creditsolution.a in Frameworks */,
+				1350C923CFD84F15A23EA11D /* libRNBluetoothEscposPrinter.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,6 +157,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				DEC50BB22A8E47B6861A85A1 /* RNBluetoothEscposPrinter.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -547,6 +552,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/creditsolution.app/creditsolution";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-bluetooth-escpos-printer/ios/**",
+				);
 			};
 			name = Debug;
 		};
@@ -571,6 +584,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/creditsolution.app/creditsolution";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-bluetooth-escpos-printer/ios/**",
+				);
 			};
 			name = Release;
 		};
@@ -597,6 +618,10 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-bluetooth-escpos-printer/ios/**",
+				);
 			};
 			name = Debug;
 		};
@@ -621,6 +646,10 @@
 				PRODUCT_NAME = creditsolution;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-bluetooth-escpos-printer/ios/**",
+				);
 			};
 			name = Release;
 		};

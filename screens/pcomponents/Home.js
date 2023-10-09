@@ -463,7 +463,7 @@ const HomeScreen = ({navigation, route}) => {
         <Image
           source={{
             uri:
-              item.pic === '/media/null'
+              item.pic === '/media/null' || item.pic === null
                 ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
                 : axios.defaults.baseURL + item.pic,
           }}
@@ -1124,7 +1124,7 @@ const HomeScreen = ({navigation, route}) => {
               backgroundColor: '#f1f8ff',
               height: 40,
             }}
-            textStyle={[{color: 'black', textAlign: 'center'}]}
+            textStyle={{color: 'black', textAlign: 'center'}}
           />
           <Rows data={salesTable} textStyle={{margin: 6, color: 'black'}} />
         </Table>

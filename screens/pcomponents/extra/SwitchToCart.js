@@ -78,7 +78,6 @@ const SwitchToCart = ({item}) => {
         cartdata = cartdata.filter(a => a.name !== citem.name);
         setCartData(cartdata);
       } else {
-        console.log('Shi tal har');
         cartdata[index] = {
           ...cartdata[index],
           ['qty']: parseInt(citem.qty),
@@ -90,20 +89,17 @@ const SwitchToCart = ({item}) => {
         setCartData(cartdata);
       }
 
-      //   if (citem.qty === 0) {
-      //     cartdata = cartdata.filter(a => a.name !== citem.name);
-      //     console.log(index);
-      //   } else {
-
-      //   }
       console.log(citem);
       console.log(joined);
     }
   }, [citem]);
 
-  //   const SetValue = (value, name) => {
-
-  //   };
+  useMemo(() => {
+    let data = CartData.filter(d => d.name === item.id);
+    if (data) {
+      setSelectItem(true);
+    }
+  }, [CartData, setCartData]);
 
   useEffect(() => {
     let data = CartData.filter(d => d.name === item.id);
@@ -112,6 +108,8 @@ const SwitchToCart = ({item}) => {
       setCitem(data[0]);
     }
   }, []);
+
+ 
 
   if (selectedItem && citem) {
     return (

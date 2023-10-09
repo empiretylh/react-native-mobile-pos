@@ -345,6 +345,9 @@ const ReportScreen = ({navigation}) => {
             <View style={{...headerStyle, width: widtharr[5]}}>
               <Text style={{color: 'black'}}>{t('Discount')}</Text>
             </View>
+            <View style={{...headerStyle, width: widtharr[5]}}>
+              <Text style={{color: 'black'}}>{t('Delivery_Charges')}</Text>
+            </View>
             <View
               style={{
                 ...headerStyle,
@@ -401,7 +404,7 @@ const ReportScreen = ({navigation}) => {
                   <Text style={{color: 'black', textAlign: 'left'}}>
                     {item.sproduct.map(
                       (sp_item, index) =>
-                        sp_item.product_name +
+                        sp_item.name +
                         (index + 1 === item.sproduct.length ? '' : ', '),
                     )}
                   </Text>
@@ -437,6 +440,17 @@ const ReportScreen = ({navigation}) => {
                   }}>
                   <Text style={{color: 'black', textAlign: 'right'}}>
                     {item.discount + ' %'}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    ...styles.cell,
+
+                    justifyContent: 'center',
+                    width: widtharr[5],
+                  }}>
+                  <Text style={{color: 'black', textAlign: 'right'}}>
+                    {numberWithCommas(item.deliveryCharges)}
                   </Text>
                 </View>
                 <View

@@ -18,6 +18,7 @@ import {
   RefreshControl,
   ToastAndroid,
   Vibration,
+  Dimensions,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
 import {
@@ -354,7 +355,9 @@ const Product = ({navigation}) => {
       var d = CategoryToText(e.category).replaceAllTxt(' ', '').toLowerCase();
       var c = text.replaceAllTxt(' ', '').toLowerCase();
 
-      return b.includes(c) || d.includes(c) || f.includes(c);
+      return (
+        b.includes(c) || d.includes(c) || f.includes(c) || c.includes(e.id)
+      );
     });
 
     setSp(data);
@@ -913,6 +916,31 @@ const Product = ({navigation}) => {
                     fontSize: 22,
                   }}>
                   {t('Edit_Product')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                ExportBarcode([editpd.id]);
+                onCloseShow();
+              }}>
+              <View
+                style={{
+                  ...s.flexrow_aligncenter,
+                  padding: 15,
+                  backgroundColor: C.bluecolor,
+                  borderRadius: 15,
+                  marginBottom: 8,
+                }}>
+                <Icons name={'barcode-outline'} size={30} color={'#fff'} />
+                <Text
+                  style={{
+                    ...s.bold_label,
+                    marginLeft: 5,
+                    color: 'white',
+                    fontSize: 22,
+                  }}>
+                  Export BarCode
                 </Text>
               </View>
             </TouchableOpacity>
@@ -1617,12 +1645,21 @@ const BarcodeScanner = ({onBarcodeRead, onClose, show}) => {
           }}
         />
       </View>
-
-      <Text> is this Camera OK?</Text>
-
-      <TouchableOpacity onPress={onClose}>
-        <Text>Close</Text>
-      </TouchableOpacity>
+      <View
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: Dimensions.get('window').height,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Image
+          source={IMAGE.scan_barcode}
+          style={{width: '80%', height: 100}}
+          objectFit={'contain'}
+        />
+        <Text style={{color: 'white'}}>Scan BarCode from Products</Text>
+      </View>
     </Modal>
   );
 };

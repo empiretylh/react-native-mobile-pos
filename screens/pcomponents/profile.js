@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -49,6 +49,18 @@ const Profile = ({navigation, route}) => {
 
   const [isLoad, setIsLoad] = useState(false);
   const {token} = route.params;
+  const [editshow, seteditshow] = useState(false);
+  const [editype, seteditype] = useState('');
+
+  const openEditShow = type => {
+    seteditype(type);
+    seteditshow(true);
+  };
+
+  const closeEditShow = () => {
+    seteditshow(false);
+  };
+
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
     // Container.InfoToken.setUserToken(null);
@@ -66,6 +78,32 @@ const Profile = ({navigation, route}) => {
     setIsLoad(true);
     axios
       .get('/api/profile/')
+      .then(res => {
+        setPddata(res.data);
+        setIsLoad(false);
+      })
+      .catch(res => {
+        console.log(res);
+        setIsLoad(false);
+      });
+  };
+
+  const profileupdate = (
+    name = pdata.name,
+    phone = pdata.phoneno,
+    address = pdata.address,
+    email = pdata.email,
+  ) => {
+    const data = {
+      name: name,
+      phone: phone,
+      address: address,
+      email: email,
+    };
+
+    setIsLoad(true);
+    axios
+      .put('/api/profileupdate/', data)
       .then(res => {
         setPddata(res.data);
         setIsLoad(false);
@@ -257,19 +295,21 @@ const Profile = ({navigation, route}) => {
   };
 
   const RenderEditModal = props => {
-    const [editd, seteditd] = useState(null);
-    const onEditData = (e, name) => {
-      const tempdata = {...editd, [name]: e};
-      console.log(tempdata);
-      seteditd(tempdata);
-      console.log(e, name);
-    };
+    const [text, setText] = useState('');
 
-    useEffect(() => {
-      if (editd === null) {
-        seteditd(editdata);
+    const title = useMemo(() => {
+      if (editype === 'name') {
+        return 'Edit Shop Name';
+      } else if (editype === 'phno') {
+        return 'Edit Phone Number';
+      } else if (editype === 'address') {
+        return 'Edit Address';
+      } else if (editype === 'email') {
+        return 'Edit Email';
+      } else {
+        return 'Edit';
       }
-    }, []);
+    }, [editype]);
 
     return (
       <Modal {...props} animationType="slide" transparent={true}>
@@ -296,28 +336,27 @@ const Profile = ({navigation, route}) => {
               shadowOpacity: 0.4,
             }}>
             <Text style={{fontSize: 20, fontWeight: '600', padding: 10}}>
-              Change {editd ? editd.title : ''}
+              {title}
             </Text>
             <View>
               <TextInput
                 style={{
                   backgroundColor: C.textfield,
-                  height: editd && editd.title == 'Purpose' ? 100 : 40,
+                  height: editype && editype == 'address' ? 100 : 40,
                   borderRadius: 15,
-                  paddingTop: editd && editd.title == 'Purpose' ? 6 : 0,
+                  paddingTop: editype && editype == 'address' ? 6 : 0,
                   paddingLeft: 6,
                   paddingRight: 5,
                   fontSize: 16,
                 }}
-                defaultValue={editd ? editd.value : ''}
-                multiline={editd && editd.title == 'Purpose' ? true : false}
-                onChangeText={text => onEditData(text, 'value')}
+                multiline={editype && editype == 'address' ? true : false}
+                onChangeText={text => setText(text)}
               />
             </View>
             <View style={{flexDirection: 'row'}}>
               <TouchableOpacity
                 style={styles.chooseimagebutton_cancel}
-                onPress={() => setShowEditModal(false)}>
+                onPress={() => closeEditShow()}>
                 <Text style={{fontSize: 18, padding: 10, fontWeight: '500'}}>
                   Cancel
                 </Text>
@@ -325,9 +364,27 @@ const Profile = ({navigation, route}) => {
               <TouchableOpacity
                 style={styles.chooseimagebutton_cancel}
                 onPress={() => {
-                  setShowEditModal(false);
-                  console.log(editd.value);
-                  OnEditApply(editd);
+                  if (editype === 'name') {
+                    profileupdate(
+                      text,
+                      pdata.phoneno,
+                      pdata.address,
+                      pdata.email,
+                    );
+                  } else if (editype === 'phno') {
+                    profileupdate(pdata.name, text, pdata.address, pdata.email);
+                  } else if (editype === 'address') {
+                    profileupdate(pdata.name, pdata.phoneno, text, pdata.email);
+                  } else if (editype === 'email') {
+                    profileupdate(
+                      pdata.name,
+                      pdata.phoneno,
+                      pdata.address,
+                      text,
+                    );
+                  }
+
+                  closeEditShow();
                 }}>
                 <Text style={{fontSize: 18, padding: 10, fontWeight: '500'}}>
                   Apply
@@ -525,6 +582,7 @@ const Profile = ({navigation, route}) => {
 
   return (
     <View style={styles.contianer}>
+      <RenderEditModal visible={editshow} />
       <RenderChooseImageModal show={showmodal} />
       <MessageModalNormal show={fbshow} onClose={OnCloseFbShow}>
         {FeedbackModal()}
@@ -604,7 +662,7 @@ const Profile = ({navigation, route}) => {
             borderRadius: 10,
             backgroundColor: '#f0f0f0',
           }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => openEditShow('name')}>
             <View style={styles.FirstButtonStyle}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Name')}
@@ -612,7 +670,7 @@ const Profile = ({navigation, route}) => {
               <Text style={styles.buttonFont}>{pdata.name}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => a.alert('Username cannot be edit.')}>
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Username')}
@@ -620,7 +678,7 @@ const Profile = ({navigation, route}) => {
               <Text style={styles.buttonFont}>{pdata.username}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => openEditShow('phno')}>
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Phone_Number')}
@@ -628,7 +686,7 @@ const Profile = ({navigation, route}) => {
               <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => openEditShow('address')}>
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Address')}
@@ -638,7 +696,7 @@ const Profile = ({navigation, route}) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => openEditShow('email')}>
             <View style={styles.LastButtonStyle}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Email')}
@@ -757,6 +815,26 @@ const Profile = ({navigation, route}) => {
                     </View>
                   </TouchableOpacity>
                 </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/*Printer */}
+          <TouchableOpacity
+            onPress={() => {
+              // console.log(pdata.is_superuser);
+              navigation.navigate({
+                name: 'printers',
+                params: route.params,
+              });
+            }}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'print'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  Printers
+                </Text>
               </View>
             </View>
           </TouchableOpacity>

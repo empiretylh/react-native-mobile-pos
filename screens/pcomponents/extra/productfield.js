@@ -1,7 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useCallback, useMemo} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useContext,
+} from 'react';
 import {
   View,
   Text,
@@ -30,6 +36,9 @@ import {numberWithCommas} from '../../../Database';
 import SwitchToCart from './SwitchToCart';
 import PDITEM from './pditem';
 import {CartContext} from '../context/CartContext';
+import {ProductsContext} from '../context/ProductContext';
+import BarCodeToCart from '../sales/AddWithBarCode';
+import CartView from '../sales/EditCartList';
 
 const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
   const [open, setOpen] = useState(false);
@@ -41,6 +50,9 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
 
   const [searchtext, setSearchText] = useState('');
   const [categoryId, setCategoryId] = useState('All');
+  const [editcartshow, seteditcartshow] = useState(false);
+
+  const {CartData, setCartData} = useContext(CartContext);
 
   const SetOpenModal = () => {
     setOpen(true);
@@ -79,9 +91,14 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
 
         var c = searchtext.replaceAllTxt(' ', '').toLowerCase();
 
+        var id = e.id.toString();
+
+        console.log(id);
+
         return (
-          (categoryId === 'All' ? true : e.category === categoryId) &&
-          b.includes(c)
+          c.includes(id) ||
+          ((categoryId === 'All' ? true : e.category === categoryId) &&
+            b.includes(c))
         );
       });
       return data;
@@ -91,22 +108,23 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
 
   console.log('re render Products Field');
 
+  const ProductDataValue = useMemo(
+    () => ({ProductData, setProductData}),
+    [ProductData, setProductData],
+  );
+
   const ProductView = () => {
-    const [CartData, setCartData] = useState([]);
+    const SumTotal = useMemo(() => {
+      console.log('here');
+      if (CartData.length === 0) return 0;
 
-    const data_bridge = useMemo(
-      () => ({CartData, setCartData}),
-      [CartData, setCartData],
-    );
-
-    const SumTotal = cd => {
       let amount = 0;
-      cd.forEach(e => {
-        amount += parseInt(e.total);
+      CartData.forEach(e => {
+        amount += parseInt(e.total, 10);
       });
       setTotalAmount(amount);
       return amount;
-    };
+    }, [CartData, setTotalAmount]);
 
     const CTITEM = ({item}) => {
       const labelstyle = {
@@ -135,7 +153,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
       );
     };
 
-    console.log('re render Products View');
+    const [openbarcode, setOpenBarcode] = useState(false);
 
     if (load) {
       <View
@@ -153,7 +171,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
     }
 
     return (
-      <CartContext.Provider value={data_bridge}>
+      <ProductsContext.Provider value={ProductDataValue}>
         <KeyboardAvoidingView style={{flex: 1, padding: 0}}>
           <View style={{flexDirection: 'column', padding: 5}}>
             <View
@@ -176,7 +194,16 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
                 onChangeText={e => setSearchText(e)}
               />
               <Icon name={'search'} size={20} color={'#000'} />
+              <TouchableOpacity onPress={() => setOpenBarcode(true)}>
+                <Icon
+                  name={'barcode-outline'}
+                  size={25}
+                  color={'#000'}
+                  style={{marginLeft: 10}}
+                />
+              </TouchableOpacity>
             </View>
+            {/* Category View */}
             {categoryData ? (
               <ScrollView
                 style={{
@@ -219,6 +246,9 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
               </ScrollView>
             ) : null}
           </View>
+          <BarCodeToCart open={openbarcode} setOpen={setOpenBarcode} />
+
+          {/* Product View */}
           <View style={{flex: 1}}>
             <FlatList
               refreshControl={
@@ -227,7 +257,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
                   onRefresh={GetProdcutsFromServer}
                 />
               }
-              initialNumToRender={10} //
+              initialNumToRender={10} // how many item to display first
               keyboardShouldPersistTaps={'always'}
               removeClippedSubviews={false}
               style={{backgroundColor: C.white}}
@@ -236,6 +266,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
               keyExtractor={i => i.id}
             />
           </View>
+          {/*Cart View */}
           <View
             style={{
               borderColor: 'black',
@@ -246,11 +277,21 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
               maxHeight: C.windowHeight * 30,
               padding: 5,
             }}>
+            <CartView
+              setTotalAmount={setTotalAmount}
+              show={editcartshow}
+              onClose={() => seteditcartshow(false)}
+            />
             <View style={{...s.flexrow_aligncenter_j_between}}>
               <Text style={{...s.bold_label}}>Cart List</Text>
               <Text style={{...s.bold_label, fontSize: 15}}>
                 {CartData.length} Items
               </Text>
+              <TouchableOpacity
+                style={{padding: 5}}
+                onPress={() => seteditcartshow(true)}>
+                <Icon name={'pencil'} size={20} color={'#000'} />
+              </TouchableOpacity>
             </View>
             <FlatList
               contentContainerStyle={{flexDirection: 'column-reverse'}}
@@ -267,14 +308,14 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
               }}>
               <Text style={{...s.bold_label}}>Total Amount :</Text>
               <Text style={{...s.bold_label}}>
-                {numberWithCommas(SumTotal(CartData))} MMK
+                {numberWithCommas(SumTotal)} MMK
               </Text>
             </View>
             <Button
               title={'Done'}
               onPress={() => {
                 setOpen(false);
-                setSelectItem(CartData);
+                setCartData(CartData);
                 setData(CartData);
               }}
             />
@@ -284,7 +325,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
             />
           </View>
         </KeyboardAvoidingView>
-      </CartContext.Provider>
+      </ProductsContext.Provider>
     );
   };
 
@@ -302,18 +343,17 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
     );
   };
 
-  const [selectitem, setSelectItem] = useState();
   return (
     <>
       <View {...ContainerProps}>
         <Modal visible={open}>{ProductView()}</Modal>
         <View style={{flex: 1}}>
-          {selectitem ? (
+          {CartData ? (
             <FlatList
               horizontal
               contentContainerStyle={{flexDirection: 'row'}}
               style={{backgroundColor: C.white}}
-              data={selectitem}
+              data={CartData}
               renderItem={ListItem}
               keyExtractor={i => i.name}
             />

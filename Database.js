@@ -84,6 +84,7 @@ export const IMAGE = {
   d4: require('./assets/color/d4.png'),
 
   app_logo: require('./assets/image/app_logo.png'),
+  scan_barcode:require('./assets/image/scanbarcode.png'),
 
   thura: require('./assets/image/i.png'),
 
@@ -92,6 +93,7 @@ export const IMAGE = {
 };
 
 export const ALERT = {
+  alert:(a)=> Alert.alert('', a, [{text: 'OK'}]),
   rqf: () => Alert.alert('', 'Please fill require fields.', [{text: 'OK'}]),
   lqy: () => Alert.alert('', 'Limited Qty', [{text: 'OK'}]),
   spe: () => Alert.alert('Error', 'Cannot connect to server', [{text: 'OK'}]),
@@ -115,6 +117,9 @@ export const ALERT = {
     ),
 };
 export const numberWithCommas = (x = 0) => {
+  if (x === null || x === undefined) {
+    return '';
+  }
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
@@ -124,5 +129,5 @@ export const isArrayhasData = (arr = []) => {
 
 // export const baseUrl = 'https://empirepos.pythonanywhere.com';
 
-export const baseUrl = 'http://192.168.100.63:8000';
+export const baseUrl = 'http://192.168.43.156:8000';
 export const appversion = '1.0';
