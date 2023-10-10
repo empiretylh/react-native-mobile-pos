@@ -44,7 +44,7 @@ const BarCodeToCart = ({open, setOpen}) => {
   const {ProductData, setProductData} = useContext(ProductsContext);
 
   const [scanneddata, setScanneddata] = useState(0);
-  const [showScanned, setShowScanned] = useState(true);
+  const [showScanned, setShowScanned] = useState(false);
 
   const cameraRef = useRef(null);
   const [isCameraStopped, setCameraStopped] = useState(false);

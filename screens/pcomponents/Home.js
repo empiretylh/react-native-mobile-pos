@@ -110,12 +110,10 @@ const HomeScreen = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log('Fetch Data from Sales Data');
-        console.log(res.data);
+       
         let T_Freq = [];
         for (var [k, v] of Object.entries(res.data.T_Freq)) {
-          console.log(k, v);
-          T_Freq.push({
+         T_Freq.push({
             name: k,
             freq: v,
             price: res.data.T_Money[k],
@@ -124,10 +122,20 @@ const HomeScreen = ({navigation, route}) => {
             legendFontSize: 15,
           });
         }
+      
         setTopProduct(T_Freq);
       })
       .catch(err => console.log(err));
   };
+
+  const topproduct = React.useMemo(()=>{
+    if(topProduct){
+    
+      return topProduct;
+    }else{
+      return piechartdata
+    }
+  },[topProduct])
 
   const LoadProfile = () => {
     axios
@@ -951,18 +959,25 @@ const HomeScreen = ({navigation, route}) => {
               <Text style={{...s.font_bold, color: 'black'}}>{t('TFSP')}</Text>
               {topProduct ? (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <PieChart
-                    data={
-                      topProduct.length >= 4
-                        ? topProduct.slice(0, 4)
-                        : topProduct
-                    }
-                    width={C.windowWidth * 120}
-                    height={220}
-                    chartConfig={chartConfig}
-                    accessor={'freq'}
-                    center={[10, 0]}
-                  />
+                   <PieChart
+                      data={topProduct.length >= 4 ? topProduct.slice(0,4) : topproduct}
+                      width={300}
+                      height={200}
+                      chartConfig={{
+                        backgroundColor: '#e26a00',
+                        backgroundGradientFrom: '#fb8c00',
+                        backgroundGradientTo: '#ffa726',
+                        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                        decimalPlaces: 2,
+                        style: {
+                          borderRadius: 16,
+                        },
+                      }}
+                      accessor="freq"
+                      backgroundColor="transparent"
+                      paddingLeft="15"
+                      absolute
+                />
                 </ScrollView>
               ) : null}
             </View>
@@ -1142,6 +1157,9 @@ const HomeScreen = ({navigation, route}) => {
           </Text>
         </View>
       </View>
+      
+      
+
     </ScrollView>
   );
 };
@@ -1189,3 +1207,27 @@ const getRandomColor = () => {
   }
   return color;
 };
+
+
+
+
+const piechartdata = [
+ {"color": "#74892B", 
+ "freq": 3,
+  "legendFontColor": "black", 
+  "legendFontSize": 15,
+   "name": "Product C", 
+   "price": 13500}, 
+   {"color": "#6A14E0",
+    "freq": 2, 
+    "legendFontColor": "black", 
+    "legendFontSize": 15,
+     "name": "Product D",
+      "price": 1000},
+       {"color": "#0FE763", 
+       "freq": 2,
+        "legendFontColor": "black", 
+        "legendFontSize": 15,
+         "name": "Product E",
+          "price": 3000}
+];

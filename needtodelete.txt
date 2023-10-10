@@ -1,0 +1,17 @@
+* What went wrong:
+Execution failed for task ':react-native-bluetooth-escpos-printer:verifyReleaseResources'.
+> A failure occurred while executing com.android.build.gradle.tasks.VerifyLibraryResourcesTask$Action
+   > Android resource linking failed
+     ERROR:/home/thura/.gradle/caches/transforms-3/855e1536b6e68c58ea49e14e7bc35a18/transformed/appcompat-1.4.1/res/values-v28/values-v28.xml:5:5-8:13: AAPT: error: resource android:attr/dialogCornerRadius not found.
+         
+     ERROR:/home/thura/.gradle/caches/transforms-3/855e1536b6e68c58ea49e14e7bc35a18/transformed/appcompat-1.4.1/res/values-v28/values-v28.xml:9:5-12:13: AAPT: error: resource android:attr/dialogCornerRadius not found.
+         
+     ERROR:/home/thura/.gradle/caches/transforms-3/14c3ad8a8a3a7a5735d7c970729050fd/transformed/core-1.7.0/res/values/values.xml:105:5-114:25: AAPT: error: resource android:attr/lStar not found.
+         
+     ERROR:/home/thura/.gradle/caches/transforms-3/14c3ad8a8a3a7a5735d7c970729050fd/transformed/core-1.7.0/res/values/values.xml:163:5-194:25: AAPT: error: resource android:attr/fontVariationSettings not found.
+         
+     ERROR:/home/thura/.gradle/caches/transforms-3/14c3ad8a8a3a7a5735d7c970729050fd/transformed/core-1.7.0/res/values/values.xml:163:5-194:25: AAPT: error: resource android:attr/ttcIndex not found.
+         
+     ERROR:/home/thura/.gradle/caches/transforms-3/855e1536b6e68c58ea49e14e7bc35a18/transformed/appcompat-1.4.1/res/values/values.xml:2831:5-2854:25: AAPT: error: resource android:attr/textFontWeight not found.
+         
+	

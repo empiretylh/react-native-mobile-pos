@@ -146,10 +146,10 @@ const ProductView = React.memo(({navigation}) => {
     if (discountcoll) d = 0;
     if (delicoll) delivery = 0;
 
-    const price = s + t + delivery;
-    const totalprice = DiscountCalculator(price, d);
+    const price = s + t ;
+    const totalprice = DiscountCalculator(price, d)+ delivery;
 
-    return totalprice.toFixed(3);
+    return totalprice.toFixed(2);
   }, [totalAmount, tax, discount, deli, discountcoll, delicoll, taxcoll]);
 
   return (

@@ -351,7 +351,7 @@ const Product = ({navigation}) => {
       console.log(e.name === text);
       var b = e.name.replaceAllTxt(' ', '').toLowerCase();
 
-      var f = e.description.replaceAllTxt(' ', '').toLowerCase();
+      var f = e.description? e.description.replaceAllTxt(' ', '').toLowerCase() : '';
       var d = CategoryToText(e.category).replaceAllTxt(' ', '').toLowerCase();
       var c = text.replaceAllTxt(' ', '').toLowerCase();
 
