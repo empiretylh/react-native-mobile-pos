@@ -27,6 +27,7 @@ import {
   COLOR as C,
   ALERT as a,
   numberWithCommas,
+  calculateEAN13,
   isArrayhasData,
 } from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
@@ -151,6 +152,7 @@ const Product = ({navigation}) => {
     const d = new FormData();
     d.append('name', pd.name);
     d.append('price', pd.price);
+    d.append('cost', pd.cost);
     d.append('qty', pd.qty);
 
     d.append('category', pd.category);
@@ -183,6 +185,7 @@ const Product = ({navigation}) => {
     d.append('id', id);
     d.append('name', pd.name);
     d.append('price', pd.price);
+    d.append('cost', pd.cost);
     d.append('qty', pd.qty);
 
     d.append('category', pd.category);
@@ -306,6 +309,7 @@ const Product = ({navigation}) => {
     });
   };
   const [pdtData, setPdData] = useState({
+    cost: '',
     price: '',
     category: value,
   });
@@ -331,9 +335,16 @@ const Product = ({navigation}) => {
   const SumProductBalance = pd => {
     let price = 0;
     pd.forEach(item => {
-      price +=
-        parseInt(item.price.replaceAllTxt(',', '').replaceAllTxt(' ', '')) *
-        parseInt(item.qty);
+      let cost = parseInt(
+        item.cost.replaceAllTxt(',', '').replaceAllTxt(' ', ''),
+      );
+      //if cost is NaN then set cost to 0
+
+      if (isNaN(cost)) {
+        cost = 0;
+      }
+
+      price += cost * parseInt(item.qty);
     });
 
     return price;
@@ -351,7 +362,9 @@ const Product = ({navigation}) => {
       console.log(e.name === text);
       var b = e.name.replaceAllTxt(' ', '').toLowerCase();
 
-      var f = e.description? e.description.replaceAllTxt(' ', '').toLowerCase() : '';
+      var f = e.description
+        ? e.description.replaceAllTxt(' ', '').toLowerCase()
+        : '';
       var d = CategoryToText(e.category).replaceAllTxt(' ', '').toLowerCase();
       var c = text.replaceAllTxt(' ', '').toLowerCase();
 
@@ -371,7 +384,7 @@ const Product = ({navigation}) => {
 
   const SelectProductItem = () => {};
 
-  const ProductView = ({navigation}) => {
+  const ProductView = React.memo(({navigation}) => {
     console.log('product view');
     const [showed, setShowed] = useState(false);
     const [editpd, seteditpd] = useState();
@@ -592,6 +605,9 @@ const Product = ({navigation}) => {
               <Text style={{...s.bold_label, fontSize: 15, marginTop: 5}}>
                 {numberWithCommas(item.price)} MMK
               </Text>
+              <Text style={{...s.normal_label, fontSize: 12, marginTop: 5}}>
+                barcode : {calculateEAN13(item.id)}
+              </Text>
             </View>
             <View style={{position: 'absolute', right: 5, top: 8}}>
               <TouchableOpacity
@@ -772,7 +788,7 @@ const Product = ({navigation}) => {
                   }
                 />
                 <Text style={{...s.bold_label, marginTop: 5}}>
-                  {t('Price3')}
+                  {t('Price4')}
                 </Text>
                 <TextInput
                   style={{
@@ -782,11 +798,29 @@ const Product = ({navigation}) => {
 
                     ...inputS,
                   }}
-                  placeholder={t('Price3')}
+                  placeholder={t('Price4')}
                   keyboardType={'number-pad'}
                   defaultValue={editpd.price}
                   onChangeText={e =>
                     onHandleEPdtData(e.replaceAllTxt(' ', ''), 'price')
+                  }
+                />
+                <Text style={{...s.bold_label, marginTop: 5}}>
+                  {t('Price5')}
+                </Text>
+                <TextInput
+                  style={{
+                    padding: 10,
+                    fontSize: 16,
+                    fontWeight: '900',
+
+                    ...inputS,
+                  }}
+                  placeholder={t('Price5')}
+                  keyboardType={'number-pad'}
+                  defaultValue={editpd.cost}
+                  onChangeText={e =>
+                    onHandleEPdtData(e.replaceAllTxt(' ', ''), 'cost')
                   }
                 />
 
@@ -944,6 +978,7 @@ const Product = ({navigation}) => {
                 </Text>
               </View>
             </TouchableOpacity>
+
             <TouchableOpacity
               onPress={() => {
                 setDepdshow(true);
@@ -1043,9 +1078,9 @@ const Product = ({navigation}) => {
         )}
       </View>
     );
-  };
+  });
 
-  const CategoryView = ({navigation}) => {
+  const CategoryView = React.memo(({navigation}) => {
     const PDITEM = ({item}) => {
       return (
         <View
@@ -1085,7 +1120,7 @@ const Product = ({navigation}) => {
         )}
       </View>
     );
-  };
+  });
 
   const [isImporting, setIsImporting] = useState(false);
 
@@ -1172,6 +1207,21 @@ const Product = ({navigation}) => {
   const [barcodemodal, setBarCodeModal] = useState(false);
 
   const onCloseBarCodeModal = () => setBarCodeModal(false);
+
+  const [changePriceShow, setChangePriceShow] = useState(false);
+  const [changePrice, setChangePrice] = useState('');
+
+  const ChangePrice = data => {
+    axios
+      .put('api/products/changewithperentage/', data)
+      .then(res => {
+        console.log(res.data);
+        Load();
+      })
+      .catch(err => console.log(err));
+    setChangePriceShow(false);
+    onOpenAndCloseAPModal();
+  };
 
   return (
     <View style={{...s.Container}}>
@@ -1299,7 +1349,7 @@ const Product = ({navigation}) => {
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'qty')
               }
             />
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price3')}</Text>
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price4')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -1308,11 +1358,27 @@ const Product = ({navigation}) => {
 
                 ...inputS,
               }}
-              placeholder={t('Price3')}
+              placeholder={t('Price4')}
               keyboardType={'number-pad'}
               value={pdtData.price}
               onChangeText={e =>
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'price')
+              }
+            />
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price5')}</Text>
+            <TextInput
+              style={{
+                padding: 10,
+                fontSize: 16,
+                fontWeight: '900',
+
+                ...inputS,
+              }}
+              placeholder={t('Price5')}
+              keyboardType={'number-pad'}
+              value={pdtData.cost}
+              onChangeText={e =>
+                onHandlePdtData(e.replaceAllTxt(' ', ''), 'cost')
               }
             />
             <Text style={{...s.bold_label, marginTop: 5}}>
@@ -1339,6 +1405,7 @@ const Product = ({navigation}) => {
                   pdtData.name &&
                   pdtData.category &&
                   pdtData.price &&
+                  pdtData.cost &&
                   pdtData.qty
                 ) {
                   PostProductsToServer(pdtData, isImage);
@@ -1464,9 +1531,243 @@ const Product = ({navigation}) => {
               </Text>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setChangePriceShow(true);
+            }}>
+            <View style={{...s.flexrow_aligncenter, padding: 10}}>
+              <Icons name="pricetags-outline" size={30} color={'#000'} />
+              <Text style={{...s.bold_label, marginLeft: 5}}>
+                Change Price (%)
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </MessageModalNormal>
 
+      <MessageModalNormal
+        show={pmodal}
+        onClose={onClosepmodal}
+        width={'100%'}
+        nobackExit={true}>
+        <ScrollView style={{}}>
+          <View
+            style={{
+              backgroundColor: C.bluecolor,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+              borderRadius: 15,
+            }}>
+            <Image
+              source={{
+                uri: isImage
+                  ? isImage.uri
+                  : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
+              }}
+              style={{width: '100%', height: 180, backgroundColor: 'black'}}
+            />
+            <View style={{...s.flexrow_aligncenter_j_between}}>
+              <TouchableOpacity onPress={() => LaunchCamera()}>
+                <Icons
+                  name={'camera'}
+                  size={30}
+                  color={'#fff'}
+                  style={{margin: 5}}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => launchImageLibrary()}>
+                <Icons
+                  name={'image'}
+                  size={30}
+                  color={'#fff'}
+                  style={{margin: 5}}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={{marginTop: 10}}>
+            <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
+            <TextInput
+              style={{
+                padding: 10,
+                fontSize: 16,
+                fontWeight: '900',
+
+                ...inputS,
+              }}
+              placeholder={t('PrdocutName')}
+              autoFocus={true}
+              onChangeText={e => onHandlePdtData(e, 'name')}
+            />
+            <Text style={{...s.bold_label}}>{t('Category')}</Text>
+            <DropDownPicker
+              open={open}
+              value={value}
+              items={categoryData.reverse()}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={setCategoryData}
+              autoScroll
+              listMode={'SCROLLVIEW'}
+              style={{
+                ...inputS,
+                backgroundColor: 'transparent',
+              }}
+              onSelectItem={item => {
+                onHandlePdtData(item.value, 'category');
+              }}
+            />
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Quantity')}</Text>
+            <TextInput
+              style={{
+                padding: 10,
+                fontSize: 16,
+                fontWeight: '900',
+
+                ...inputS,
+              }}
+              placeholder={'Qty'}
+              keyboardType={'number-pad'}
+              onChangeText={e =>
+                onHandlePdtData(e.replaceAllTxt(' ', ''), 'qty')
+              }
+            />
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price4')}</Text>
+            <TextInput
+              style={{
+                padding: 10,
+                fontSize: 16,
+                fontWeight: '900',
+
+                ...inputS,
+              }}
+              placeholder={t('Price4')}
+              keyboardType={'number-pad'}
+              value={pdtData.price}
+              onChangeText={e =>
+                onHandlePdtData(e.replaceAllTxt(' ', ''), 'price')
+              }
+            />
+            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price5')}</Text>
+            <TextInput
+              style={{
+                padding: 10,
+                fontSize: 16,
+                fontWeight: '900',
+
+                ...inputS,
+              }}
+              placeholder={t('Price5')}
+              keyboardType={'number-pad'}
+              value={pdtData.cost}
+              onChangeText={e =>
+                onHandlePdtData(e.replaceAllTxt(' ', ''), 'cost')
+              }
+            />
+            <Text style={{...s.bold_label, marginTop: 5}}>
+              {t('Description')}
+            </Text>
+            <TextInput
+              style={{
+                padding: 10,
+                fontSize: 16,
+                fontWeight: '900',
+                ...inputS,
+                height: 100,
+                textAlign: 'auto',
+              }}
+              placeholder={t('Description')}
+              multiline
+              onChangeText={e => onHandlePdtData(e, 'description')}
+            />
+
+            <TouchableOpacity
+              disabled={isUpload}
+              onPress={() => {
+                if (
+                  pdtData.name &&
+                  pdtData.category &&
+                  pdtData.price &&
+                  pdtData.cost &&
+                  pdtData.qty
+                ) {
+                  PostProductsToServer(pdtData, isImage);
+                } else {
+                  a.rqf();
+                }
+              }}>
+              <View
+                style={{
+                  ...s.flexrow_aligncenter_j_center,
+                  padding: 10,
+                  ...s.blue_button,
+                }}>
+                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                  {t('Add_Product')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </MessageModalNormal>
+      <MessageModalNormal
+        show={changePriceShow}
+        onClose={() => setChangePriceShow(false)}>
+        <View>
+          <Text style={{...s.bold_label}}>Change Price (%)</Text>
+          <TextInput
+            style={{
+              padding: 10,
+              fontSize: 16,
+              fontWeight: '900',
+              ...inputS,
+            }}
+            placeholder={'Perctange'}
+            keyboardType={'number-pad'}
+            onChangeText={e => setChangePrice(e.replaceAllTxt(' ', ''))}
+          />
+          <View style={{...s.flexrow_aligncenter_j_center}}>
+            <TouchableOpacity
+              onPress={() => {
+                setChangePriceShow(false);
+                ChangePrice({minus_perctange: changePrice});
+              }}>
+              <View
+                style={{
+                  ...s.flexrow_aligncenter_j_center,
+                  padding: 10,
+
+                  ...s.blue_button,
+                  backgroundColor: 'red',
+                }}>
+                <Icons name="remove-circle-outline" size={30} color={'white'} />
+                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                  Price
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setChangePriceShow(false);
+                ChangePrice({plus_perctange: changePrice});
+              }}>
+              <View
+                style={{
+                  ...s.flexrow_aligncenter_j_center,
+                  padding: 10,
+                  ...s.blue_button,
+                }}>
+                <Icons name="add-circle-outline" size={30} color={'white'} />
+                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                  Price
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </MessageModalNormal>
       <BarcodeScanner
         onBarcodeRead={onBarCodeRead}
         show={barcodemodal}
@@ -1560,23 +1861,6 @@ const Product = ({navigation}) => {
               {t('Category')}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('cpurchase');
-            }}>
-            <Text
-              style={{
-                ...s.normal_label,
-                ...s.black_button,
-                color: 'black',
-                backgroundColor: '#f0f0f0',
-                padding: 10,
-                borderRadius: 15,
-                fontSize: 15,
-              }}>
-              {t('Purchase')}
-            </Text>
-          </TouchableOpacity>
         </ScrollView>
         <TouchableOpacity>
           <Text style={{...s.bold_label, fontSize: 14, padding: 5}}>
@@ -1617,7 +1901,6 @@ const Container = ({navigation}) => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name={'cproduct'} component={Product} />
-      <Stack.Screen name={'cpurchase'} component={Purchase} />
     </Stack.Navigator>
   );
 };

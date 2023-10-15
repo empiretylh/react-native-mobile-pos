@@ -30,7 +30,7 @@
     "Customer_Name": "Customer Name",
     "Add_Products": "Add Products",
     "Sub_Total": "Sub Total",
-    "Tax_(MMK)": "Tax (MMK)",
+    "Tax_(MMK)": "Tax (%)",
     "Discount": "Discount",
     "Create_Receipt": "Create Receipt",
 
@@ -108,6 +108,10 @@
     "Address": "Address",
 
     "Price3": "Price",
+
+    "Price4":"Sales Price",
+    "Price5":"Purchase Price",
+
     "Export_Excel": "Export Excel",
     "IW_Excel": "Import With Excel"
   }

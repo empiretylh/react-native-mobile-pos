@@ -9,7 +9,7 @@ import {
   FlatList,
   Modal,
 } from 'react-native';
-import {CartContext} from '../context/CartContext';
+import {SaleContext} from '../context/SaleContext';
 import {numberWithCommas} from '../../../Database';
 import {
   STYLE as s,
@@ -20,6 +20,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AddNewProduct from './AddNewProduct';
+import axios from 'axios';
 
 const headerLabel = {
   flex: 1,
@@ -71,9 +72,7 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
         flexDirection: 'row',
         justifyContent: 'space-around',
       }}>
-      <Text style={{...labelstyle, textAlign: 'right'}}>
-        {numberWithCommas(item.pdname)}
-      </Text>
+      <Text style={{...labelstyle, textAlign: 'right'}}>{item.name}</Text>
       <TextInput
         ref={qtyInputRef}
         style={{
@@ -113,7 +112,7 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
         selectTextOnFocus={true}
       />
       <Text style={{...labelstyle, textAlign: 'right'}}>
-        {numberWithCommas(item.total)}
+        {numberWithCommas(item.qty * item.price)}
       </Text>
       {/*Remove Item from cartdata using filter and with remove icon */}
       <TouchableOpacity
@@ -127,21 +126,21 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
 };
 /* Implemet Product Data from Context and useFlat list and use CartList */
 
-const CartView = ({setTotalAmount, show, onClose}) => {
-  const {CartData, setCartData} = useContext(CartContext);
+const EditVoucherList = ({show, onClose, data}) => {
+  const [CartData, setCartData] = useState(data.sproduct);
   const [addProductShow, setAddProductShow] = useState(false);
 
   const SumTotal = useMemo(() => {
-    console.log('here');
+    console.log('here', CartData);
     if (CartData.length === 0) return 0;
 
     let amount = 0;
     CartData.forEach(e => {
-      amount += parseInt(e.total, 10);
+      amount += parseInt(e.price, 10) * parseInt(e.qty, 10);
     });
-    setTotalAmount(amount);
+
     return amount;
-  }, [CartData, setTotalAmount]);
+  }, [CartData]);
 
   const handleItemUpdate = newItem => {
     const newCartData = CartData.map(item => {
@@ -172,7 +171,7 @@ const CartView = ({setTotalAmount, show, onClose}) => {
   //if  pdname , qty , price are empty , show alert
   const handleSave = () => {
     const newCartData = CartData.filter(
-      item => item.pdname === '' || item.qty === 0 || item.price === 0,
+      item => item.name === '' || item.qty === 0 || item.price === 0,
     );
 
     console.log(newCartData.length);
@@ -181,7 +180,19 @@ const CartView = ({setTotalAmount, show, onClose}) => {
       a.rqf();
       return;
     }
-    onClose();
+
+    axios
+      .put('/api/sales/', {
+        id: data.receiptNumber,
+        customerName: data.customerName,
+        products: CartData,
+      })
+      .then(() => {
+        onClose();
+      })
+      .catch(err => {
+        a.alert('Error');
+      });
   };
 
   return (
@@ -195,34 +206,45 @@ const CartView = ({setTotalAmount, show, onClose}) => {
         <View style={{flexDirection: 'row'}}>
           <View style={{...s.flexrow_aligncenter_j_between}}>
             <Icon
-              name="cart-outline"
+              name="receipt-outline"
               size={30}
               color="black"
               style={{marginRight: 10}}
             />
             <Text style={{...s.normal_label, ...s.bold_label, fontSize: 30}}>
-              Edit Cart
+              Edit Voucher
             </Text>
           </View>
 
           <View style={{flexDirection: 'row', position: 'absolute', right: 0}}>
-            <MIcons
-              name={'package-variant'}
-              size={30}
-              color={'#000'}
-              onPress={()=> setAddProductShow(true)}
-              style={{marginRight: 8}}
-            />
             <Icon
               name="close"
               size={30}
               color="black"
-              onPress={handleSave}
+              onPress={onClose}
               style={{top: 0, right: 0}}
             />
           </View>
         </View>
-
+        <View
+          style={{
+            marginTop: 10,
+            marginBottom: 5,
+            flexDirection: 'column',
+          }}>
+          <TextInput
+            style={{
+              borderRadius: 5,
+              borderWidth: 1,
+              borderColor: 'black',
+              ...s.bold_label,
+              color: 'white',
+              paddingLeft: 10,
+            }}
+            defaultValue={data.customerName}
+            placeholder={'Customer Name'}
+          />
+        </View>
         <FlatList
           ListHeaderComponent={() => (
             <View
@@ -286,4 +308,4 @@ const CartView = ({setTotalAmount, show, onClose}) => {
   );
 };
 
-export default CartView;
+export default EditVoucherList;

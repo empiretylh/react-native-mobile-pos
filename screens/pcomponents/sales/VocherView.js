@@ -14,12 +14,18 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import {baseUrl, numberWithCommas} from '../../../Database';
-import {STYLE as s, COLOR as C, IMAGE as I} from '../../../Database';
+import {
+  STYLE as s,
+  COLOR as C,
+  IMAGE as I,
+  ALERT as A,
+} from '../../../Database';
 import Icons from 'react-native-vector-icons/MaterialIcons';
 
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTranslation} from 'react-i18next';
-import { printReceipt } from '../print/escpos';
+import {printReceipt} from '../print/escpos';
+import EditVoucherList from './EditVoucherList';
 
 /*
   
@@ -31,12 +37,20 @@ let sepeator = {
   marginVertical: 5,
 };
 
-const VoucherDetails = ({open, onClose, data, setData, navigation}) => {
+const VoucherDetails = ({
+  open,
+  onClose,
+  data,
+  setData,
+  reload = () => {},
+  navigation,
+}) => {
   const t = a => a;
   const [loading, setLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const [print, setPrint] = useState(false);
   const [profile, setProfile] = useState([]);
+  const [showEditVoucher, setShowEditVoucher] = useState(false);
 
   const printVoucher = async () => {
     printReceipt(data, profile);
@@ -47,7 +61,7 @@ const VoucherDetails = ({open, onClose, data, setData, navigation}) => {
     //   setPrintLoading(false);
     //   setPrint(true);
     // }
- //   navigation.navigate('netPrinter');
+    //   navigation.navigate('netPrinter');
   };
 
   useMemo(() => {
@@ -104,12 +118,43 @@ const VoucherDetails = ({open, onClose, data, setData, navigation}) => {
     );
   };
 
+  const DeleteVoucher = async id => {
+    console.log('ID to Delete : ', id);
+    setLoading(true);
+    axios
+      .delete(`/api/sales/?id=${id}`)
+      .then(res => {
+        console.log(res);
+        setLoading(false);
+
+        reload();
+      })
+      .catch(err => {
+        console.log(err);
+      });
+
+    onClose();
+  };
+
+  const EditVoucher = () => {
+    setShowEditVoucher(true);
+  };
+
   return (
     <Modal
       animationType="slide"
       transparent={true}
       visible={open}
       onRequestClose={() => onClose()}>
+      <EditVoucherList
+        show={showEditVoucher}
+        onClose={() => {
+          setShowEditVoucher(false);
+          onClose();
+          reload();
+        }}
+        data={data}
+      />
       <View
         style={{
           flex: 1,
@@ -157,9 +202,9 @@ const VoucherDetails = ({open, onClose, data, setData, navigation}) => {
                 style={{width: 90, height: 90, alignSelf: 'center'}}
               />
               <Text style={{...s.bold_label}}>{profile.name}</Text>
-              <Text style={{...s.normal_label}}>
-                {profile.address}, {profile.phoneno}, {profile.email}
-              </Text>
+              <Text style={{...s.normal_label}}>{profile.email}</Text>
+              <Text style={{...s.normal_label}}>{profile.phoneno}</Text>
+              <Text style={{...s.normal_label}}>{profile.address}</Text>
             </View>
             <View style={sepeator} />
             <View
@@ -169,7 +214,7 @@ const VoucherDetails = ({open, onClose, data, setData, navigation}) => {
                 {t('Receipt Number')}:{' '}
               </Text>
               <Text style={{...s.normal_label, fontSize: 16}}>
-                {data.receiptNumber}
+                {data.voucherNumber}
               </Text>
             </View>
             <View
@@ -261,7 +306,7 @@ const VoucherDetails = ({open, onClose, data, setData, navigation}) => {
                   {t('Tax')}:{' '}
                 </Text>
                 <Text style={{...s.normal_label, fontSize: 16}}>
-                  {numberWithCommas(data.tax)} Ks
+                  {numberWithCommas(data.tax)} %
                 </Text>
               </View>
             )}
@@ -317,22 +362,48 @@ const VoucherDetails = ({open, onClose, data, setData, navigation}) => {
               </View>
             )}
           </ScrollView>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <View style={{flexDirection: 'column'}}>
             <TouchableOpacity
-              style={[s.blue_button, s.flexrow_aligncenter]}
+              style={[s.blue_button, s.flexrow_aligncenter_j_center]}
               onPress={() => printVoucher()}>
               {printLoading ? (
                 <ActivityIndicator size="small" color={C.white} />
               ) : (
                 <>
-                  <Icons name="print" size={20} color={'white'} />
+                  <Icons name="print" size={25} color={'white'} />
                   <Text
-                    style={{...s.normal_label, color: 'white', marginLeft: 5}}>
+                    style={{...s.bold_label, color: 'white', marginLeft: 5}}>
                     {t('Print Voucher')}
                   </Text>
                 </>
               )}
             </TouchableOpacity>
+            <View style={{...s.flexrow_aligncenter_j_center}}>
+              <TouchableOpacity
+                style={[
+                  s.blue_button,
+                  s.flexrow_aligncenter,
+                  {flex: 1, backgroundColor: 'red'},
+                ]}
+                onPress={() => {
+                  A.aswantodelete(DeleteVoucher, data.receiptNumber);
+                }}>
+                <Icons name="remove" size={20} color={'white'} />
+                <Text
+                  style={{...s.normal_label, color: 'white', marginLeft: 5}}>
+                  {t('Delete Voucher')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.blue_button, s.flexrow_aligncenter, {flex: 1}]}
+                onPress={() => EditVoucher()}>
+                <Icons name="edit" size={20} color={'white'} />
+                <Text
+                  style={{...s.normal_label, color: 'white', marginLeft: 5}}>
+                  {t('Edit Voucher')}
+                </Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity
               style={[
                 s.blue_button,
@@ -340,8 +411,8 @@ const VoucherDetails = ({open, onClose, data, setData, navigation}) => {
                 {backgroundColor: 'red'},
               ]}
               onPress={() => onClose()}>
-              <Icons name="close" size={20} color={'white'} />
-              <Text style={{...s.normal_label, color: 'white'}}>
+              <Icons name="close" size={25} color={'white'} />
+              <Text style={{...s.bold_label, color: 'white'}}>
                 {t('Close')}
               </Text>
             </TouchableOpacity>

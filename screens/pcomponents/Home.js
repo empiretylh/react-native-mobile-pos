@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useMemo} from 'react';
 import {
   View,
   Text,
@@ -110,10 +110,9 @@ const HomeScreen = ({navigation, route}) => {
         },
       })
       .then(res => {
-       
         let T_Freq = [];
         for (var [k, v] of Object.entries(res.data.T_Freq)) {
-         T_Freq.push({
+          T_Freq.push({
             name: k,
             freq: v,
             price: res.data.T_Money[k],
@@ -122,20 +121,19 @@ const HomeScreen = ({navigation, route}) => {
             legendFontSize: 15,
           });
         }
-      
+
         setTopProduct(T_Freq);
       })
       .catch(err => console.log(err));
   };
 
-  const topproduct = React.useMemo(()=>{
-    if(topProduct){
-    
+  const topproduct = React.useMemo(() => {
+    if (topProduct) {
       return topProduct;
-    }else{
-      return piechartdata
+    } else {
+      return piechartdata;
     }
-  },[topProduct])
+  }, [topProduct]);
 
   const LoadProfile = () => {
     axios
@@ -213,8 +211,8 @@ const HomeScreen = ({navigation, route}) => {
 
   const getPurchaseFromServer = () => {
     axios
-      .get('/api/purchases/', {params: {time: settings.datascope}})
-      .then(res => setPurchaseData(res.data.DATA))
+      .get('api/products/purchaseprice/')
+      .then(res => setPurchaseData(res.data))
       .catch(err => console.log(err));
   };
 
@@ -228,30 +226,51 @@ const HomeScreen = ({navigation, route}) => {
       .catch(err => console.log(err));
   };
 
-  const SumSales = (data = []) => {
-    let price = 0;
+  const SumSales = useMemo(() => {
+    if (Sales_Data) {
+      let price = 0;
+      Sales_Data.forEach(e => {
+        price += parseInt(e.grandtotal);
+      });
 
-    data.forEach(e => {
-      var g_price = parseInt(e.grandtotal);
-      price += g_price;
-    });
-    return price;
-  };
+      return price;
+    }
+    return 0;
+  }, [Sales_Data]);
 
-  const SumExpenseAndPurchase = data => {
-    let price = 0;
-    data.forEach(e => {
-      price += parseInt(e.price);
-    });
-    return price;
-  };
-  const SumProducts = data => {
-    let price = 0;
-    data.forEach(e => {
-      price += parseInt(e.price) * parseInt(e.qty);
-    });
-    return price;
-  };
+  const SumExpense = useMemo(() => {
+    if (expenseData) {
+      let price = 0;
+      expenseData.forEach(e => {
+        price += parseInt(e.price);
+      });
+
+      return price;
+    }
+    return 0;
+  }, [expenseData]);
+
+  const SumProduct = useMemo(() => {
+    if (productData) {
+      let price = 0;
+      productData.forEach(e => {
+        price += parseInt(e.price) * parseInt(e.qty);
+      });
+      return price;
+    }
+    return 0;
+  }, [productData]);
+
+  const SumProductCost = useMemo(() => {
+    if (productData) {
+      let price = 0;
+      productData.forEach(e => {
+        price += parseInt(e.cost) * parseInt(e.qty);
+      });
+      return price;
+    }
+    return 0;
+  }, [productData]);
 
   const PutProductsToServer = (pd, pic, id) => {
     const d = new FormData();
@@ -741,7 +760,7 @@ const HomeScreen = ({navigation, route}) => {
                     fontSize: 20,
                     color: 'white',
                   }}>
-                  {numberWithCommas(SumSales(Sales_Data))} MMK
+                  {numberWithCommas(SumSales)} MMK
                 </Text>
               </View>
               <TouchableOpacity
@@ -785,7 +804,7 @@ const HomeScreen = ({navigation, route}) => {
                     fontSize: 20,
                     color: 'white',
                   }}>
-                  {numberWithCommas(SumExpenseAndPurchase(expenseData))} MMK
+                  {numberWithCommas(SumExpense)} MMK
                 </Text>
               </View>
               <TouchableOpacity
@@ -829,7 +848,7 @@ const HomeScreen = ({navigation, route}) => {
                     fontSize: 20,
                     color: 'white',
                   }}>
-                  {numberWithCommas(SumExpenseAndPurchase(purchaseData))} MMK
+                  {numberWithCommas(SumProductCost)} MMK
                 </Text>
               </View>
               <TouchableOpacity
@@ -873,7 +892,7 @@ const HomeScreen = ({navigation, route}) => {
                     fontSize: 20,
                     color: 'white',
                   }}>
-                  {numberWithCommas(SumProducts(productData))} MMK
+                  {numberWithCommas(SumProduct)} MMK
                 </Text>
               </View>
               <TouchableOpacity
@@ -959,25 +978,29 @@ const HomeScreen = ({navigation, route}) => {
               <Text style={{...s.font_bold, color: 'black'}}>{t('TFSP')}</Text>
               {topProduct ? (
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                   <PieChart
-                      data={topProduct.length >= 4 ? topProduct.slice(0,4) : topproduct}
-                      width={300}
-                      height={200}
-                      chartConfig={{
-                        backgroundColor: '#e26a00',
-                        backgroundGradientFrom: '#fb8c00',
-                        backgroundGradientTo: '#ffa726',
-                        color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                        decimalPlaces: 2,
-                        style: {
-                          borderRadius: 16,
-                        },
-                      }}
-                      accessor="freq"
-                      backgroundColor="transparent"
-                      paddingLeft="15"
-                      absolute
-                />
+                  <PieChart
+                    data={
+                      topProduct.length >= 4
+                        ? topProduct.slice(0, 4)
+                        : topproduct
+                    }
+                    width={300}
+                    height={200}
+                    chartConfig={{
+                      backgroundColor: '#e26a00',
+                      backgroundGradientFrom: '#fb8c00',
+                      backgroundGradientTo: '#ffa726',
+                      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                      decimalPlaces: 2,
+                      style: {
+                        borderRadius: 16,
+                      },
+                    }}
+                    accessor="freq"
+                    backgroundColor="transparent"
+                    paddingLeft="15"
+                    absolute
+                  />
                 </ScrollView>
               ) : null}
             </View>
@@ -1157,9 +1180,6 @@ const HomeScreen = ({navigation, route}) => {
           </Text>
         </View>
       </View>
-      
-      
-
     </ScrollView>
   );
 };
@@ -1208,26 +1228,29 @@ const getRandomColor = () => {
   return color;
 };
 
-
-
-
 const piechartdata = [
- {"color": "#74892B", 
- "freq": 3,
-  "legendFontColor": "black", 
-  "legendFontSize": 15,
-   "name": "Product C", 
-   "price": 13500}, 
-   {"color": "#6A14E0",
-    "freq": 2, 
-    "legendFontColor": "black", 
-    "legendFontSize": 15,
-     "name": "Product D",
-      "price": 1000},
-       {"color": "#0FE763", 
-       "freq": 2,
-        "legendFontColor": "black", 
-        "legendFontSize": 15,
-         "name": "Product E",
-          "price": 3000}
+  {
+    color: '#74892B',
+    freq: 3,
+    legendFontColor: 'black',
+    legendFontSize: 15,
+    name: 'Product C',
+    price: 13500,
+  },
+  {
+    color: '#6A14E0',
+    freq: 2,
+    legendFontColor: 'black',
+    legendFontSize: 15,
+    name: 'Product D',
+    price: 1000,
+  },
+  {
+    color: '#0FE763',
+    freq: 2,
+    legendFontColor: 'black',
+    legendFontSize: 15,
+    name: 'Product E',
+    price: 3000,
+  },
 ];

@@ -52,7 +52,6 @@ const Sales = ({navigation}) => {
     const handleOtherIncome = (e, name) => {
       const temp = {...incomedata, [name]: e};
       setIncomeData(temp);
-      console.log(temp, 'what are we');
     };
 
     const [isCreate, setCreate] = useState(false);

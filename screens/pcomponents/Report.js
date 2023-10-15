@@ -116,7 +116,7 @@ const ReportScreen = ({navigation}) => {
         endd.toLocaleDateString(),
       );
     },
-    [],
+    [getExpenseFromServer, getOtherIncomeFromServer, getProductFromServer, getPurchaseFromServer, getSalesFromServer],
   );
 
   const getSalesFromServer = useCallback(
@@ -298,12 +298,13 @@ const ReportScreen = ({navigation}) => {
 
   const SalesTable = () => {
     const widtharr = [150, 150, 150, 100, 80, 80, 100, 150, 150];
-    if (salesData === null)
+    if (salesData === null) {
       return (
         <View>
           <Text>Loading</Text>
         </View>
       );
+    }
 
     const headerStyle = {
       ...styles.cell,
@@ -339,7 +340,7 @@ const ReportScreen = ({navigation}) => {
                 justifyContent: 'center',
                 width: widtharr[4],
               }}>
-              <Text style={{color: 'black'}}>{t('Tax')}</Text>
+              <Text style={{color: 'black'}}>{t('Tax_(MMK)')}</Text>
             </View>
 
             <View style={{...headerStyle, width: widtharr[5]}}>
@@ -382,7 +383,7 @@ const ReportScreen = ({navigation}) => {
                     width: widtharr[0],
                   }}>
                   <Text style={{color: 'black', textAlign: 'left'}}>
-                    {item.receiptNumber}
+                    {item.voucherNumber}
                   </Text>
                 </View>
                 <View
@@ -428,7 +429,7 @@ const ReportScreen = ({navigation}) => {
                     width: widtharr[4],
                   }}>
                   <Text style={{color: 'black', textAlign: 'right'}}>
-                    {numberWithCommas(item.tax) + ' Ks'}
+                    {item.tax + ' %'}
                   </Text>
                 </View>
                 <View
@@ -746,7 +747,7 @@ const ReportScreen = ({navigation}) => {
             </View>
           </View>
           {/* Purchase */}
-          <View style={{marginBottom: 5}}>
+        { /* <View style={{marginBottom: 5}}>
             <View style={{...s.flexrow_aligncenter_j_between, padding: 5}}>
               <Text style={{...s.font_bold, color: 'black'}}>
                 {t('Purchase')}
@@ -779,7 +780,8 @@ const ReportScreen = ({navigation}) => {
               </Text>
             </View>
           </View>
-        </ScrollView>
+      */}
+          </ScrollView>
       );
     }
     return (
@@ -917,7 +919,7 @@ const ReportScreen = ({navigation}) => {
             />
           </View>
           {/* Purchase */}
-          <View style={{marginBottom: 5}}>
+        {/*  <View style={{marginBottom: 5}}>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={{...s.font_bold, color: 'black'}}>
@@ -952,7 +954,10 @@ const ReportScreen = ({navigation}) => {
               }}
             />
           </View>
-        </ScrollView>
+
+            */ }
+      
+          </ScrollView>
       );
     }
     return (

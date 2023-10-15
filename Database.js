@@ -84,7 +84,7 @@ export const IMAGE = {
   d4: require('./assets/color/d4.png'),
 
   app_logo: require('./assets/image/app_logo.png'),
-  scan_barcode:require('./assets/image/scanbarcode.png'),
+  scan_barcode: require('./assets/image/scanbarcode.png'),
 
   thura: require('./assets/image/i.png'),
 
@@ -93,7 +93,7 @@ export const IMAGE = {
 };
 
 export const ALERT = {
-  alert:(a)=> Alert.alert('', a, [{text: 'OK'}]),
+  alert: a => Alert.alert('', a, [{text: 'OK'}]),
   rqf: () => Alert.alert('', 'Please fill require fields.', [{text: 'OK'}]),
   lqy: () => Alert.alert('', 'Limited Qty', [{text: 'OK'}]),
   spe: () => Alert.alert('Error', 'Cannot connect to server', [{text: 'OK'}]),
@@ -105,6 +105,11 @@ export const ALERT = {
   aslogout: yes =>
     Alert.alert('', 'Are you sure want to Logout?', [
       {text: 'Yes', onPress: yes},
+      {text: 'No'},
+    ]),
+  aswantodelete: (yes, yesarg) =>
+    Alert.alert('', 'Are you sure want to delete this voucher? ', [
+      {text: 'Yes', onPress: () => yes(yesarg)},
       {text: 'No'},
     ]),
   sus: () =>
@@ -129,5 +134,28 @@ export const isArrayhasData = (arr = []) => {
 
 export const baseUrl = 'https://empirepos.pythonanywhere.com';
 
-// export const baseUrl = 'http://192.168.43.156:8000';
+// export const baseUrl = 'http://192.168.100.63:8000';
 export const appversion = '1.0';
+
+export function calculateEAN13(input) {
+  // Check if the input is a 12-digit number
+  input = input.toString().padStart(12, '0');
+
+  if (/^\d{12}$/.test(input)) {
+    // Convert the input to an array of integers
+    let digits = input.split('').map(Number);
+
+    // Calculate the check digit
+    let sum = 0;
+    for (let i = 0; i < digits.length; i++) {
+      sum += i % 2 === 0 ? digits[i] : digits[i] * 3;
+    }
+    let checkDigit = (10 - (sum % 10)) % 10;
+
+    // Return the check digit
+    return input + '' + checkDigit;
+  } else {
+    // Return an error message if the input is not valid
+    return '';
+  }
+}

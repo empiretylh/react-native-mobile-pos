@@ -77,8 +77,6 @@ const ProductView = React.memo(({navigation}) => {
     description = '',
   ) => {
     let fdata = new FormData();
-    let re = new Date();
-    fdata.append('receiptNumber', re.getTime().toString());
     fdata.append('customerName', c);
     fdata.append('products', JSON.stringify(p));
     fdata.append('totalAmount', totalAmount);
@@ -122,6 +120,10 @@ const ProductView = React.memo(({navigation}) => {
         setCreate(false);
       });
   };
+  const taxCalculator = (price, taxperctange) => {
+    let tax = (price / 100) * taxperctange;
+    return tax;
+  };
 
   const sumGrandTotal = useMemo(() => {
     let s = parseInt(totalAmount, 10);
@@ -146,12 +148,14 @@ const ProductView = React.memo(({navigation}) => {
     if (discountcoll) d = 0;
     if (delicoll) delivery = 0;
 
-    const price = s + t ;
-    const totalprice = DiscountCalculator(price, d)+ delivery;
+    const price = s;
+    const totalprice =
+      DiscountCalculator(price, d) + taxCalculator(price, t) + delivery;
 
     return totalprice.toFixed(2);
   }, [totalAmount, tax, discount, deli, discountcoll, delicoll, taxcoll]);
 
+  
   return (
     <CartContext.Provider value={data_bridge}>
       <VoucherDetails

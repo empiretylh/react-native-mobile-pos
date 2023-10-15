@@ -75,7 +75,7 @@ const ReceiptView = ({route, navigation}) => {
 
     return salesData.filter(item => {
       return (
-        item.receiptNumber.includes(searchText) ||
+        item.voucherNumber.includes(searchText) ||
         item.customerName.includes(searchText)
       );
     });
@@ -103,9 +103,9 @@ const ReceiptView = ({route, navigation}) => {
             <Text style={{...s.bold_label}}>
               {item.customerName == '' ? 'Unknown' : item.customerName}
             </Text>
-            <Text style={{...s.normal_label}}>{item.receiptNumber}</Text>
+            <Text style={{...s.normal_label}}>{item.voucherNumber}</Text>
             <Text style={{...s.normal_label, fontWeight: 'bold'}}>
-              Total : {numberWithCommas(item.totalAmount)} Ks
+              Total : {numberWithCommas(item.grandtotal)} Ks
             </Text>
           </View>
           <View>
@@ -139,6 +139,7 @@ const ReceiptView = ({route, navigation}) => {
         data={vocherData}
         setData={setVoucherData}
         navigation={navigation}
+        reload={() => setEndd(true)}
       />
       <View style={{flexDirection: 'row', marginBottom: 5}}>
         <MIcons name="file-chart" size={25} color={'#000'} />
