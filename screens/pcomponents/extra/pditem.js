@@ -49,7 +49,7 @@ const PDITEM = ({item}) => {
 
               color: 'white',
             }}>
-            {item.qty}{' '}
+            {item.qty}
           </Text>
         </View>
         <Text style={{...s.normal_label, margin: 5}}>

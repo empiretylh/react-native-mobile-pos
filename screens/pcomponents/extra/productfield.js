@@ -39,6 +39,16 @@ import {CartContext} from '../context/CartContext';
 import {ProductsContext} from '../context/ProductContext';
 import BarCodeToCart from '../sales/AddWithBarCode';
 import CartView from '../sales/EditCartList';
+import {
+  deleteCategories,
+  deleteProducts,
+  getAllCategories,
+  getAllProducts,
+  insertCategories,
+  insertProduct,
+} from '../../../localDatabase/products';
+import {useNetInfo} from '@react-native-community/netinfo';
+import {set} from 'react-native-reanimated';
 
 const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
   const [open, setOpen] = useState(false);
@@ -54,30 +64,83 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
 
   const {CartData, setCartData} = useContext(CartContext);
 
+  const {isConnected} = useNetInfo();
+
   const SetOpenModal = () => {
     setOpen(true);
     GetProdcutsFromServer();
     GetCategoryFromServer();
   };
 
-  const GetProdcutsFromServer = () => {
+  const GetProdcutsFromServer = async () => {
     setLoad(true);
-    axios
-      .get('/api/products/')
-      .then(res => {
-        res.data = res.data.filter(e => e.qty > 0);
-        setProductData(res.data);
+    if (isConnected) {
+      axios
+        .get('/api/products/')
+        .then(res => {
+          deleteProducts();
+          res.data.forEach(item => {
+            insertProduct(
+              item.id,
+              item.name,
+              item.price,
+              item.cost,
+              item.qty,
+              item.date,
 
-        setLoad(false);
-      })
-      .catch(err => a.spe());
+              item.description,
+              item.category,
+              item.pic,
+              1,
+            );
+          });
+          res.data = res.data.filter(e => e.qty > 0);
+          setProductData(res.data);
+
+          setLoad(false);
+        })
+        .catch(err => {
+          a.spe();
+          setLoad(false);
+          getProductFromLocal();
+        });
+    } else {
+      getProductFromLocal();
+      setLoad(false);
+
+      // console.log('Result ::: ', result);
+    }
+  };
+  const getProductFromLocal = async () => {
+    let result = await getAllProducts();
+    console.log('Product Result : ', result);
+    setProductData(result);
+  };
+
+  const getCategoryFromLocal = async () => {
+    let result = await getAllCategories();
+    console.log(result);
+    let a = [];
+    result.forEach(i => {
+      a.push({label: i.title, value: i.id, id: i.id});
+    });
+    setCategoryData(a);
   };
 
   const GetCategoryFromServer = () => {
+    if (!isConnected) {
+      getCategoryFromLocal();
+      // console.log('I need result : ', result);
+      //setCategoryData(result);
+      return;
+    }
+
     axios.get('/api/categorys/').then(res => {
       let a = [];
+      deleteCategories();
       res.data.forEach(item => {
         a.push({label: item.title, value: item.id, id: item.id});
+        insertCategories(item.id, item.title);
       });
       console.log(a);
       setCategoryData(a);
@@ -87,10 +150,9 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
   const ProductFilter = useMemo(() => {
     if (ProductData && categoryId) {
       const data = ProductData.filter(e => {
-        var b = e.name.replaceAllTxt(' ', '').toLowerCase();
-
+       
+        var b = e?.name.replaceAllTxt(' ', '').toLowerCase();
         var c = searchtext.replaceAllTxt(' ', '').toLowerCase();
-
         var id = e.id.toString();
 
         console.log(id);

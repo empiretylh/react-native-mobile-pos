@@ -15,21 +15,24 @@ const textinputstyle = {
   borderRadius: 5,
   borderWidth: 1,
   borderColor: 'black',
+  padding: 10,
 };
 
 const AddNewProductModal = ({show, onClose, onAdd}) => {
   const [pdname, setPdname] = useState('');
   const [qty, setQty] = useState('');
   const [price, setPrice] = useState('');
+  const [cost, setCost] = useState('');
 
   const handleAdd = () => {
     // Call the onAdd function with the new product data
-    onAdd({pdname, qty, price});
+    onAdd({pdname, qty, price, cost});
 
     // Clear the input fields
     setPdname('');
     setQty('');
     setPrice('');
+    setCost('');
 
     // Close the modal
     onClose();
@@ -66,6 +69,15 @@ const AddNewProductModal = ({show, onClose, onAdd}) => {
         placeholder="Price"
         value={price}
         onChangeText={setPrice}
+        keyboardType="numeric"
+        placeholderTextColor="black"
+      />
+      <Text style={{...style.normal_label, marginTop: 2}}>Product Cost</Text>
+      <TextInput
+        style={textinputstyle}
+        placeholder="Product Cost"
+        value={cost}
+        onChangeText={setCost}
         keyboardType="numeric"
         placeholderTextColor="black"
       />

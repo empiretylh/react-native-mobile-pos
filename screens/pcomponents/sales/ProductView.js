@@ -30,6 +30,9 @@ import {useTranslation} from 'react-i18next';
 import '../../../assets/i18n/i18n';
 import VoucherDetails from './VocherView';
 import {CartContext} from '../context/CartContext';
+import {CreateReceiptLocal} from '../../../localDatabase/sales';
+import {useNetInfo} from '@react-native-community/netinfo';
+import LocalVoucher from '../localstorage/LocalVoucher';
 
 const ProductView = React.memo(({navigation}) => {
   const {t} = useTranslation();
@@ -66,7 +69,9 @@ const ProductView = React.memo(({navigation}) => {
   const [showVoucher, setShowVoucher] = useState(false);
   const [vocherData, setVoucherData] = useState([]);
 
-  const CreateReceipt = (
+  const {isConnected} = useNetInfo();
+
+  const CreateReceipt = async (
     c = '',
     p,
     totalAmount,
@@ -76,7 +81,7 @@ const ProductView = React.memo(({navigation}) => {
     delivery,
     description = '',
   ) => {
-    let fdata = new FormData();
+    const fdata = new FormData();
     fdata.append('customerName', c);
     fdata.append('products', JSON.stringify(p));
     fdata.append('totalAmount', totalAmount);
@@ -88,37 +93,89 @@ const ProductView = React.memo(({navigation}) => {
     fdata.append('description', desccoll ? '' : description);
 
     setCreate(true);
+    if (isConnected) {
+      axios
+        .post('/api/sales/', fdata, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then(res => {
+          setVoucherData(res.data);
+          setCreate(false);
+          setSuccess(true);
+          setCartData([]);
+          setcustomername('');
+          setDeli(0);
+          setDesc('');
+          setDiscount(0);
+          setTotalAmount(0);
+          setTax(0);
 
-    axios
-      .post('/api/sales/', fdata, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then(res => {
-        setVoucherData(res.data);
-        setCreate(false);
-        setSuccess(true);
-        setCartData([]);
-        setcustomername('');
-        setDeli(0);
-        setDesc('');
-        setDiscount(0);
-        setTotalAmount(0);
-        setTax(0);
+          setTaxcoll(true);
+          setDiscountcoll(true);
+          setDelicoll(true);
+          setDesccoll(true);
 
-        setTaxcoll(true);
-        setDiscountcoll(true);
-        setDelicoll(true);
-        setDesccoll(true);
+          Vibration.vibrate(100);
+        })
+        .catch(err => {
+          console.log(err);
+          a.spe();
+          setCreate(false);
 
-        Vibration.vibrate(100);
-      })
-      .catch(err => {
-        console.log(err);
-        a.spe();
-        setCreate(false);
-      });
+          SaveToLocal(c, p, totalAmount, grandtotal, delivery, description);
+        });
+    } else {
+      SaveToLocal(c, p, totalAmount, grandtotal, delivery, description);
+    }
+  };
+
+  const SaveToLocal = async (
+    c,
+    p,
+    totalAmount,
+    grandtotal,
+    delivery,
+    description,
+  ) => {
+    setCreate(true);
+    let saleid = await CreateReceiptLocal(
+      c,
+      p,
+      totalAmount,
+      grandtotal,
+      taxcoll ? 0 : tax,
+      discountcoll ? 0 : discount,
+      delicoll ? 0 : delivery,
+      desccoll ? '' : description,
+    );
+    const data = {
+      id: saleid,
+      customername: c,
+      products: p,
+      totalAmount: totalAmount,
+      grandtotal: grandtotal,
+      tax: taxcoll ? 0 : tax,
+      discount: discountcoll ? 0 : discount,
+      delivery: delicoll ? 0 : delivery,
+      date: new Date(),
+    };
+    setVoucherData(data);
+    setSuccess(true);
+    setCreate(false);
+    setCartData([]);
+    setcustomername('');
+    setDeli(0);
+    setDesc('');
+    setDiscount(0);
+    setTotalAmount(0);
+    setTax(0);
+
+    setTaxcoll(true);
+    setDiscountcoll(true);
+    setDelicoll(true);
+    setDesccoll(true);
   };
   const taxCalculator = (price, taxperctange) => {
     let tax = (price / 100) * taxperctange;
@@ -155,15 +212,23 @@ const ProductView = React.memo(({navigation}) => {
     return totalprice.toFixed(2);
   }, [totalAmount, tax, discount, deli, discountcoll, delicoll, taxcoll]);
 
-  
   return (
     <CartContext.Provider value={data_bridge}>
-      <VoucherDetails
-        open={showVoucher}
-        onClose={() => setShowVoucher(false)}
-        data={vocherData}
-        setData={setVoucherData}
-      />
+      {isConnected ? (
+        <VoucherDetails
+          open={showVoucher}
+          onClose={() => setShowVoucher(false)}
+          data={vocherData}
+          setData={setVoucherData}
+        />
+      ) : (
+        <LocalVoucher
+          open={showVoucher}
+          onClose={() => setShowVoucher(false)}
+          data={vocherData}
+          setData={setVoucherData}
+        />
+      )}
       <ScrollView style={{flex: 1, backgroundColor: 'white', padding: 8}}>
         <Loading show={isCreate} infotext={'Creating Receipt'} />
         <MessageModalNormal

@@ -16,6 +16,7 @@ import {
 import axios from 'axios';
 import Icons from 'react-native-vector-icons/Ionicons';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import * as ImagePicker from 'react-native-image-picker';
 import {
   IMAGE as I,
@@ -33,6 +34,7 @@ import Container from '../Container';
 import CheckBox from '@react-native-community/checkbox';
 import {TextInput} from 'react-native-gesture-handler';
 import Loading from '../pcomponents/extra/Loading';
+import {DeleteAllProfile, insertProfile} from '../../localDatabase/profile';
 
 const Icon = props => <Icons {...props} color={'#000'} />;
 
@@ -79,8 +81,10 @@ const Profile = ({navigation, route}) => {
     axios
       .get('/api/profile/')
       .then(res => {
+        DeleteAllProfile();
         setPddata(res.data);
         setIsLoad(false);
+        insertProfile(res.data);
       })
       .catch(res => {
         console.log(res);
@@ -815,6 +819,24 @@ const Profile = ({navigation, route}) => {
                     </View>
                   </TouchableOpacity>
                 </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+          {/*Printer */}
+          <TouchableOpacity
+            onPress={() => {
+              // console.log(pdata.is_superuser);
+              navigation.navigate({
+                name: 'localreport',
+              });
+            }}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icon2 name={'storage'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  Local Storage
+                </Text>
               </View>
             </View>
           </TouchableOpacity>

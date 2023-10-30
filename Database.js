@@ -96,7 +96,12 @@ export const ALERT = {
   alert: a => Alert.alert('', a, [{text: 'OK'}]),
   rqf: () => Alert.alert('', 'Please fill require fields.', [{text: 'OK'}]),
   lqy: () => Alert.alert('', 'Limited Qty', [{text: 'OK'}]),
-  spe: () => Alert.alert('Error', 'Cannot connect to server', [{text: 'OK'}]),
+  spe: () =>
+    Alert.alert(
+      'Error',
+      'Cannot connect to server, We will use local storage.',
+      [{text: 'OK'}],
+    ),
   asc: yes =>
     Alert.alert('', 'Are you sure want to close?', [
       {text: 'Yes', onPress: yes},
@@ -135,6 +140,9 @@ export const isArrayhasData = (arr = []) => {
 export const baseUrl = 'https://empirepos.pythonanywhere.com';
 
 // export const baseUrl = 'http://192.168.100.63:8000';
+
+// export const baseUrl = 'http://192.168.43.181:8000';
+
 export const appversion = '1.0';
 
 export function calculateEAN13(input) {

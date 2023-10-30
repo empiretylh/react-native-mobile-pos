@@ -77,7 +77,7 @@ Shop Name, Show Address, Shop Email \n
 
 */
 
-export const printReceipt = async (data, shopdata) => {
+export const printReceipt = async (data, shopdata, offline = false) => {
   const {profileimage, name, address, email, phoneno} = shopdata;
 
   const {
@@ -161,7 +161,7 @@ export const printReceipt = async (data, shopdata) => {
     {},
   );
 
-  printColumns(sproduct);
+  printColumns(sproduct, offline);
 
   await BluetoothEscposPrinter.printText('\r\n', {});
 
@@ -247,7 +247,7 @@ export const printReceipt = async (data, shopdata) => {
   console.log('Finished Printing');
 };
 
-async function printColumns(sproduct, columnWidths) {
+async function printColumns(sproduct, columnWidths, offline) {
   await Promise.all(
     sproduct.map(async (item, index) => {
       await BluetoothEscposPrinter.printColumn(
@@ -258,7 +258,12 @@ async function printColumns(sproduct, columnWidths) {
           BluetoothEscposPrinter.ALIGN.CENTER,
           BluetoothEscposPrinter.ALIGN.RIGHT,
         ],
-        [item.pdname, item.qty, item.price, item.price * item.qty],
+        [
+          offline ? item.pdname : item.name,
+          item.qty,
+          item.price,
+          item.price * item.qty,
+        ],
         {},
       );
     }),

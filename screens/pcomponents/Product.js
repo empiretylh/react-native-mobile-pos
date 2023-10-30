@@ -54,6 +54,12 @@ import axios from 'axios';
 import {nullLiteralTypeAnnotation} from '@babel/types';
 import RNFetchBlob from 'rn-fetch-blob';
 import {set} from 'react-native-reanimated';
+import {
+  deleteCategories,
+  deleteProducts,
+  insertCategories,
+  insertProduct,
+} from '../../localDatabase/products';
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
@@ -112,9 +118,11 @@ const Product = ({navigation}) => {
   const GetCategoryFromServer = () => {
     setpRefreshing(true);
     axios.get('/api/categorys/').then(res => {
+      deleteCategories();
       let a = [];
       res.data.forEach(item => {
         a.push({label: item.title, value: item.id, id: item.id});
+        insertCategories(item.id, item.title);
       });
       console.log(a);
       setCategoryData(a);
@@ -218,7 +226,26 @@ const Product = ({navigation}) => {
       .get('/api/products/', pdtData)
       .then(res => {
         console.log(res.data);
+        deleteProducts();
         setProductData(res.data);
+
+        res.data.forEach((item, index) => {
+          console.log(item, 'Importing item');
+          insertProduct(
+            item.id,
+            item.name,
+            item.price,
+            item.cost,
+            item.qty,
+            item.date,
+
+            item.description,
+            item.category,
+            item.pic,
+            1,
+          );
+        });
+
         setpRefreshing(false);
         setSp(res.data);
       })

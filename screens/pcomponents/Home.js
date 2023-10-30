@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect,useMemo} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   View,
   Text,
@@ -32,6 +32,8 @@ import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 import {MessageModalNormal} from '../MessageModal';
 import Pricing from './pricing';
+import {useNetInfo} from '@react-native-community/netinfo';
+import { DeleteAllProfile, insertProfile } from '../../localDatabase/profile';
 Date.prototype.addDays = function (days) {
   var date = new Date(this.valueOf());
   date.setDate(date.getDate() + days);
@@ -69,12 +71,13 @@ const HomeScreen = ({navigation, route}) => {
   };
 
   const {t, i18n} = useTranslation();
+  const {isConnected, connectionType} = useNetInfo();
 
   const [Sales_Data, setSales_Data] = useState([]);
   const [salesData, setSalesData] = useState([]);
   const [productData, setProductData] = useState([]);
   const [expenseData, setExpenseData] = useState([]);
-  const [purchaseData, setPurchaseData] = useState([]);
+
   const [otherIncome, setOtherincomeData] = useState([]);
   const [pdata, setPddata] = useState(null);
 
@@ -83,6 +86,8 @@ const HomeScreen = ({navigation, route}) => {
   const [topProduct, setTopProduct] = useState(null);
 
   const Load = () => {
+    if (!isConnected) return;
+
     setRefresh(true);
 
     getSalesFromServer();
@@ -90,8 +95,6 @@ const HomeScreen = ({navigation, route}) => {
     getProductFromServer();
 
     getExpenseFromServer();
-
-    getPurchaseFromServer();
 
     getOtherIncomeFromServer();
 
@@ -139,14 +142,17 @@ const HomeScreen = ({navigation, route}) => {
     axios
       .get('/api/profile/')
       .then(res => {
+        DeleteAllProfile();
         console.log(res.data);
         setPddata(res.data);
         ComputeWarningDate(res.data);
+        insertProfile(res.data);
       })
       .catch(err => {
         if (err.response.status == 401) {
           RemoveToken();
         }
+        setRefresh(false);
       });
   };
 
@@ -165,7 +171,7 @@ const HomeScreen = ({navigation, route}) => {
         //   getSalesChartFromServer(res.data.DATA, 't');
         // }, 1000);
       })
-      .catch(err => console.log(err));
+      .catch(err => setRefresh(false));
   };
 
   const getSalesChartFServer = (type = 'DT', time = 'year', startd, endd) => {
@@ -183,7 +189,7 @@ const HomeScreen = ({navigation, route}) => {
           getSalesChartFromServer(res.data.DATA, 't');
         }, 1000);
       })
-      .catch(err => console.log(err));
+      .catch(err => setRefresh(false));
   };
 
   const getProductFromServer = () => {
@@ -199,21 +205,14 @@ const HomeScreen = ({navigation, route}) => {
           StockOutProducts();
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => setRefresh(false));
   };
 
   const getExpenseFromServer = () => {
     axios
       .get('/api/expenses/', {params: {time: settings.datascope}})
       .then(res => setExpenseData(res.data.DATA))
-      .catch(err => console.log(err));
-  };
-
-  const getPurchaseFromServer = () => {
-    axios
-      .get('api/products/purchaseprice/')
-      .then(res => setPurchaseData(res.data))
-      .catch(err => console.log(err));
+      .catch(err => setRefresh(false));
   };
 
   const getOtherIncomeFromServer = () => {
@@ -223,7 +222,7 @@ const HomeScreen = ({navigation, route}) => {
         setOtherincomeData(res.data.DATA);
         setRefresh(false);
       })
-      .catch(err => console.log(err));
+      .catch(err => setRefresh(false));
   };
 
   const SumSales = useMemo(() => {
@@ -479,6 +478,7 @@ const HomeScreen = ({navigation, route}) => {
   const PDITEM = ({item}) => {
     return (
       <View
+        key={item.id}
         style={{
           flex: 1,
           backgroundColor: '#f0f0f0',
@@ -656,7 +656,7 @@ const HomeScreen = ({navigation, route}) => {
         <FlatList
           data={SOData}
           renderItem={PDITEM}
-          keyExtractor={i => i.id}
+          keyExtractor={item => item.id.toString()}
           style={{backgroundColor: 'white'}}
         />
       </MessageModalNormal>
@@ -704,6 +704,22 @@ const HomeScreen = ({navigation, route}) => {
           <Text style={{...s.bold_label, fontSize: 23, marginLeft: 5}}>
             Dashboard
           </Text>
+          <View
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: 50,
+              backgroundColor: isConnected ? 'green' : 'orange',
+              marginLeft: 5,
+            }}
+          />
+          {isConnected ? null : (
+            <TouchableOpacity
+              style={{marginLeft: 5}}
+              onPress={() => navigation.navigate('localreport')}>
+              <MIcons name="storage" size={25} color={'#000'} />
+            </TouchableOpacity>
+          )}
         </View>
         <TouchableOpacity
           onPress={() =>

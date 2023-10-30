@@ -1,48 +1,29 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  ImageBackground,
-  Modal,
-  ScrollView,
-  Button,
-  Alert,
-  BackHandler,
-  PermissionsAndroid,
-  RefreshControl,
-  KeyboardAvoidingView,
-} from 'react-native';
-import Icons from 'react-native-vector-icons/Ionicons';
-import {
-  IMAGE,
-  STYLE as s,
-  COLOR as C,
-  ALERT as a,
-  numberWithCommas,
-} from '../../Database';
-import EncryptedStorage from 'react-native-encrypted-storage';
-import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {TextInput} from 'react-native-gesture-handler';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {MessageModalNormal} from '../MessageModal';
-import DropDownPicker from 'react-native-dropdown-picker';
-import * as ImagePicker from 'react-native-image-picker';
+import React, {useEffect, useState} from 'react';
+import {
+  KeyboardAvoidingView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import DatePicker from 'react-native-date-picker';
+import {TextInput} from 'react-native-gesture-handler';
+import Icons from 'react-native-vector-icons/Ionicons';
+import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {ALERT as a, numberWithCommas, STYLE as s} from '../../Database';
 import Loading from '../Loading';
+import {MessageModalNormal} from '../MessageModal';
 
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
-import {nullLiteralTypeAnnotation} from '@babel/types';
-import ProductField from './extra/productfield';
+import {useNetInfo} from '@react-native-community/netinfo';
+import {insertExpense} from '../../localDatabase/expense';
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
@@ -50,7 +31,6 @@ String.prototype.replaceAllTxt = function replaceAll(search, replace) {
 const Expense = ({navigation}) => {
   const [ProductData, setProductData] = useState([]);
   const [load, setLoad] = useState(false);
-
 
   const {t, i18n} = useTranslation();
 
@@ -96,24 +76,41 @@ const Expense = ({navigation}) => {
     const [isCreate, setCreate] = useState(false);
     const [isSucces, setSuccess] = useState(false);
 
+    const {isConnected, isInternetReachable} = useNetInfo();
+
     const CreateExpense = data => {
       setCreate(true);
-      axios
-        .post('/api/expenses/', data, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then(res => {
-          console.log(res);
-          setCreate(false);
-          setSuccess(true);
-        })
-        .catch(err => {
-          console.log(err);
-          a.spe();
-          setCreate(false);
-        });
+      if (isConnected) {
+        axios
+          .post('/api/expenses/', data, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then(res => {
+            console.log(res);
+            setCreate(false);
+            setSuccess(true);
+          })
+          .catch(err => {
+            console.log(err);
+            a.spe();
+            insertExpense(
+              data.title,
+              data.price,
+              data.date,
+              data.description,
+              1,
+            );
+            setCreate(false);
+            setSuccess(true);
+          });
+      } else {
+        //  (title, price, date, description, user_id)
+        insertExpense(data.title, data.price, data.date, data.description, 1);
+        setCreate(false);
+        setSuccess(true);
+      }
     };
 
     return (
@@ -192,7 +189,9 @@ const Expense = ({navigation}) => {
             />
           </View>
 
-          <Text style={{...s.bold_label, marginTop: 8}}>{t('Description')}</Text>
+          <Text style={{...s.bold_label, marginTop: 8}}>
+            {t('Description')}
+          </Text>
           <TextInput
             style={{
               ...inputS,

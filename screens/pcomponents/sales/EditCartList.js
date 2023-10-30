@@ -27,7 +27,6 @@ const headerLabel = {
   backgroundColor: '#70c9cc',
   justifyContent: 'center',
   color: 'black',
-  flex: 1,
   padding: 2,
   textAlign: 'center',
   borderColor: 'black',
@@ -154,13 +153,14 @@ const CartView = ({setTotalAmount, show, onClose}) => {
     setCartData(newCartData);
   };
 
-  const addNewItem = ({pdname, qty, price}) => {
+  const addNewItem = ({pdname, qty, price, cost}) => {
     const d = {
       name: new Date().getTime().toString(),
       qty: qty,
       price: price,
       total: price * qty,
       pdname: pdname,
+      cost: cost,
     };
     setCartData([...CartData, d]);
   };
@@ -210,7 +210,7 @@ const CartView = ({setTotalAmount, show, onClose}) => {
               name={'package-variant'}
               size={30}
               color={'#000'}
-              onPress={()=> setAddProductShow(true)}
+              onPress={() => setAddProductShow(true)}
               style={{marginRight: 8}}
             />
             <Icon
