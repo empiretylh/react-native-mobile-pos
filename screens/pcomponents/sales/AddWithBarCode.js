@@ -65,12 +65,9 @@ const BarCodeToCart = ({open, setOpen}) => {
 
   const onBarCodeRead = barcodeData => {
     console.log('On Bar Code Read', barcodeData);
-    barcodeData = barcodeData.data;
-    const productId = parseInt(
-      barcodeData.substring(0, barcodeData.length - 1),
-      10,
-    );
-    const product = ProductData.filter(item => item.id === productId);
+    // barcodeData = barcodeData.data;
+    // const barcode = parseInt(barcodeData, 10);
+    const product = ProductData.filter(item => item.barcode == barcodeData.data);
 
     if (product.length > 0) {
       console.log('Product found:', product);

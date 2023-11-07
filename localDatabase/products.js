@@ -29,10 +29,11 @@ export const insertProduct = async (
   category_id,
   pic = '',
   user_id = 1,
+  barcode = 0,
 ) => {
   db.transaction(txn => {
     txn.executeSql(
-      'INSERT INTO products (id, name, price, cost, qty, date, description, category_id, pic, user_id) VALUES (?,?,?,?,?,?,?,?,?,?)',
+      'INSERT INTO products (id, name, price, cost, qty, date, description, category_id, pic, user_id, barcode) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
       [
         id,
         name,
@@ -44,6 +45,7 @@ export const insertProduct = async (
         category_id,
         pic,
         user_id,
+        barcode,
       ],
       (tx, results) => {
         console.log('Results', results.rowsAffected);

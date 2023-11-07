@@ -155,7 +155,7 @@ const Product = ({navigation}) => {
       .catch(err => a.spe());
   };
 
-  const PostProductsToServer = (pd, pic) => {
+  const PostProductsToServer = (pd, pic, barcode = 0) => {
     setIsUpload(true);
     const d = new FormData();
     d.append('name', pd.name);
@@ -165,6 +165,7 @@ const Product = ({navigation}) => {
 
     d.append('category', pd.category);
     d.append('description', pd.description);
+    d.append('barcode', barcode);
     d.append('pic', pic);
 
     console.log(d);
@@ -198,6 +199,7 @@ const Product = ({navigation}) => {
 
     d.append('category', pd.category);
     d.append('description', pd.description);
+    d.append('barcode', pd.barcode);
     d.append('pic', pic);
 
     console.log(d);
@@ -243,6 +245,7 @@ const Product = ({navigation}) => {
             item.category,
             item.pic,
             1,
+            item.barcode,
           );
         });
 
@@ -393,10 +396,15 @@ const Product = ({navigation}) => {
         ? e.description.replaceAllTxt(' ', '').toLowerCase()
         : '';
       var d = CategoryToText(e.category).replaceAllTxt(' ', '').toLowerCase();
+      var barcode = e.barcode;
       var c = text.replaceAllTxt(' ', '').toLowerCase();
 
       return (
-        b.includes(c) || d.includes(c) || f.includes(c) || c.includes(e.id)
+        b.includes(c) ||
+        d.includes(c) ||
+        f.includes(c) ||
+        c.includes(e.id) ||
+        c.includes(barcode)
       );
     });
 
@@ -417,6 +425,10 @@ const Product = ({navigation}) => {
     const [editpd, seteditpd] = useState();
 
     const [isImage, setImage] = useState(null);
+
+    const [editbarcodemodal, seteditBarCodeModal] = useState(false);
+
+    const onCloseeditBarCodeModal = () => seteditBarCodeModal(false);
 
     const LaunchCamera = async () => {
       try {
@@ -633,7 +645,7 @@ const Product = ({navigation}) => {
                 {numberWithCommas(item.price)} MMK
               </Text>
               <Text style={{...s.normal_label, fontSize: 12, marginTop: 5}}>
-                barcode : {calculateEAN13(item.id)}
+                barcode : {item.barcode}
               </Text>
             </View>
             <View style={{position: 'absolute', right: 5, top: 8}}>
@@ -778,6 +790,40 @@ const Product = ({navigation}) => {
                   defaultValue={editpd.name}
                   onChangeText={e => onHandleEPdtData(e, 'name')}
                 />
+
+                <View
+                  style={{
+                    ...inputS,
+                    ...s.flexrow_aligncenter_j_between,
+                    padding: 0,
+                    paddingLeft: 10,
+                  }}>
+                  <TextInput
+                    style={{
+                      flex: 1,
+                      // backgroundColor: 'red',
+                      ...s.bold_label,
+                      color: '#0f0f0f',
+                    }}
+                    value={editpd.barcode}
+                    onChangeText={e => onHandleEPdtData(e, 'barcode')}
+                    placeholder={'Barcode ID'}
+                  />
+                  <TouchableOpacity
+                    style={{padding: 10}}
+                    onPress={() => seteditBarCodeModal(true)}>
+                    <Icons name={'barcode'} size={20} color={'#000'} />
+                  </TouchableOpacity>
+                  <BarcodeScanner
+                    onBarcodeRead={barcodeData => {
+                      onHandleEPdtData(barcodeData, 'barcode');
+                      Vibration.vibrate(100);
+                      onCloseeditBarCodeModal();
+                    }}
+                    show={editbarcodemodal}
+                    onClose={onCloseeditBarCodeModal}
+                  />
+                </View>
                 <Text style={{...s.bold_label}}>{t('Category')}</Text>
                 <DropDownPicker
                   open={open}
@@ -1217,13 +1263,11 @@ const Product = ({navigation}) => {
 
   const onBarCodeRead = barcodeData => {
     // console.log(e, parseInt(e));
-    const productId = parseInt(
-      barcodeData.substring(0, barcodeData.length - 1),
-    );
-    const product = ProductData.filter(item => item.id === productId);
+    // const barcodeID = parseInt(barcodeData);
+    const product = ProductData.filter(item => item.barcode == barcodeData);
 
     if (product.length > 0) {
-      console.log('Product found:', product);
+      console.log('Product found:', product, barcodeData);
       Vibration.vibrate(100); // Vibrate for 500 milliseconds
       setSp(product);
       onCloseBarCodeModal();
@@ -1237,6 +1281,11 @@ const Product = ({navigation}) => {
 
   const [changePriceShow, setChangePriceShow] = useState(false);
   const [changePrice, setChangePrice] = useState('');
+  const [addbarcodemodal, setaddBarCodeModal] = useState(false);
+
+  const onCloseaddBarCodeModal = () => setaddBarCodeModal(false);
+
+  const [scannedbarcode, setScannedBarcode] = useState(0);
 
   const ChangePrice = data => {
     axios
@@ -1287,173 +1336,6 @@ const Product = ({navigation}) => {
         </View>
       </MessageModalNormal>
 
-      <MessageModalNormal
-        show={pmodal}
-        onClose={onClosepmodal}
-        width={'100%'}
-        nobackExit={true}>
-        <ScrollView style={{}}>
-          <View
-            style={{
-              backgroundColor: C.bluecolor,
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 0,
-              borderRadius: 15,
-            }}>
-            <Image
-              source={{
-                uri: isImage
-                  ? isImage.uri
-                  : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
-              }}
-              style={{width: '100%', height: 180, backgroundColor: 'black'}}
-            />
-            <View style={{...s.flexrow_aligncenter_j_between}}>
-              <TouchableOpacity onPress={() => LaunchCamera()}>
-                <Icons
-                  name={'camera'}
-                  size={30}
-                  color={'#fff'}
-                  style={{margin: 5}}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => launchImageLibrary()}>
-                <Icons
-                  name={'image'}
-                  size={30}
-                  color={'#fff'}
-                  style={{margin: 5}}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={{marginTop: 10}}>
-            <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
-            <TextInput
-              style={{
-                padding: 10,
-                fontSize: 16,
-                fontWeight: '900',
-
-                ...inputS,
-              }}
-              placeholder={t('PrdocutName')}
-              autoFocus={true}
-              onChangeText={e => onHandlePdtData(e, 'name')}
-            />
-            <Text style={{...s.bold_label}}>{t('Category')}</Text>
-            <DropDownPicker
-              open={open}
-              value={value}
-              items={categoryData.reverse()}
-              setOpen={setOpen}
-              setValue={setValue}
-              setItems={setCategoryData}
-              autoScroll
-              listMode={'SCROLLVIEW'}
-              style={{
-                ...inputS,
-                backgroundColor: 'transparent',
-              }}
-              onSelectItem={item => {
-                onHandlePdtData(item.value, 'category');
-              }}
-            />
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Quantity')}</Text>
-            <TextInput
-              style={{
-                padding: 10,
-                fontSize: 16,
-                fontWeight: '900',
-
-                ...inputS,
-              }}
-              placeholder={'Qty'}
-              keyboardType={'number-pad'}
-              onChangeText={e =>
-                onHandlePdtData(e.replaceAllTxt(' ', ''), 'qty')
-              }
-            />
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price4')}</Text>
-            <TextInput
-              style={{
-                padding: 10,
-                fontSize: 16,
-                fontWeight: '900',
-
-                ...inputS,
-              }}
-              placeholder={t('Price4')}
-              keyboardType={'number-pad'}
-              value={pdtData.price}
-              onChangeText={e =>
-                onHandlePdtData(e.replaceAllTxt(' ', ''), 'price')
-              }
-            />
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price5')}</Text>
-            <TextInput
-              style={{
-                padding: 10,
-                fontSize: 16,
-                fontWeight: '900',
-
-                ...inputS,
-              }}
-              placeholder={t('Price5')}
-              keyboardType={'number-pad'}
-              value={pdtData.cost}
-              onChangeText={e =>
-                onHandlePdtData(e.replaceAllTxt(' ', ''), 'cost')
-              }
-            />
-            <Text style={{...s.bold_label, marginTop: 5}}>
-              {t('Description')}
-            </Text>
-            <TextInput
-              style={{
-                padding: 10,
-                fontSize: 16,
-                fontWeight: '900',
-                ...inputS,
-                height: 100,
-                textAlign: 'auto',
-              }}
-              placeholder={t('Description')}
-              multiline
-              onChangeText={e => onHandlePdtData(e, 'description')}
-            />
-
-            <TouchableOpacity
-              disabled={isUpload}
-              onPress={() => {
-                if (
-                  pdtData.name &&
-                  pdtData.category &&
-                  pdtData.price &&
-                  pdtData.cost &&
-                  pdtData.qty
-                ) {
-                  PostProductsToServer(pdtData, isImage);
-                } else {
-                  a.rqf();
-                }
-              }}>
-              <View
-                style={{
-                  ...s.flexrow_aligncenter_j_center,
-                  padding: 10,
-                  ...s.blue_button,
-                }}>
-                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
-                  {t('Add_Product')}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </MessageModalNormal>
       <MessageModalNormal show={cmodal} onClose={onClosecmodal}>
         <View>
           <View
@@ -1628,6 +1510,40 @@ const Product = ({navigation}) => {
               autoFocus={true}
               onChangeText={e => onHandlePdtData(e, 'name')}
             />
+            <Text style={{...s.bold_label}}>{t('BarCode')}</Text>
+
+            <View
+              style={{
+                ...inputS,
+                ...s.flexrow_aligncenter_j_between,
+                padding: 0,
+                paddingLeft: 10,
+              }}>
+              <TextInput
+                style={{
+                  flex: 1,
+                  ...s.bold_label,
+                  color: '#0f0f0f',
+                }}
+                value={scannedbarcode}
+                onChangeText={e => setScannedBarcode(e)}
+                placeholder={'Barcode ID'}
+              />
+              <TouchableOpacity
+                style={{padding: 10}}
+                onPress={() => setaddBarCodeModal(true)}>
+                <Icons name={'barcode'} size={20} color={'#000'} />
+              </TouchableOpacity>
+              <BarcodeScanner
+                onBarcodeRead={barcodeData => {
+                  setScannedBarcode(barcodeData);
+                  Vibration.vibrate(100);
+                  onCloseaddBarCodeModal();
+                }}
+                show={addbarcodemodal}
+                onClose={onCloseaddBarCodeModal}
+              />
+            </View>
             <Text style={{...s.bold_label}}>{t('Category')}</Text>
             <DropDownPicker
               open={open}
@@ -1720,7 +1636,7 @@ const Product = ({navigation}) => {
                   pdtData.cost &&
                   pdtData.qty
                 ) {
-                  PostProductsToServer(pdtData, isImage);
+                  PostProductsToServer(pdtData, isImage, scannedbarcode);
                 } else {
                   a.rqf();
                 }

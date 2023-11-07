@@ -92,6 +92,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
               item.category,
               item.pic,
               1,
+              item.barcode,
             );
           });
           res.data = res.data.filter(e => e.qty > 0);
@@ -114,6 +115,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
   const getProductFromLocal = async () => {
     let result = await getAllProducts();
     console.log('Product Result : ', result);
+    result = result?.filter(item => item.qty > 0);
     setProductData(result);
   };
 
@@ -150,15 +152,14 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
   const ProductFilter = useMemo(() => {
     if (ProductData && categoryId) {
       const data = ProductData.filter(e => {
-       
         var b = e?.name.replaceAllTxt(' ', '').toLowerCase();
         var c = searchtext.replaceAllTxt(' ', '').toLowerCase();
-        var id = e.id.toString();
+        var id = e.barcode.toString();
 
         console.log(id);
 
         return (
-          c.includes(id) ||
+          id.includes(c) ||
           ((categoryId === 'All' ? true : e.category === categoryId) &&
             b.includes(c))
         );

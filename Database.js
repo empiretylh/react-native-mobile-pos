@@ -137,17 +137,17 @@ export const isArrayhasData = (arr = []) => {
   return arr === null ? false : arr.length >= 1;
 };
 
-export const baseUrl = 'https://empirepos.pythonanywhere.com';
+// export const baseUrl = 'https://empirepos.pythonanywhere.com';
 
 // export const baseUrl = 'http://192.168.100.63:8000';
 
-// export const baseUrl = 'http://192.168.43.181:8000';
+export const baseUrl = 'http://192.168.43.181:8000';
 
 export const appversion = '1.0';
 
 export function calculateEAN13(input) {
   // Check if the input is a 12-digit number
-  input = input.toString().padStart(12, '0');
+  input = input?.toString().padStart(12, '0');
 
   if (/^\d{12}$/.test(input)) {
     // Convert the input to an array of integers
