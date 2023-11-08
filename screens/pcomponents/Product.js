@@ -738,7 +738,7 @@ const Product = ({navigation}) => {
             width={'100%'}
             nobackExit={true}>
             <ScrollView style={{}}>
-              <View
+          {/*    <View
                 style={{
                   backgroundColor: C.bluecolor,
                   alignItems: 'center',
@@ -773,7 +773,7 @@ const Product = ({navigation}) => {
                     />
                   </TouchableOpacity>
                 </View>
-              </View>
+                </View>*/}
 
               <View style={{marginTop: 10}}>
                 <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
@@ -1460,7 +1460,7 @@ const Product = ({navigation}) => {
         width={'100%'}
         nobackExit={true}>
         <ScrollView style={{}}>
-          <View
+      {/*    <View
             style={{
               backgroundColor: C.bluecolor,
               alignItems: 'center',
@@ -1494,7 +1494,7 @@ const Product = ({navigation}) => {
                 />
               </TouchableOpacity>
             </View>
-          </View>
+            </View>*/}
 
           <View style={{marginTop: 10}}>
             <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
