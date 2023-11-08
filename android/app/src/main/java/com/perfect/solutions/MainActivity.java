@@ -1,4 +1,4 @@
-package com.empire.mobilepos;
+package com.perfect.solutions;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
@@ -19,7 +19,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "Mobile POS";
+    return "Perfect Solutions";
   }
 
   /**

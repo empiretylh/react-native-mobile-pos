@@ -1,4 +1,4 @@
-package com.empire.mobilepos.newarchitecture.modules;
+package com.perfect.solutions.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

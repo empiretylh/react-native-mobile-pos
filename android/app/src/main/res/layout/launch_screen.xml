@@ -8,7 +8,7 @@
 	android:layout_height="wrap_content"
 	android:layout_below="@+id/logo_id"
 	android:layout_centerHorizontal="true"
-	android:text="Mobile POS"
+	android:text="Perfect Solutions"
 	android:textStyle="bold"
 	android:textSize="30dp"
 	android:textColor="@color/black"/>
