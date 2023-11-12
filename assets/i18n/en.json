@@ -113,6 +113,9 @@
     "Price5":"Purchase Price",
 
     "Export_Excel": "Export Excel",
-    "IW_Excel": "Import With Excel"
+    "IW_Excel": "Import With Excel",
+
+
+    "NoInternet" : "No Internet Connection, Please check your internet connection. You can use offline mode."
   }
 }

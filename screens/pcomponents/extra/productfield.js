@@ -21,6 +21,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   KeyboardAvoidingViewBase,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -225,11 +226,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Image
-          source={i.spinnerloadgif}
-          style={{width: 50, height: 50}}
-          resizeMode={'contain'}
-        />
+        <ActivityIndicator size={50} color={C.bluecolor}/>
       </View>;
     }
 

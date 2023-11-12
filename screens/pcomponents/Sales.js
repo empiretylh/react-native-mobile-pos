@@ -75,6 +75,15 @@ const Sales = ({navigation}) => {
           a.spe();
           setCreate(false);
         });
+      setIncomeData({
+        date:
+          date.getFullYear() +
+          '-' +
+          (date.getMonth() + 1) +
+          '-' +
+          date.getDate(),
+        description: '',
+      });
     };
 
     return (
@@ -97,6 +106,7 @@ const Sales = ({navigation}) => {
         <View style={{flex: 1, padding: 10}}>
           <Text style={{...s.bold_label, marginTop: 8}}>{t('Title')}</Text>
           <TextInput
+            value={incomedata?.title}
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
             placeholder={t('Title')}
             onChangeText={e => handleOtherIncome(e, 'title')}
@@ -159,6 +169,7 @@ const Sales = ({navigation}) => {
             {t('Description')}
           </Text>
           <TextInput
+            value={incomedata?.description}
             style={{
               ...inputS,
               ...s.bold_label,
@@ -199,7 +210,7 @@ const Sales = ({navigation}) => {
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>{t('Sales')}</Text>
         <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={() => navigation.navigate('salesvoucher')}>
+          <TouchableOpacity onPress={() => navigation.navigate(focusView ==='p' ? 'salesvoucher' : 'otherincomereceipt')}>
             <MIcons name={'file-chart'} size={25} color={'#000'} />
           </TouchableOpacity>
         </View>

@@ -841,6 +841,28 @@ const Profile = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
 
+          <TouchableOpacity
+            onPress={() => {
+              // console.log(pdata.is_superuser);
+              navigation.navigate({
+                name: 'security',
+              });
+            }}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icon
+                  name={'shield-checkmark-outline'}
+                  size={30}
+                  color={'#000'}
+                />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  Security
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
           {/*Printer */}
           <TouchableOpacity
             onPress={() => {

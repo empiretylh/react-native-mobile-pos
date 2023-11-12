@@ -19,9 +19,10 @@ import {
   Button,
   Linking,
   ToastAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
-import {IMAGE as I, STYLE as s, COLOR as C} from '../../Database';
+import {IMAGE as I, STYLE as s, COLOR as C, COLOR} from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
@@ -510,10 +511,7 @@ const ReportScreen = ({navigation}) => {
             justifyContent: 'center',
             width: C.windowWidth * 98,
           }}>
-          <Image
-            source={I.spinnerloadgif}
-            style={{width: 20, height: 20, padding: 50}}
-          />
+          <ActivityIndicator size={20} color={COLOR.bluecolor}/>
           <Text style={{...s.normal_label}}>Loading Data...</Text>
         </View>
       );
@@ -792,10 +790,7 @@ const ReportScreen = ({navigation}) => {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <Image
-          source={I.spinnerloadgif}
-          style={{width: 20, height: 20, padding: 50}}
-        />
+        <ActivityIndicator size={20} color={COLOR.bluecolor}/>
 
         <Text style={{...s.normal_label}}>{loadtext}.</Text>
       </View>
@@ -968,10 +963,7 @@ const ReportScreen = ({navigation}) => {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <Image
-          source={I.spinnerloadgif}
-          style={{width: 20, height: 20, padding: 50}}
-        />
+        <ActivityIndicator size={20} color={COLOR.bluecolor}/>
         <Text style={{...s.normal_label}}>{loadtext}</Text>
       </View>
     );
@@ -1101,11 +1093,7 @@ const ReportScreen = ({navigation}) => {
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           {PLRefresh ? (
             <View style={{alignItems: 'center'}}>
-              <Image
-                source={I.spinnerloadgif}
-                style={{width: 30, height: 30}}
-                resizeMode={'contain'}
-              />
+            <ActivityIndicator size={20} color={COLOR.bluecolor}/>
               <Text>{t('ComputingData')}</Text>
             </View>
           ) : null}

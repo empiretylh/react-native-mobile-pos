@@ -7,7 +7,7 @@ export const COLOR = {
   textmuted: '#656363',
   blackbutton: '#323232',
   textfield: '#C4C4C4',
-  bluecolor: '#0d6efd',
+  bluecolor: '#0911b0',
   windowWidth: Dimensions.get('window').width / 100,
   windowHeight: Dimensions.get('window').height / 100,
 };
@@ -137,11 +137,11 @@ export const isArrayhasData = (arr = []) => {
   return arr === null ? false : arr.length >= 1;
 };
 
-export const baseUrl = 'https://empirepos.pythonanywhere.com';
+// export const baseUrl = 'https://empirepos.pythonanywhere.com';
 
 // export const baseUrl = 'http://192.168.100.63:8000';
 
-// export const baseUrl = 'http://192.168.43.181:8000';
+export const baseUrl = 'http://192.168.43.181:8000';
 
 export const appversion = '1.0';  
 

@@ -54,6 +54,7 @@ const SignUp = ({navigation, route}) => {
           Authorization: `Token ${res.data.token}`,
         };
         token(res.data.token);
+        navigation.navigate('pricing');
       })
       .catch(err => {
         console.log(JSON.stringify(err));

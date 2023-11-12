@@ -3,11 +3,11 @@ import {useNetInfo} from '@react-native-community/netinfo';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import axios from 'axios';
-import React, {useEffect, useState} from 'react';
-import {Image, Text, TouchableOpacity, Vibration, View} from 'react-native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Image, Text, TouchableOpacity, Vibration, View, ActivityIndicator} from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import SplashScreen from 'react-native-splash-screen';
-import {IMAGE, baseUrl} from '../Database';
+import {COLOR, IMAGE, baseUrl} from '../Database';
 import {createTables} from '../localDatabase/LocalDb';
 import Login from './Login';
 import Register from './SignUp';
@@ -19,9 +19,15 @@ import LocalStorageReport from './pcomponents/localstorage/LocalReport';
 import Pricing from './pcomponents/pricing';
 import SetPrinter from './pcomponents/print/setPrint';
 import Profile from './pcomponents/profile';
+import SecurityView from './pcomponents/Password/SecurityVIEW';
 import ReceiptView from './pcomponents/sales/ReceiptView';
+import ChangePassword from './pcomponents/Password/ChangePassword';
+import ForgotPassword from './pcomponents/Password/ForgotPassword';
 import {UploadToCloud} from '../localDatabase/UploadToCloud';
-
+import {AuthContext} from './pcomponents/context/AuthContext';
+import ExpenseReceiptView from './pcomponents/Expense/ReceiptView';
+import OtherIncomeRV from './pcomponents/OtherIncome/ReceiptView';
+import { useTranslation } from 'react-i18next';
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
   axios.defaults.baseURL = baseUrl;
@@ -30,6 +36,8 @@ const SContainer = () => {
 
   const {isConnected, connectionType} = useNetInfo();
   const [IsSyncing, setIsSyncing] = useState(false);
+
+  const {t} = useTranslation();
 
   const UploadToServer = () => {
     setIsSyncing(true);
@@ -84,76 +92,104 @@ const SContainer = () => {
     createTables();
   }, []);
 
+  const userTokenValue = useMemo(() => ({userToken, setToken}), [userToken]);
+
   if (!isloading || userToken) {
     SplashScreen.hide();
     return (
       <>
-        <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{
-              headerShown: false,
-            }}>
-            {userToken == null ? (
-              <>
-                <Stack.Screen
-                  name="login"
-                  component={Login}
-                  initialParams={{token: setToken}}
-                />
-                <Stack.Screen
-                  name="register"
-                  component={Register}
-                  initialParams={{token: setToken}}
-                />
-              </>
-            ) : (
-              <>
-                <Stack.Screen
-                  name="main"
-                  component={Container}
-                  initialParams={{token: setToken}}
-                />
-                <Stack.Screen
-                  name="salesvoucher"
-                  component={ReceiptView}
-                  initialParams={{token: setToken}}
-                />
-                <Stack.Screen
-                  name="netPrinter"
-                  component={FindPrinter}
-                  initialParams={{token: setToken}}
-                />
-                <Stack.Screen
-                  name="profile"
-                  component={Profile}
-                  initialParams={{token: setToken}}
-                />
-                <Stack.Screen
-                  name="printers"
-                  component={SetPrinter}
-                  initialParams={{token: setToken}}
-                />
-                <Stack.Screen
-                  name="pricing"
-                  component={Pricing}
-                  initialParams={{token: setToken}}
-                />
-                <Stack.Screen
-                  name="admin_pricing"
-                  component={AdminPricing}
-                  initialParams={{token: setToken}}
-                />
-                <Stack.Screen
-                  name="localreport"
-                  component={LocalStorageReport}
-                />
-              </>
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
-        {showModal && <OfflineWarningModel setShowModal={setShowModal} />}
-        {!isConnected && <YoureOffline />}
-        {IsSyncing && <SyncingDataWithServer />}
+        <AuthContext.Provider value={userTokenValue}>
+          <NavigationContainer>
+            <Stack.Navigator
+              screenOptions={{
+                headerShown: false,
+              }}>
+              {userToken == null ? (
+                <>
+                  <Stack.Screen
+                    name="login"
+                    component={Login}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="register"
+                    component={Register}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="forgotpassword"
+                    component={ForgotPassword}
+                  />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen
+                    name="main"
+                    component={Container}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="salesvoucher"
+                    component={ReceiptView}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="expensereceipt"
+                    component={ExpenseReceiptView}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="otherincomereceipt"
+                    component={OtherIncomeRV}
+                    initialParams={{token: setToken}}
+                  />
+
+                  <Stack.Screen
+                    name="netPrinter"
+                    component={FindPrinter}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="profile"
+                    component={Profile}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="printers"
+                    component={SetPrinter}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="pricing"
+                    component={Pricing}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="admin_pricing"
+                    component={AdminPricing}
+                    initialParams={{token: setToken}}
+                  />
+                  <Stack.Screen
+                    name="localreport"
+                    component={LocalStorageReport}
+                  />
+                  <Stack.Screen name="security" component={SecurityView} />
+                  <Stack.Screen
+                    name="changepassword"
+                    component={ChangePassword}
+                  />
+                  <Stack.Screen
+                    name="forgotpassword"
+                    component={ForgotPassword}
+                  />
+                </>
+              )}
+            </Stack.Navigator>
+          </NavigationContainer>
+          {showModal && <OfflineWarningModel setShowModal={setShowModal} />}
+          {!isConnected && <YoureOffline />}
+          {IsSyncing && <SyncingDataWithServer />}
+        </AuthContext.Provider>
       </>
     );
   }
@@ -163,6 +199,8 @@ const SContainer = () => {
 export default SContainer;
 const OfflineWarningModel = ({setShowModal}) => {
   // Offiline Warning Model with style
+  const {t} = useTranslation();
+
   return (
     <View
       style={{
@@ -184,8 +222,7 @@ const OfflineWarningModel = ({setShowModal}) => {
           flexDirection: 'column',
         }}>
         <Text style={{color: 'black', fontSize: 15, fontWeight: 'bold'}}>
-          No Internet Connection, Please check your internet connection. You can
-          use offline mode.
+        {t('NoInternet')}
         </Text>
 
         <TouchableOpacity
@@ -208,6 +245,7 @@ const OfflineWarningModel = ({setShowModal}) => {
 };
 
 const YoureOffline = ({}) => {
+  const {t} = useTranslation();
   return (
     <View
       style={{
@@ -235,10 +273,7 @@ const SyncingDataWithServer = ({}) => {
         justifyContent: 'center',
         flexDirection: 'row',
       }}>
-      <Image
-        source={IMAGE.spinnerloadgif}
-        style={{width: 10, height: 10, marginRight: 5}}
-      />
+       <ActivityIndicator size={20} color={COLOR.bluecolor}/>
       <Text style={{color: 'white', fontSize: 13, fontWeight: 'bold'}}>
         Syncing Data with server...
       </Text>

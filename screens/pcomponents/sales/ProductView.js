@@ -129,6 +129,7 @@ const ProductView = React.memo(({navigation}) => {
     } else {
       SaveToLocal(c, p, totalAmount, grandtotal, delivery, description);
     }
+      setCartData([]);
   };
 
   const SaveToLocal = async (
@@ -176,6 +177,7 @@ const ProductView = React.memo(({navigation}) => {
     setDiscountcoll(true);
     setDelicoll(true);
     setDesccoll(true);
+    setCartData([]);
   };
   const taxCalculator = (price, taxperctange) => {
     let tax = (price / 100) * taxperctange;
@@ -438,7 +440,7 @@ const ProductView = React.memo(({navigation}) => {
           </View>
           <TouchableOpacity
             onPress={() => {
-              if (CartData && totalAmount) {
+              if (CartData && totalAmount && isCreate === false) {
                 CreateReceipt(
                   customername,
                   CartData,

@@ -86,7 +86,7 @@ const HomeScreen = ({navigation, route}) => {
   const [topProduct, setTopProduct] = useState(null);
 
   const Load = () => {
-    if (!isConnected) return;
+    // if (!isConnected) return;
 
     setRefresh(true);
 

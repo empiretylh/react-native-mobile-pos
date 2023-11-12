@@ -72,7 +72,7 @@ const LoginScreen = ({navigation, route}) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={{...styles.container}}>
       <LoadingModal show={load} />
       <Text
         style={{
@@ -82,11 +82,17 @@ const LoginScreen = ({navigation, route}) => {
         }}>
         Login
       </Text>
-      <Image
-        source={IMAGE.app_logo}
-        style={{width: '100%', height: COLOR.windowHeight * 30}}
-        resizeMode={'contain'}
-      />
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Image
+          source={IMAGE.app_logo}
+          style={{
+            width: 250,
+            height: 250,
+            borderRadius: 250,
+          }}
+          resizeMode={'contain'}
+        />
+      </View>
       <KeyboardAvoidingView
         style={{flex: 1, position: 'relative', marginTop: 5, padding: 10}}>
         <Text style={{...STYLE.normal_label, marginTop: 10}}>Username </Text>
@@ -137,6 +143,19 @@ const LoginScreen = ({navigation, route}) => {
             />
           </TouchableOpacity>
         </View>
+        <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>
+          <View>
+            <Text
+              style={{
+                ...STYLE.normal_label,
+                color: 'black',
+                textDecorationLine: 'underline',
+                padding: 5,
+              }}>
+              Forgot Password?
+            </Text>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => LoginToServer()}>
           <View style={{...STYLE.blue_button, marginTop: 5, padding: 15}}>
             <Text

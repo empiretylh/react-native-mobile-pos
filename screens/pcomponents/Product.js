@@ -255,6 +255,39 @@ const Product = ({navigation}) => {
       .catch(err => a.spe());
   };
 
+  const RequestExcelFomrat = async () => {
+    requestStoragePermission();
+    const {dirs} = RNFetchBlob.fs;
+    const pathToWrite = `${dirs.DownloadDir}/Products.xlsx`;
+
+    // User fetch url from axios.defualts.baseURL also auth token headers
+
+    RNFetchBlob.config({
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: pathToWrite,
+        description: 'Excel File',
+        mime: 'application/octet-stream',
+        mediaScannable: true,
+      },
+    })
+      //Use axios.defaults.baseURL
+      .fetch('GET', axios.defaults.baseURL + '/api/excelproductreport/', {
+        //Use authorization from axios.defaults.ex
+        Authorization: axios.defaults.headers.common['Authorization'],
+        'Content-Type': 'application/json',
+      })
+      .then(res => {
+        console.log('The file saved to ', res.path());
+        ToastAndroid.show('File Saved to ' + res.path(), ToastAndroid.SHORT);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   const [selectItem, setSelectedItem] = useState();
 
   const [open, setOpen] = useState(false); //#DropDrwonPicker
@@ -738,7 +771,7 @@ const Product = ({navigation}) => {
             width={'100%'}
             nobackExit={true}>
             <ScrollView style={{}}>
-          {/*    <View
+              {/*    <View
                 style={{
                   backgroundColor: C.bluecolor,
                   alignItems: 'center',
@@ -1026,7 +1059,7 @@ const Product = ({navigation}) => {
                 </Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/*   <TouchableOpacity
               onPress={() => {
                 ExportBarcode([editpd.id]);
                 onCloseShow();
@@ -1051,7 +1084,7 @@ const Product = ({navigation}) => {
                 </Text>
               </View>
             </TouchableOpacity>
-
+                */}
             <TouchableOpacity
               onPress={() => {
                 setDepdshow(true);
@@ -1428,7 +1461,7 @@ const Product = ({navigation}) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/*       <TouchableOpacity
             onPress={() => {
               setSelectable(prev => !prev);
               onOpenAndCloseAPModal();
@@ -1439,7 +1472,7 @@ const Product = ({navigation}) => {
                 Export Barcode
               </Text>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
           <TouchableOpacity
             onPress={() => {
               setChangePriceShow(true);
@@ -1460,7 +1493,7 @@ const Product = ({navigation}) => {
         width={'100%'}
         nobackExit={true}>
         <ScrollView style={{}}>
-      {/*    <View
+          {/*    <View
             style={{
               backgroundColor: C.bluecolor,
               alignItems: 'center',
@@ -1506,7 +1539,7 @@ const Product = ({navigation}) => {
 
                 ...inputS,
               }}
-              placeholder={t('PrdocutName')}
+              placeholder={t('ProductName')}
               autoFocus={true}
               onChangeText={e => onHandlePdtData(e, 'name')}
             />
@@ -1802,6 +1835,23 @@ const Product = ({navigation}) => {
                 fontSize: 15,
               }}>
               {t('Category')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              RequestExcelFomrat();
+            }}>
+            <Text
+              style={{
+                ...s.normal_label,
+                ...s.black_button,
+                color: focusView === 'c' ? 'white' : 'black',
+                backgroundColor: focusView === 'c' ? C.blackbutton : '#f0f0f0',
+                padding: 10,
+                borderRadius: 15,
+                fontSize: 15,
+              }}>
+            Export Excel
             </Text>
           </TouchableOpacity>
         </ScrollView>

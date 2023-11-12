@@ -111,6 +111,15 @@ const Expense = ({navigation}) => {
         setCreate(false);
         setSuccess(true);
       }
+      setExpenseData({
+        date:
+          date.getFullYear() +
+          '-' +
+          (date.getMonth() + 1) +
+          '-' +
+          date.getDate(),
+        description: '',
+      });
     };
 
     return (
@@ -133,6 +142,7 @@ const Expense = ({navigation}) => {
         <View style={{flex: 1, padding: 10}}>
           <Text style={{...s.bold_label, marginTop: 8}}>{t('Title')}</Text>
           <TextInput
+            value={expensedata?.title}
             style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
             placeholder={t('Title')}
             onChangeText={e => handleExpense(e, 'title')}
@@ -193,6 +203,7 @@ const Expense = ({navigation}) => {
             {t('Description')}
           </Text>
           <TextInput
+            value={expensedata?.description}
             style={{
               ...inputS,
               ...s.bold_label,
@@ -231,7 +242,7 @@ const Expense = ({navigation}) => {
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>{t('Expense')}</Text>
         <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={() => navigation.navigate('report')}>
+          <TouchableOpacity onPress={() => navigation.navigate('expensereceipt')}>
             <MIcons name={'file-chart'} size={25} color={'#000'} />
           </TouchableOpacity>
         </View>

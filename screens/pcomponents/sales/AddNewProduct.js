@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {Modal, TextInput, TouchableOpacity, Text, View} from 'react-native';
+import {Modal, TextInput, TouchableOpacity, Text, View,Alert} from 'react-native';
 import {
   STYLE as style,
   COLOR as C,
@@ -9,6 +9,7 @@ import {
 } from '../../../Database';
 
 import {MessageModalNormal} from '../../MessageModal';
+import {useTranslation} from 'react-i18next';
 
 const textinputstyle = {
   margin: 5,
@@ -19,12 +20,14 @@ const textinputstyle = {
 };
 
 const AddNewProductModal = ({show, onClose, onAdd}) => {
+  const {t} = useTranslation();
   const [pdname, setPdname] = useState('');
   const [qty, setQty] = useState('');
   const [price, setPrice] = useState('');
-  const [cost, setCost] = useState('');
+  const [cost, setCost] = useState('0');
 
   const handleAdd = () => {
+    if (pdname == '' && qty == ''&& price=='') return Alert.alert('','Please fill all fields');
     // Call the onAdd function with the new product data
     onAdd({pdname, qty, price, cost});
 
@@ -32,7 +35,7 @@ const AddNewProductModal = ({show, onClose, onAdd}) => {
     setPdname('');
     setQty('');
     setPrice('');
-    setCost('');
+    setCost(0);
 
     // Close the modal
     onClose();
@@ -44,7 +47,9 @@ const AddNewProductModal = ({show, onClose, onAdd}) => {
         Add New Product
       </Text>
 
-      <Text style={{...style.normal_label, marginTop: 2}}> Product Name </Text>
+      <Text style={{...style.normal_label, marginTop: 2}}>
+        {t('ProductName')}
+      </Text>
       <TextInput
         style={textinputstyle}
         placeholder="Product Name"
@@ -52,7 +57,7 @@ const AddNewProductModal = ({show, onClose, onAdd}) => {
         onChangeText={setPdname}
         placeholderTextColor="black"
       />
-      <Text style={{...style.normal_label, marginTop: 2}}> Quantity </Text>
+      <Text style={{...style.normal_label, marginTop: 2}}>{t('Quantity')}</Text>
       <TextInput
         style={textinputstyle}
         placeholder="Quantity"
@@ -61,9 +66,7 @@ const AddNewProductModal = ({show, onClose, onAdd}) => {
         keyboardType="numeric"
         placeholderTextColor="black"
       />
-      <Text style={{...style.normal_label, marginTop: 2}}>
-        Price (1 x qty){' '}
-      </Text>
+      <Text style={{...style.normal_label, marginTop: 2}}>{t('Price4')}</Text>
       <TextInput
         style={textinputstyle}
         placeholder="Price"
@@ -72,7 +75,7 @@ const AddNewProductModal = ({show, onClose, onAdd}) => {
         keyboardType="numeric"
         placeholderTextColor="black"
       />
-      <Text style={{...style.normal_label, marginTop: 2}}>Product Cost</Text>
+      <Text style={{...style.normal_label, marginTop: 2}}>{t('Price5')}</Text>
       <TextInput
         style={textinputstyle}
         placeholder="Product Cost"

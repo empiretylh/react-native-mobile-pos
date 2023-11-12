@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {View, Text, Modal, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Modal, Image, TouchableOpacity, ActivityIndicator} from 'react-native';
 import {COLOR, IMAGE} from '../Database';
 const LoadingModal = ({show, infotext}) => {
   return (
@@ -35,10 +35,7 @@ const LoadingModal = ({show, infotext}) => {
             elevation: 5,
             alignItems: 'center',
           }}>
-          <Image
-            source={IMAGE.spinnerloadgif}
-            style={{width: 50, height: 50}}
-          />
+         <ActivityIndicator size={50} color={'#14059e'}/>
           <Text>{infotext ? infotext : ' Loading...'}</Text>
         </View>
       </View>
