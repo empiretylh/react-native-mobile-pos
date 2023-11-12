@@ -35,6 +35,7 @@ import CheckBox from '@react-native-community/checkbox';
 import {TextInput} from 'react-native-gesture-handler';
 import Loading from '../pcomponents/extra/Loading';
 import {DeleteAllProfile, insertProfile} from '../../localDatabase/profile';
+import DeviceInfo from 'react-native-device-info';
 
 const Icon = props => <Icons {...props} color={'#000'} />;
 
@@ -67,6 +68,7 @@ const Profile = ({navigation, route}) => {
     EncryptedStorage.removeItem('secure_token');
     // Container.InfoToken.setUserToken(null);
 
+    axios.defaults.headers.common['Authorization'] = null;
     token(null);
   };
   useEffect(() => {
@@ -584,6 +586,18 @@ const Profile = ({navigation, route}) => {
     setClickCount(0);
   };
 
+  const onLogout = () => {
+    axios
+      .get('/auth/logout/?duid=' + DeviceInfo.getUniqueIdSync())
+      .then(res => {
+        console.log(res);
+        axios.defaults.headers.common['Authorization'] = null;
+      })
+      .then(err => console.log(err));
+
+    RemoveToken();
+  };
+
   return (
     <View style={styles.contianer}>
       <RenderEditModal visible={editshow} />
@@ -931,7 +945,7 @@ const Profile = ({navigation, route}) => {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => a.aslogout(RemoveToken)}>
+          <TouchableOpacity onPress={() => a.aslogout(onLogout)}>
             <View style={styles.LastButtonStyle}>
               <View style={{...s.flexrow_aligncenter}}>
                 <Icons name={'log-out-outline'} size={30} color={'#000'} />

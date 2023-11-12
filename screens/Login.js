@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {IMAGE, COLOR, STYLE} from '../Database';
 import Icons from 'react-native-vector-icons/Ionicons';
 import LoadingModal from './Loading';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import DeviceInfo from 'react-native-device-info';
 
 String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
@@ -35,7 +36,17 @@ const LoginScreen = ({navigation, route}) => {
     console.log(data);
     setLoad(true);
     axios
-      .post('/auth/login/', data, {timeout: 5000})
+      .post(
+        '/auth/login/',
+        {
+          username: data.username,
+          password: data.password,
+          unique_id: DeviceInfo.getUniqueIdSync(),
+          device_name: DeviceInfo.getDeviceNameSync(),
+          acc_type: 'Admin',
+        },
+        {timeout: 5000},
+      )
       .then(res => {
         setLoad(false);
         console.log(res.data.token);

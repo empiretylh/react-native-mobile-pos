@@ -27,6 +27,7 @@
     "react-native-chart-kit": "^6.12.0",
     "react-native-collapsible": "^1.6.1",
     "react-native-date-picker": "^4.2.5",
+    "react-native-device-info": "^10.11.0",
     "react-native-document-picker": "^9.0.1",
     "react-native-dropdown-picker": "^5.4.2",
     "react-native-encrypted-storage": "^4.0.2",
