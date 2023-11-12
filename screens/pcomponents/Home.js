@@ -698,8 +698,8 @@ const HomeScreen = ({navigation, route}) => {
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Image
             source={IMAGE.app_logo}
-            style={{width: 30, height: 30}}
-            resizeMode={'contain'}
+            style={{width: 30, height: 30, borderRadius:30}}
+            resizeMode={'cover'}
           />
           <Text style={{...s.bold_label, fontSize: 23, marginLeft: 5}}>
             Dashboard
