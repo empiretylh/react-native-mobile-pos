@@ -54,6 +54,8 @@ const Profile = ({navigation, route}) => {
   const {token} = route.params;
   const [editshow, seteditshow] = useState(false);
   const [editype, seteditype] = useState('');
+  const [lessthanshow, setLessthanShow] = useState(false);
+  const [lessthan, setLessthan] = useState(10);
 
   const openEditShow = type => {
     seteditype(type);
@@ -403,7 +405,11 @@ const Profile = ({navigation, route}) => {
     );
   };
 
-  const [settings, setSettings] = useState({language: 'en', datascope: 'year'});
+  const [settings, setSettings] = useState({
+    language: 'en',
+    datascope: 'year',
+    lessthan: 10,
+  });
   const [fbshow, setFbshow] = useState(false);
   const [feedback, setFeedback] = useState();
   const [showthura, setShowThura] = useState(false);
@@ -604,6 +610,28 @@ const Profile = ({navigation, route}) => {
       <RenderChooseImageModal show={showmodal} />
       <MessageModalNormal show={fbshow} onClose={OnCloseFbShow}>
         {FeedbackModal()}
+      </MessageModalNormal>
+      <MessageModalNormal
+        show={lessthanshow}
+        onClose={() => setLessthanShow(false)}>
+        <View>
+          <Text style={{...s.bold_label}}>Less than show qty </Text>
+          <TextInput
+            style={{...inputS, color: '#0f0f0f'}}
+            placeholder="Less Than Qty"
+            defaultValue={settings?.lessthanx}
+            keyboardType="number-pad"
+            onChangeText={e => setLessthan(e)}
+          />
+        </View>
+        <TouchableOpacity
+          style={{...s.blue_button}}
+          onPress={() => {
+            HandleSettings(lessthan, 'lessthan');
+            setLessthanShow(false);
+          }}>
+          <Text style={{...s.normal_label}}>Set</Text>
+        </TouchableOpacity>
       </MessageModalNormal>
       <MessageModalNormal
         show={showthura}
@@ -833,6 +861,21 @@ const Profile = ({navigation, route}) => {
                     </View>
                   </TouchableOpacity>
                 </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              // console.log(pdata.is_superuser);
+              setLessthanShow(true);
+            }}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'chevron-back'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  Less Than {settings.lessthan ? settings.lessthan : 10}
+                </Text>
               </View>
             </View>
           </TouchableOpacity>

@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 import {
   View,
   Text,
@@ -33,15 +33,16 @@ import '../../assets/i18n/i18n';
 import {MessageModalNormal} from '../MessageModal';
 import Pricing from './pricing';
 import {useNetInfo} from '@react-native-community/netinfo';
-import { DeleteAllProfile, insertProfile } from '../../localDatabase/profile';
+import {DeleteAllProfile, insertProfile} from '../../localDatabase/profile';
 Date.prototype.addDays = function (days) {
   var date = new Date(this.valueOf());
   date.setDate(date.getDate() + days);
   return date;
 };
-let settings = {};
 const HomeScreen = ({navigation, route}) => {
   const {token} = route.params;
+
+  const [settings, setSettings] = useState({datascope: 'year', language: 'en', lessthan: 10});
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
     // Container.InfoToken.setUserToken(null);
@@ -61,9 +62,9 @@ const HomeScreen = ({navigation, route}) => {
       .then(res => {
         console.log('get Settings', res);
         if (res !== null) {
-          settings = JSON.parse(res);
+          setSettings(JSON.parse(res));
         } else {
-          settings = {datascope: 'year', language: 'en'};
+          setSettings({datascope: 'year', language: 'en', lessthan: 10});
         }
         Load();
       })
@@ -161,7 +162,7 @@ const HomeScreen = ({navigation, route}) => {
       .get('/api/sales/', {
         params: {
           type: 'DT',
-          time: settings.datascope,
+          time: settings ? settings.datascope : time,
         },
       })
       .then(res => {
@@ -463,13 +464,15 @@ const HomeScreen = ({navigation, route}) => {
     setSOData(pddata);
     // return pddata.length;
   };
-  const LessStockProducts = () => {
+  const LessStockProducts = React.useCallback(() => {
     setSOData(null);
-    console.log('Computing LessThan Products');
-    const pddata = productData.filter(item => item.qty <= 10);
+    console.log('Computing LessThan Products', settings.lessthan);
+    const pddata = productData.filter(
+      item => item.qty <= parseInt(settings.lessthan, 10),
+    );
     setSOData(pddata);
     // return pddata.length;
-  };
+  }, [settings?.lessthan, productData]);
 
   const [showSO, setShowSO] = useState(false);
   const [showLS, setshowLS] = useState(false);
@@ -650,7 +653,9 @@ const HomeScreen = ({navigation, route}) => {
       <MessageModalNormal show={showSO} onClose={onCloseSO} width={'100%'}>
         <View style={{alignItems: 'center'}}>
           <Text style={{...s.font_bold, color: 'black', padding: 5}}>
-            {showLS ? 'Less Than 10 Qty Product' : 'Stock Out Products'}
+            {showLS
+              ? 'Less Than ' + settings?.lessthan + ' Qty Product'
+              : 'Stock Out Products'}
           </Text>
         </View>
         <FlatList
@@ -698,7 +703,7 @@ const HomeScreen = ({navigation, route}) => {
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Image
             source={IMAGE.app_logo}
-            style={{width: 30, height: 30, borderRadius:30}}
+            style={{width: 30, height: 30, borderRadius: 30}}
             resizeMode={'cover'}
           />
           <Text style={{...s.bold_label, fontSize: 23, marginLeft: 5}}>
@@ -980,8 +985,11 @@ const HomeScreen = ({navigation, route}) => {
                   color={'white'}
                 />
                 <Text style={{...s.bold_label, color: 'white'}}>
-                  {productData.filter(item => item.qty <= 10).length}{' '}
-                  {t('PL10Q')}
+                  {
+                    productData.filter(item => item.qty <= settings?.lessthan)
+                      .length
+                  }{' '}
+                  products are less than {settings?.lessthan} qty
                 </Text>
               </TouchableOpacity>
             )}
