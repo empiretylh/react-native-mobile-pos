@@ -43,7 +43,7 @@ const LoginScreen = ({navigation, route}) => {
           password: data.password,
           unique_id: DeviceInfo.getUniqueIdSync(),
           device_name: DeviceInfo.getDeviceNameSync(),
-          acc_type: 'Admin',
+          acc_type: 'Cashier',
         },
         {timeout: 5000},
       )
@@ -154,11 +154,11 @@ const LoginScreen = ({navigation, route}) => {
             />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>
+       {/* <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>
           <View>
             <Text
               style={{
-                ...STYLE.normal_label,
+                ...STYLE.norm al_label,
                 color: 'black',
                 textDecorationLine: 'underline',
                 padding: 5,
@@ -166,7 +166,7 @@ const LoginScreen = ({navigation, route}) => {
               Forgot Password?
             </Text>
           </View>
-        </TouchableOpacity>
+            </TouchableOpacity>*/}
         <TouchableOpacity onPress={() => LoginToServer()}>
           <View style={{...STYLE.blue_button, marginTop: 5, padding: 15}}>
             <Text
@@ -175,17 +175,6 @@ const LoginScreen = ({navigation, route}) => {
                 color: 'white',
               }}>
               Login
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('register')}>
-          <View style={{...STYLE.black_button, marginTop: 5, padding: 15}}>
-            <Text
-              style={{
-                ...STYLE.bold_label,
-                color: 'white',
-              }}>
-              Create Account
             </Text>
           </View>
         </TouchableOpacity>

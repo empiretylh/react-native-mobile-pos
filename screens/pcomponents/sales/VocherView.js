@@ -64,7 +64,7 @@ const VoucherDetails = ({
     //   navigation.navigate('netPrinter');
   };
 
-  useMemo(() => {
+  React.useEffect(() => {
     setLoading(true);
     axios
       .get('/api/profile/')
@@ -349,7 +349,7 @@ const VoucherDetails = ({
             </View>
             <View style={sepeator} />
 
-            {data.description === '' ? null : (
+            {data.description === '' || data.dscription === '#cashier' ? null : (
               <View
                 style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <Text
@@ -357,11 +357,11 @@ const VoucherDetails = ({
                   {t('Description')}:{' '}
                 </Text>
                 <Text style={{...s.normal_label, fontSize: 16}}>
-                  {data.description}
+                  {data?.description?.replace('#cashier', '')}
                 </Text>
               </View>
             )}
-          </ScrollView>
+          </ScrollView> 
           <View style={{flexDirection: 'column'}}>
             <TouchableOpacity
               style={[s.blue_button, s.flexrow_aligncenter_j_center]}

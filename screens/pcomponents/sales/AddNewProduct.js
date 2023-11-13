@@ -1,6 +1,13 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {Modal, TextInput, TouchableOpacity, Text, View,Alert} from 'react-native';
+import {
+  Modal,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  View,
+  Alert,
+} from 'react-native';
 import {
   STYLE as style,
   COLOR as C,
@@ -27,7 +34,8 @@ const AddNewProductModal = ({show, onClose, onAdd}) => {
   const [cost, setCost] = useState('0');
 
   const handleAdd = () => {
-    if (pdname == '' && qty == ''&& price=='') return Alert.alert('','Please fill all fields');
+    if (pdname == '' && qty == '' && price == '')
+      return Alert.alert('', 'Please fill all fields');
     // Call the onAdd function with the new product data
     onAdd({pdname, qty, price, cost});
 
@@ -75,15 +83,7 @@ const AddNewProductModal = ({show, onClose, onAdd}) => {
         keyboardType="numeric"
         placeholderTextColor="black"
       />
-      <Text style={{...style.normal_label, marginTop: 2}}>{t('Price5')}</Text>
-      <TextInput
-        style={textinputstyle}
-        placeholder="Product Cost"
-        value={cost}
-        onChangeText={setCost}
-        keyboardType="numeric"
-        placeholderTextColor="black"
-      />
+
       <TouchableOpacity
         onPress={handleAdd}
         style={{...style.blue_button, padding: 15}}>

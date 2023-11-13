@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
+  Image,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
 import {
   STYLE as s,
   COLOR as C,
   ALERT as a,
+  IMAGE as I,
   numberWithCommas,
 } from '../../Database';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -28,6 +30,8 @@ const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
 import ProductView from './sales/ProductView';
+import {DeleteAllProfile, insertProfile} from '../../localDatabase/profile';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 // eslint-disable-next-line prettier/prettier
 
@@ -35,8 +39,62 @@ String.prototype.replaceAllTxt = function replaceAll(search, replace) {
   return this.split(search).join(replace);
 };
 
-const Sales = ({navigation}) => {
+const Sales = ({navigation, route}) => {
   const {t} = useTranslation();
+  const {token} = route.params;
+
+  const [refresh, setRefresh] = useState(false);
+  const [pdData, setPddata] = useState([]);
+
+  const RemoveToken = () => {
+    EncryptedStorage.removeItem('secure_token');
+    // Container.InfoToken.setUserToken(null);
+
+    token(null);
+  };
+
+  const ComputeWarningDate = data => {
+    const end_date = new Date(data.end_d);
+    const today_date = new Date();
+    var Difference_In_Time = end_date - today_date;
+    var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+
+    console.log(Math.round(Difference_In_Days));
+
+    if (data) {
+      if (Difference_In_Days <= 0) {
+        navigation.navigate('pricing');
+      }
+      console.log(data.end_d, 'PD Data end');
+    }
+  };
+
+  const LoadProfile = async () => {
+    setRefresh(true);
+
+    const token = await EncryptedStorage.getItem('secure_token');
+    axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+
+    axios
+      .get('/api/profile/')
+      .then(res => {
+        DeleteAllProfile();
+        console.log(res.data);
+        ComputeWarningDate(res.data);
+        setPddata(res.data);
+        insertProfile(res.data);
+      })
+      .catch(err => {
+        if (err.response.status == 401) {
+          RemoveToken();
+        }
+        setRefresh(false);
+      });
+  };
+
+  useEffect(() => {
+    LoadProfile();
+  }, []);
 
   const OtherIncome = () => {
     useEffect(() => {}, []);
@@ -60,11 +118,23 @@ const Sales = ({navigation}) => {
     const CreateOtherIncome = data => {
       setCreate(true);
       axios
-        .post('/api/otherincome/', data, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
+        .post(
+          '/api/otherincome/',
+          {
+          title: data.title,
+            price: data.price,
+
+            date: data.date,
+            description: data.description
+              ? data.description + '\n' + '#cashier'
+              : '#cashier',
           },
-        })
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        )
         .then(res => {
           console.log(res);
           setCreate(false);
@@ -178,7 +248,7 @@ const Sales = ({navigation}) => {
             }}
             placeholder={t('Description')}
             onChangeText={e => handleOtherIncome(e, 'description')}
-            multiline
+            multiline={true}
           />
           <TouchableOpacity
             onPress={() => {
@@ -208,9 +278,24 @@ const Sales = ({navigation}) => {
           ...s.flexrow_aligncenter_j_between,
           padding: 8,
         }}>
-        <Text style={{...s.bold_label, fontSize: 23}}>{t('Sales')}</Text>
+        <TouchableOpacity
+          style={{flexDirection: 'row', alignItems: 'center'}}
+          onPress={() => navigation.navigate('profile')}>
+          <Image
+            source={I.app_logo}
+            style={{width: 35, height: 35, borderRadius: 39}}
+          />
+          <Text style={{...s.bold_text, fontSize: 20, marginLeft: 5}}>
+            Cashier
+          </Text>
+        </TouchableOpacity>
         <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={() => navigation.navigate(focusView ==='p' ? 'salesvoucher' : 'otherincomereceipt')}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate(
+                focusView === 'p' ? 'salesvoucher' : 'otherincomereceipt',
+              )
+            }>
             <MIcons name={'file-chart'} size={25} color={'#000'} />
           </TouchableOpacity>
         </View>

@@ -670,7 +670,7 @@ const Profile = ({navigation, route}) => {
                 }}
                 resizeMode="cover"
               />
-              <TouchableOpacity onPress={() => setShowModal(true)}>
+             {/* <TouchableOpacity onPress={() => setShowModal(true)}>
                 <Icon
                   name="camera"
                   style={{
@@ -683,7 +683,7 @@ const Profile = ({navigation, route}) => {
                   }}
                   size={20}
                 />
-              </TouchableOpacity>
+                </TouchableOpacity>*/}
             </View>
             <Text
               style={{
@@ -708,7 +708,7 @@ const Profile = ({navigation, route}) => {
             borderRadius: 10,
             backgroundColor: '#f0f0f0',
           }}>
-          <TouchableOpacity onPress={() => openEditShow('name')}>
+          <TouchableOpacity>
             <View style={styles.FirstButtonStyle}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Name')}
@@ -716,7 +716,7 @@ const Profile = ({navigation, route}) => {
               <Text style={styles.buttonFont}>{pdata.name}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => a.alert('Username cannot be edit.')}>
+          <TouchableOpacity>
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Username')}
@@ -724,7 +724,7 @@ const Profile = ({navigation, route}) => {
               <Text style={styles.buttonFont}>{pdata.username}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => openEditShow('phno')}>
+          <TouchableOpacity >
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Phone_Number')}
@@ -732,7 +732,7 @@ const Profile = ({navigation, route}) => {
               <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => openEditShow('address')}>
+          <TouchableOpacity >
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Address')}
@@ -742,14 +742,15 @@ const Profile = ({navigation, route}) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => openEditShow('email')}>
+         {/* <TouchableOpacity onPress={() => openEditShow('email')}>
             <View style={styles.LastButtonStyle}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Email')}
               </Text>
               <Text style={styles.buttonFont}>{pdata.email}</Text>
             </View>
-          </TouchableOpacity>
+        </TouchableOpacity>*/
+      }
         </View>
         <View style={{margin: 20, marginBottom: 2}}>
           <Text style={{color: 'black', fontSize: 16}}>{t('Settings')}</Text>
@@ -812,7 +813,7 @@ const Profile = ({navigation, route}) => {
             </View>
           </View>
 
-          <TouchableOpacity>
+       {/*   <TouchableOpacity>
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('RTS')}
@@ -878,7 +879,7 @@ const Profile = ({navigation, route}) => {
                 </Text>
               </View>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
           {/*Printer */}
           <TouchableOpacity
             onPress={() => {
@@ -898,7 +899,7 @@ const Profile = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity
+    {/*      <TouchableOpacity
             onPress={() => {
               // console.log(pdata.is_superuser);
               navigation.navigate({
@@ -919,6 +920,8 @@ const Profile = ({navigation, route}) => {
               </View>
             </View>
           </TouchableOpacity>
+          */
+          }
 
           {/*Printer */}
           <TouchableOpacity
@@ -940,7 +943,7 @@ const Profile = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity
+        { /* <TouchableOpacity
             onPress={() => {
               console.log(pdata.is_superuser);
               navigation.navigate({
@@ -957,7 +960,7 @@ const Profile = ({navigation, route}) => {
                 </Text>
               </View>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
           <TouchableOpacity onPress={() => setFbshow(true)}>
             <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
               <View style={{...s.flexrow_aligncenter}}>

@@ -160,11 +160,14 @@ const Product = ({navigation}) => {
     const d = new FormData();
     d.append('name', pd.name);
     d.append('price', pd.price);
-    d.append('cost', pd.cost);
+    d.append('cost', 0);
     d.append('qty', pd.qty);
 
     d.append('category', pd.category);
-    d.append('description', pd.description);
+    d.append(
+      'description',
+      pd.description ? pd.description + ' ' + '#cashier' : '#cashier',
+    );
     d.append('barcode', barcode);
     d.append('pic', pic);
 
@@ -681,7 +684,7 @@ const Product = ({navigation}) => {
                 barcode : {item.barcode}
               </Text>
             </View>
-            <View style={{position: 'absolute', right: 5, top: 8}}>
+            {/* <View style={{position: 'absolute', right: 5, top: 8}}>
               <TouchableOpacity
                 onPress={() => {
                   setShowed(true);
@@ -689,7 +692,7 @@ const Product = ({navigation}) => {
                 }}>
                 <Icons name={'create-outline'} size={30} color={'#000'} />
               </TouchableOpacity>
-            </View>
+              </View>*/}
             <Text
               style={{
                 position: 'absolute',
@@ -1474,7 +1477,7 @@ const Product = ({navigation}) => {
               </Text>
             </View>
           </TouchableOpacity>*/}
-          <TouchableOpacity
+         {/* <TouchableOpacity
             onPress={() => {
               setChangePriceShow(true);
             }}>
@@ -1484,7 +1487,7 @@ const Product = ({navigation}) => {
                 Change Price (%)
               </Text>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
         </View>
       </MessageModalNormal>
 
@@ -1628,22 +1631,6 @@ const Product = ({navigation}) => {
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'price')
               }
             />
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price5')}</Text>
-            <TextInput
-              style={{
-                padding: 10,
-                fontSize: 16,
-                fontWeight: '900',
-
-                ...inputS,
-              }}
-              placeholder={t('Price5')}
-              keyboardType={'number-pad'}
-              value={pdtData.cost}
-              onChangeText={e =>
-                onHandlePdtData(e.replaceAllTxt(' ', ''), 'cost')
-              }
-            />
             <Text style={{...s.bold_label, marginTop: 5}}>
               {t('Description')}
             </Text>
@@ -1668,7 +1655,6 @@ const Product = ({navigation}) => {
                   pdtData.name &&
                   pdtData.category &&
                   pdtData.price &&
-                  pdtData.cost &&
                   pdtData.qty
                 ) {
                   PostProductsToServer(pdtData, isImage, scannedbarcode);
@@ -1839,7 +1825,7 @@ const Product = ({navigation}) => {
               {t('Category')}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/*  <TouchableOpacity
             onPress={() => {
               RequestExcelFomrat();
             }}>
@@ -1855,7 +1841,7 @@ const Product = ({navigation}) => {
               }}>
               Export Excel
             </Text>
-          </TouchableOpacity>
+            </TouchableOpacity>*/}
         </ScrollView>
         <TouchableOpacity>
           <Text style={{...s.bold_label, fontSize: 14, padding: 5}}>

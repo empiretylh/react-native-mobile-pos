@@ -225,6 +225,9 @@ export const printReceipt = async (data, shopdata, offline = false) => {
     {},
   );
   await BluetoothEscposPrinter.printText('\r\n', {});
+  if (description.includes('#cashier')) {
+    description = description.replace('#cashier', '');
+  }
   await BluetoothEscposPrinter.printColumn(
     columnWidths,
     [

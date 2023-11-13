@@ -90,7 +90,7 @@ const ProductView = React.memo(({navigation}) => {
     fdata.append('tax', taxcoll ? 0 : tax);
     fdata.append('discount', discountcoll ? 0 : discount);
     fdata.append('deliveryCharges', delicoll ? 0 : delivery);
-    fdata.append('description', desccoll ? '' : description);
+    fdata.append('description', desccoll ? '#cashier' : description+' \n'+'#cashier');
 
     setCreate(true);
     if (isConnected) {
