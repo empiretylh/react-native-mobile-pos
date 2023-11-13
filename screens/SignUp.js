@@ -27,6 +27,7 @@ import {
   validateUsername,
 } from './Validation';
 import {use} from 'i18next';
+import DeviceInfo from 'react-native-device-info';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,7 +45,16 @@ const SignUp = ({navigation, route}) => {
     console.log(data);
     setLoad(true);
     axios
-      .post('/auth/register/', data, {timeout: 5000})
+      .post(
+        '/auth/register/',
+        {
+          ...data,
+          uid: DeviceInfo.getUniqueIdSync(),
+          device_name: DeviceInfo.getDeviceNameSync(),
+          acc_type: 'Admin',
+        },
+        {timeout: 5000},
+      )
       .then(res => {
         setLoad(false);
         console.log(res.data.token);
@@ -54,7 +64,7 @@ const SignUp = ({navigation, route}) => {
           Authorization: `Token ${res.data.token}`,
         };
         token(res.data.token);
-        navigation.navigate('pricing');
+        navigation.navigate('login');
       })
       .catch(err => {
         console.log(JSON.stringify(err));
@@ -393,7 +403,8 @@ const SignUp = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
           <Text style={{color: 'black', textAlign: 'center'}}>
-          Don't forget your password. Make sure your password is secure and easy to remember.
+            Don't forget your password. Make sure your password is secure and
+            easy to remember.
           </Text>
         </KeyboardAvoidingView>
       </ScrollView>
