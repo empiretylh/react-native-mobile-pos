@@ -1,4 +1,4 @@
-package com.perfect.solutions;
+package com.perfect.solutions_cashier;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

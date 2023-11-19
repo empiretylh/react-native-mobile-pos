@@ -1,4 +1,4 @@
-package com.perfect.solutions.newarchitecture.modules;
+package com.perfect.solutions_cashier.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;
