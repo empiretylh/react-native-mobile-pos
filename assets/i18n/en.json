@@ -116,6 +116,9 @@
     "IW_Excel": "Import With Excel",
 
 
-    "NoInternet" : "No Internet Connection, Please check your internet connection. You can use offline mode."
+    "NoInternet" : "No Internet Connection, Please check your internet connection. You can use offline mode.",
+    "TRemaing" : "Total Remaining",
+    "savecustomer":"Save Customer",
+    "Customer_Payment": "Customer Payment Amount"
   }
 }

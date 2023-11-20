@@ -42,7 +42,11 @@ Date.prototype.addDays = function (days) {
 const HomeScreen = ({navigation, route}) => {
   const {token} = route.params;
 
-  const [settings, setSettings] = useState({datascope: 'year', language: 'en', lessthan: 10});
+  const [settings, setSettings] = useState({
+    datascope: 'year',
+    language: 'en',
+    lessthan: 10,
+  });
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
     // Container.InfoToken.setUserToken(null);
@@ -116,6 +120,7 @@ const HomeScreen = ({navigation, route}) => {
       .then(res => {
         let T_Freq = [];
         for (var [k, v] of Object.entries(res.data.T_Freq)) {
+          console.log(k, v);
           T_Freq.push({
             name: k,
             freq: v,
@@ -989,7 +994,7 @@ const HomeScreen = ({navigation, route}) => {
                     productData.filter(item => item.qty <= settings?.lessthan)
                       .length
                   }{' '}
-                  products are less than {settings?.lessthan} qty
+                  Products are less than {settings?.lessthan} qty
                 </Text>
               </TouchableOpacity>
             )}
@@ -1005,7 +1010,7 @@ const HomeScreen = ({navigation, route}) => {
                   <PieChart
                     data={
                       topProduct.length >= 4
-                        ? topProduct.slice(0, 4)
+                        ? topProduct.slice(0, 4).reverse()
                         : topproduct
                     }
                     width={300}

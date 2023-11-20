@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useMemo, useCallback, useLayoutEffect} from 'react';
+
 import {
   View,
   Text,
@@ -7,8 +8,8 @@ import {
   TextInput,
   Image,
   ScrollView,
-  ActivityIndicator,
-  FlatList,
+  rctivityIndicator,
+  FlatLisr,
   Modal,
   Dimensions,
 } from 'react-native';

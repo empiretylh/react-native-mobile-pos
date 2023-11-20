@@ -209,52 +209,58 @@ const Sales = ({navigation}) => {
           padding: 8,
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>{t('Sales')}</Text>
-        <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={() => navigation.navigate(focusView ==='p' ? 'salesvoucher' : 'otherincomereceipt')}>
-            <MIcons name={'file-chart'} size={25} color={'#000'} />
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('s');
+              setFocusView('p');
+            }}>
+            <Text
+              style={{
+                ...s.normal_label,
+                ...s.black_button,
+                color: focusView === 'p' ? 'white' : 'black',
+                backgroundColor: focusView === 'p' ? C.blackbutton : '#f0f0f0',
+                padding: 10,
+                borderRadius: 15,
+                fontSize: 15,
+              }}>
+              {t('Sales')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('o');
+              setFocusView('c');
+            }}>
+            <Text
+              style={{
+                ...s.normal_label,
+                ...s.black_button,
+                color: focusView === 'c' ? 'white' : 'black',
+                backgroundColor: focusView === 'c' ? C.blackbutton : '#f0f0f0',
+                padding: 10,
+                borderRadius: 15,
+                fontSize: 15,
+              }}>
+              {t('Other_Income')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('customer')}>
+            <Icons name="people-circle" size={30} color={'#000'} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate(
+                focusView === 'p' ? 'salesvoucher' : 'otherincomereceipt',
+              )
+            }>
+            <MIcons name={'file-chart'} size={30} color={'#000'} />
           </TouchableOpacity>
         </View>
       </View>
       {/* view */}
 
-      <View style={{...s.flexrow_aligncenter_j_center}}>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('s');
-            setFocusView('p');
-          }}>
-          <Text
-            style={{
-              ...s.normal_label,
-              ...s.black_button,
-              color: focusView === 'p' ? 'white' : 'black',
-              backgroundColor: focusView === 'p' ? C.blackbutton : '#f0f0f0',
-              padding: 10,
-              borderRadius: 15,
-              fontSize: 15,
-            }}>
-            {t('Sales')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('o');
-            setFocusView('c');
-          }}>
-          <Text
-            style={{
-              ...s.normal_label,
-              ...s.black_button,
-              color: focusView === 'c' ? 'white' : 'black',
-              backgroundColor: focusView === 'c' ? C.blackbutton : '#f0f0f0',
-              padding: 10,
-              borderRadius: 15,
-              fontSize: 15,
-            }}>
-            {t('Other_Income')}
-          </Text>
-        </TouchableOpacity>
-      </View>
       <View style={{flex: 1}}>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name={'s'} component={ProductView} />

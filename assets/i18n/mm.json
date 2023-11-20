@@ -113,6 +113,9 @@
     "Export_Excel": "Export Excel",
     "IW_Excel": "Import With Excel",
     "Delivery_Charges":"Delivery Charges",
-    "NoInternet" : "အင်တာနက်မရှိပါ။ သင်၏ အင်တာနက်ချိတ်ဆက်မှုကိုစစ်ဆေးပါ။ လက်ရှိတွင် offline mode  ကိုအသုံးပြုနိုင်ပါသည်။"
+    "NoInternet" : "အင်တာနက်မရှိပါ။ သင်၏ အင်တာနက်ချိတ်ဆက်မှုကိုစစ်ဆေးပါ။ လက်ရှိတွင် offline mode  ကိုအသုံးပြုနိုင်ပါသည်။",
+    "TRemaing":"ရရန်ကျန်ငွေ",
+    "savecustomer":"အမည်ဖြင့်သိမ်းထားမည်",
+    "Customer_Payment":"ရငွေ/ ပေးသည့်ငွေ",
   }
 }

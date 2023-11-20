@@ -4,7 +4,14 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import axios from 'axios';
 import React, {useEffect, useMemo, useState} from 'react';
-import {Image, Text, TouchableOpacity, Vibration, View, ActivityIndicator} from 'react-native';
+import {
+  Image,
+  Text,
+  TouchableOpacity,
+  Vibration,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import SplashScreen from 'react-native-splash-screen';
 import {COLOR, IMAGE, baseUrl} from '../Database';
@@ -27,7 +34,9 @@ import {UploadToCloud} from '../localDatabase/UploadToCloud';
 import {AuthContext} from './pcomponents/context/AuthContext';
 import ExpenseReceiptView from './pcomponents/Expense/ReceiptView';
 import OtherIncomeRV from './pcomponents/OtherIncome/ReceiptView';
-import { useTranslation } from 'react-i18next';
+import CustomerView from './pcomponents/sales/CustomerView';
+import CustomerReceiptView from './pcomponents/sales/CustomerReceiptView';
+import {useTranslation} from 'react-i18next';
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
   axios.defaults.baseURL = baseUrl;
@@ -173,6 +182,11 @@ const SContainer = () => {
                     name="localreport"
                     component={LocalStorageReport}
                   />
+                  <Stack.Screen name="customer" component={CustomerView} />
+                  <Stack.Screen
+                    name="customersales"
+                    component={CustomerReceiptView}
+                  />
                   <Stack.Screen name="security" component={SecurityView} />
                   <Stack.Screen
                     name="changepassword"
@@ -222,7 +236,7 @@ const OfflineWarningModel = ({setShowModal}) => {
           flexDirection: 'column',
         }}>
         <Text style={{color: 'black', fontSize: 15, fontWeight: 'bold'}}>
-        {t('NoInternet')}
+          {t('NoInternet')}
         </Text>
 
         <TouchableOpacity
@@ -273,7 +287,7 @@ const SyncingDataWithServer = ({}) => {
         justifyContent: 'center',
         flexDirection: 'row',
       }}>
-       <ActivityIndicator size={20} color={COLOR.bluecolor}/>
+      <ActivityIndicator size={20} color={COLOR.bluecolor} />
       <Text style={{color: 'white', fontSize: 13, fontWeight: 'bold'}}>
         Syncing Data with server...
       </Text>

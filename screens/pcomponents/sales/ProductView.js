@@ -69,6 +69,39 @@ const ProductView = React.memo(({navigation}) => {
   const [showVoucher, setShowVoucher] = useState(false);
   const [vocherData, setVoucherData] = useState([]);
 
+  const [customerData, setCustomerData] = useState([]);
+  const [showCustomer, setShowCustomer] = useState(false);
+  const [ISsaveCustomer, setISsaveCustomer] = useState(false);
+  const [CustomerPayment, setCustomerPayment] = useState('');
+  const loaddata = () => {
+    axios
+      .get('/api/customer/')
+      .then(res => {
+        setCustomerData(res.data);
+        // ComputeSalesData(res.data, time);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    loaddata();
+  }, []);
+
+  useEffect(() => {
+    if (customerData.length >= 1) {
+      const filter = customerData.filter(item => item.name == customername);
+      console.log(filter);
+      if (filter.length >= 1) {
+        setISsaveCustomer(true);
+        console.log(filter);
+      } else {
+        setISsaveCustomer(false);
+      }
+    }
+  }, [customerData, customername]);
+
   const {isConnected} = useNetInfo();
 
   const CreateReceipt = async (
@@ -91,7 +124,13 @@ const ProductView = React.memo(({navigation}) => {
     fdata.append('discount', discountcoll ? 0 : discount);
     fdata.append('deliveryCharges', delicoll ? 0 : delivery);
     fdata.append('description', desccoll ? '' : description);
-
+    fdata.append('isSaveCustomer', isConnected ? ISsaveCustomer : false);
+    if (ISsaveCustomer) {
+      fdata.append(
+        'payment_amount',
+        CustomerPayment == '' ? 0 : CustomerPayment,
+      );
+    }
     setCreate(true);
     if (isConnected) {
       axios
@@ -116,6 +155,7 @@ const ProductView = React.memo(({navigation}) => {
           setDiscountcoll(true);
           setDelicoll(true);
           setDesccoll(true);
+          setCustomerPayment('');
 
           Vibration.vibrate(100);
         })
@@ -129,7 +169,7 @@ const ProductView = React.memo(({navigation}) => {
     } else {
       SaveToLocal(c, p, totalAmount, grandtotal, delivery, description);
     }
-      setCartData([]);
+    setCartData([]);
   };
 
   const SaveToLocal = async (
@@ -232,6 +272,16 @@ const ProductView = React.memo(({navigation}) => {
         />
       )}
       <ScrollView style={{flex: 1, backgroundColor: 'white', padding: 8}}>
+        <CustomerList
+          showCustomer={showCustomer}
+          onClose={() => setShowCustomer(false)}
+          customerData={customerData}
+          customername={customername}
+          onApply={name => {
+            setcustomername(name);
+            setISsaveCustomer(true);
+          }}
+        />
         <Loading show={isCreate} infotext={'Creating Receipt'} />
         <MessageModalNormal
           show={isSucces}
@@ -272,14 +322,44 @@ const ProductView = React.memo(({navigation}) => {
         </MessageModalNormal>
         <View style={{padding: 5}}>
           <Text style={{...s.bold_label}}>{t('Customer_Name')}</Text>
-          <TextInput
-            style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-            placeholder={t('Customer_Name')}
-            value={customername}
-            onChangeText={e => setcustomername(e)}
-          />
-
-          <Text style={{...s.bold_label, marginTop: 8}}>{t('Products')}</Text>
+          <View style={{...inputS}}>
+            <TextInput
+              style={{height: 45, ...s.bold_label, color: '#0f0f0f', flex: 1}}
+              placeholder={t('Customer_Name')}
+              value={customername}
+              onChangeText={e => setcustomername(e)}
+            />
+            <TouchableOpacity onPress={() => setcustomername('')}>
+              <Icons name="close-outline" size={20} color={'#000'} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowCustomer(true)}>
+              <Icons name="people-outline" size={20} color={'#000'} />
+            </TouchableOpacity>
+          </View>
+          {isConnected ? (
+            <TouchableOpacity
+              style={{
+                ...s.flexrow_aligncenter,
+                justifyContent: 'flex-end',
+                marginTop: 8,
+              }}
+              onPress={() => setISsaveCustomer(prev => !prev)}>
+              <Icons
+                name={
+                  ISsaveCustomer
+                    ? 'checkmark-circle'
+                    : 'checkmark-circle-outline'
+                }
+                size={25}
+                color="#000"
+                style={{marginRight: 8}}
+              />
+              <Text style={{...s.bold_label, fontSize: 15}}>
+                {t('savecustomer')}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+          <Text style={{...s.bold_label, marginTop: -3}}>{t('Products')}</Text>
           <ProductField
             ContainerProps={{style: {...inputS, padding: 5}}}
             setTotalAmount={setTotalAmount}
@@ -397,6 +477,38 @@ const ProductView = React.memo(({navigation}) => {
           </View>
 
           <View>
+            <TouchableOpacity style={{...s.flexrow_aligncenter, marginTop: 8}}>
+              <Text style={{...s.bold_label, marginTop: 8}}>
+                {t('Customer_Payment')}
+              </Text>
+              <Icons
+                name={
+                  !ISsaveCustomer
+                    ? 'checkmark-circle-outline'
+                    : 'checkmark-circle'
+                }
+                size={20}
+                color="#000"
+                style={{marginLeft: 8}}
+              />
+            </TouchableOpacity>
+
+            <Collapsible collapsed={!ISsaveCustomer}>
+              <View>
+                <TextInput
+                  style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
+                  placeholder={t('Customer_Payment')}
+                  keyboardType={'number-pad'}
+                  value={CustomerPayment + ''}
+                  defaultValue={CustomerPayment + ''}
+                  onChangeText={e => setCustomerPayment(e)}
+                  selectTextOnFocus={true}
+                />
+              </View>
+            </Collapsible>
+          </View>
+
+          <View>
             <TouchableOpacity
               onPress={() => setDesccoll(!desccoll)}
               style={{...s.flexrow_aligncenter, marginTop: 8}}>
@@ -465,6 +577,39 @@ const ProductView = React.memo(({navigation}) => {
     </CartContext.Provider>
   );
 });
+
+const CustomerList = ({
+  showCustomer,
+
+  customerData,
+  onClose = {},
+  customername,
+  onApply,
+}) => {
+  return (
+    <MessageModalNormal show={showCustomer} onClose={onClose}>
+      <Text style={{...s.bold_label, marginBottom: 10}}>Select Customer</Text>
+      <ScrollView>
+        {customerData.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => {
+              onClose();
+              onApply(item.name);
+            }}
+            style={{
+              ...s.flexrow_aligncenter_j_between,
+              padding: 10,
+              borderColor: item.name == customername ? 'blue' : 'black',
+              borderWidth: 1,
+            }}>
+            <Text style={{...s.bold_label}}>{item.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </MessageModalNormal>
+  );
+};
 
 export default ProductView;
 
