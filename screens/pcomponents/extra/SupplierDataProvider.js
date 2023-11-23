@@ -48,6 +48,31 @@ const getSupplierProducts = (id)=>{
 
    let  productsData = supplierData.filter(item=> item.id == id)[0].products;
    return {productsData, loading, getSupplierData}
+
 }
 
-export {SupplierDataProvider, useSupplier, getSupplierProducts};
+
+const computeSupplierRemainingAmount = (id)=>{
+  const {supplierData, loading, getSupplierData} = useSupplier()
+
+    let productsData = []
+    supplierData.forEach(item=>{
+      productsData.push(...item.products)
+
+    })
+
+    let total = 0;
+
+     productsData.forEach(item => {
+      let remaing = parseInt(item.cost) * parseInt(item.qty)
+
+      total +=  remaing - parseInt(item.supplier_payment)
+    });
+
+     return total;
+
+
+}
+
+
+export {SupplierDataProvider, useSupplier, getSupplierProducts, computeSupplierRemainingAmount};

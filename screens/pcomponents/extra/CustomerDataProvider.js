@@ -48,4 +48,20 @@ const getCustomerSales = id => {
   return {salesData, loading, getCustomerData};
 };
 
-export {CustomerDataProvider, useCustomer, getCustomerSales};
+const computeCustomerRemaingAmount = () =>{
+   const {customerData, loading, getCustomerData} = useCustomer();
+    let salesData = []
+    customerData.forEach(item=>{
+      salesData.push(...item.sales)
+    });
+
+     let total = 0;
+    salesData.forEach(item => {
+      total += parseInt(item.grandtotal, 10) - parseInt(item.customer_payment, 10);
+    });
+
+    return total;
+
+}
+
+export {CustomerDataProvider, useCustomer, getCustomerSales, computeCustomerRemaingAmount};

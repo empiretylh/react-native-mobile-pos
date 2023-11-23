@@ -28,6 +28,7 @@ const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
 import ProductView from './sales/ProductView';
+import SaleContainer from './sales/SaleContainer';
 
 // eslint-disable-next-line prettier/prettier
 
@@ -263,7 +264,7 @@ const Sales = ({navigation}) => {
 
       <View style={{flex: 1}}>
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name={'s'} component={ProductView} />
+          <Stack.Screen name={'s'} component={SaleContainer} />
           <Stack.Screen name={'o'} component={OtherIncome} />
         </Stack.Navigator>
       </View>

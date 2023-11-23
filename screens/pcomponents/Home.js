@@ -34,6 +34,8 @@ import {MessageModalNormal} from '../MessageModal';
 import Pricing from './pricing';
 import {useNetInfo} from '@react-native-community/netinfo';
 import {DeleteAllProfile, insertProfile} from '../../localDatabase/profile';
+import {computeCustomerRemaingAmount,getCustomerSales, useCustomer} from './extra/CustomerDataProvider';
+import {computeSupplierRemainingAmount, useSupplier} from './extra/SupplierDataProvider';
 Date.prototype.addDays = function (days) {
   var date = new Date(this.valueOf());
   date.setDate(date.getDate() + days);
@@ -90,6 +92,8 @@ const HomeScreen = ({navigation, route}) => {
 
   const [topProduct, setTopProduct] = useState(null);
 
+  const {getCustomerData} = useCustomer();
+  const {getSupplierData} = useSupplier();
   const Load = () => {
     // if (!isConnected) return;
 
@@ -108,6 +112,11 @@ const HomeScreen = ({navigation, route}) => {
     getTopProduct();
 
     getSalesChartFServer();
+
+    getCustomerData();
+
+    getSupplierData();
+
   };
 
   const getTopProduct = (time = 'year') => {
@@ -933,7 +942,33 @@ const HomeScreen = ({navigation, route}) => {
             </View>
           </ImageBackground>
         </TouchableHighlight>
+
+          <View style={{maxHeight:100,flexDirection:'row', marginTop:5}}>
+    <TouchableOpacity style={{backgroundColor:C.bluecolor, borderRadius:15, padding:15, flex:1}} underlayColor="white" onPress={()=>navigation.navigate('customer')}>
+    <View style={{flexDirection:'row', alignItems:'center'}}>
+    <Icons name='people' size={30} color={'#fff'}/>
+   <Text style={{...s.bold_label, color:'white', marginLeft:2}}>Customer</Text>
+    
+    </View>
+    <Text style={{...s.bold_label, color:'white'}}>
+    {numberWithCommas(computeCustomerRemaingAmount())} MMK
+    </Text>
+     </TouchableOpacity>
+    <TouchableOpacity onPress={()=> navigation.navigate('supplier')} style={{backgroundColor:C.bluecolor, borderRadius:15, padding:15, flex:1, marginLeft:4}} underlayColor="white" >
+   <View style={{flexDirection:'row', alignItems:'center'}}>
+    <Icons2 name='package-down' size={30} color={'#fff'}/>
+   <Text style={{...s.bold_label, color:'white', marginLeft:2}}>Supplier</Text>
+    
+    </View>
+      <Text style={{...s.bold_label, color:'white'}}>  {numberWithCommas(computeSupplierRemainingAmount())} MMK
+  </Text>
+    </TouchableOpacity>
       </View>
+      </View>
+
+    
+
+
       <View style={{...s.flexrow_aligncenter_j_between, marginTop: 8}}>
         <Text style={{...s.bold_label}}>{t('Report')}</Text>
 
