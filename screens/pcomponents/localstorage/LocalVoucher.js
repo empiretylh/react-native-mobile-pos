@@ -8,8 +8,8 @@ import {
   TextInput,
   Image,
   ScrollView,
-  rctivityIndicator,
-  FlatLisr,
+  ActivityIndicator,
+  FlatList,
   Modal,
   Dimensions,
 } from 'react-native';

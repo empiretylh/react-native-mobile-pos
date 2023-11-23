@@ -310,7 +310,8 @@ const VoucherDetails = ({
                 </Text>
               </View>
             )}
-            {data.deliveryCharges === null ? null : (
+            {data.deliveryCharges === null ||
+            data.deliveryCharges == '0' ? null : (
               <View
                 style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <Text
@@ -347,8 +348,56 @@ const VoucherDetails = ({
                 {numberWithCommas(data.grandtotal)} Ks
               </Text>
             </View>
-            <View style={sepeator} />
 
+            {parseInt(data.customer_payment, 10) ==
+            parseInt(data.grandtotal, 10) ? null : (
+              <>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text
+                    style={{
+                      ...s.normal_label,
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                    }}>
+                    Payment Amount:{' '}
+                  </Text>
+                  <Text
+                    style={{...s.normal_label, ...s.font_bold, fontSize: 16}}>
+                    {numberWithCommas(data.customer_payment)} Ks
+                  </Text>
+                </View>
+                <View style={sepeator} />
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text
+                    style={{
+                      ...s.normal_label,
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                    }}>
+                    Remaining Amount:{' '}
+                  </Text>
+                  <Text
+                    style={{...s.normal_label, ...s.font_bold, fontSize: 16}}>
+                    {numberWithCommas(
+                      parseInt(data.grandtotal, 10) -
+                        parseInt(data.customer_payment, 10),
+                    )}{' '}
+                    Ks
+                  </Text>
+                </View>
+              </>
+            )}
+
+            <View style={sepeator} />
             {data.description === '' ? null : (
               <View
                 style={{flexDirection: 'row', justifyContent: 'space-between'}}>

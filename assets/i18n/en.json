@@ -118,7 +118,11 @@
 
     "NoInternet" : "No Internet Connection, Please check your internet connection. You can use offline mode.",
     "TRemaing" : "Total Remaining",
+    "SRemaing" : "Total Remaining",
+    "Payyan" : "Total ",
+
     "savecustomer":"Save Customer",
-    "Customer_Payment": "Customer Payment Amount"
+    "Customer_Payment": "Customer Payment Amount",
+    "Supplier_Name" : "Supplier Name",
   }
 }

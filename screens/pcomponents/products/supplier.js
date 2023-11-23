@@ -17,10 +17,10 @@ import Icons from 'react-native-vector-icons/MaterialIcons';
 import IIcons from 'react-native-vector-icons/Ionicons';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTranslation} from 'react-i18next';
-import VoucherDetails from './VocherView';
-import AddNewCustomerModal from './AddNewCustomer';
 import {useCustomer} from '../extra/CustomerDataProvider';
+import {useSupplier} from '../extra/SupplierDataProvider';
 import {RefreshControl} from 'react-native-gesture-handler';
+import AddNewSupplier from './AddNewSupplier';
 /*
     This view is receipt voucher's view from the sales using
     first we need to get the data from the sales
@@ -31,7 +31,7 @@ import {RefreshControl} from 'react-native-gesture-handler';
     
 */
 
-const CustomerView = ({route, navigation}) => {
+const SupplierView = ({route, navigation}) => {
   const {t, i18n} = useTranslation();
   const [type, setType] = useState('all');
   const [time, setTime] = useState('today');
@@ -46,7 +46,7 @@ const CustomerView = ({route, navigation}) => {
   const [vocherData, setVoucherData] = useState([]);
   const [showCustomer, setShowCustomer] = useState(false);
 
-  const {customerData, loading, getCustomerData} = useCustomer();
+  const {supplierData, loading, getSupplierData} = useSupplier();
   
 
   const [isSort, setIsSort] = useState(null);
@@ -55,42 +55,28 @@ const CustomerView = ({route, navigation}) => {
 
   useMemo(() => {
     console.log('Fetching Sales Data');
-    getCustomerData();
+    getSupplierData();
   }, []);
 
   /* Sales Data filter by search Text */
 
   const FilterCustomerData = useMemo(() => {
-    if (customerData.length === 0) return customerData;
+    if (supplierData.length === 0) return supplierData;
     //Sort by sales length
-    if (isSort) {
-      return customerData
-        .sort((a, b) => {
-          return b.sales.length - a.sales.length;
-        })
-        .filter(item => {
-          return item.name.includes(searchText);
-        });
-    } else {
-      return customerData
-        .sort((a, b) => {
-          return a.sales.length - b.sales.length;
-        })  
-        .filter(item => {
-          return item.name.includes(searchText);
-        });
-    }
-  }, [searchText, customerData, isSort]);
+
+    return supplierData.filter(item=> item.name.includes(searchText));
+  
+  }, [searchText, supplierData, isSort]);
 
   //   console.log("Filter Sales Data", JSON.stringify(FilterSalesData[0]))
 
-  const onCustomerAdd = ({customerName, description}) => {
+  const onCustomerAdd = ({supplierName, description}) => {
     setIsLoading(true);
     axios
-      .post('/api/customer/', {customerName, description})
+      .post('/api/supplier/', {supplierName, description})
       .then(res => {
         setIsLoading(false);
-        getCustomerData();
+        getSupplierData();
       })
       .catch(err => {
         setIsLoading(false);
@@ -100,12 +86,12 @@ const CustomerView = ({route, navigation}) => {
 
    const onDelete = (id)=>{
     setIsLoading(true)
-    axios.delete('/api/customer/',{
+    axios.delete('/api/supplier/',{
       params:{
-      customerid:id,
+      supplier_id:id,
     }
     }).then(res=>{
-      getCustomerData()
+      getSupplierData()
       setIsLoading(false);
     }).catch(res=>{
       setIsLoading(false)
@@ -115,18 +101,23 @@ const CustomerView = ({route, navigation}) => {
   const RPItem = useCallback(({item}) => {
     const computesales = () => {
       let total = 0;
-      item.sales.forEach(sale => {
-        let rm =
-          parseInt(sale.grandtotal, 10) - parseInt(sale.customer_payment, 10);
-        total += parseInt(rm, 10);
-      });
+      item.products.forEach((item)=>{
+        console.log(item.suppiler_payment)
+        let total_payment =  parseInt(item.cost) * parseInt(item.qty)
+        console.log(total_payment)
+        total +=  parseInt(total_payment) - parseInt(item.supplier_payment);
+
+      })
+
+      console.log(total)
+
       return total;
     };
 
     return (
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate('customersales', {data: item});
+          navigation.navigate('supplierproducts', {data: item});
         }}>
         <View
           style={{
@@ -144,15 +135,18 @@ const CustomerView = ({route, navigation}) => {
             <Text style={{...s.normal_label}}>
               {item.description}
             </Text>
+            
             <Text style={{...s.normal_label, fontWeight: 'bold'}}>
-              {t('TRemaing')} : {numberWithCommas(computesales())} Ks
+              {t('SRemaing')} : {computesales()} Ks
             </Text>
           </View>
           <View>
-            <Text style={{...s.normal_label}}>{item.sales.length} Voucher</Text>
+           <Text style={{...s.normal_label}}>
+              {item.products.length} Products
+            </Text>
              <TouchableOpacity 
                       onPress={()=>{
-                        Alert.alert("","Are you sure want to delete the customer?",[ {text:"No"},{text:"Yes", onPress:()=>{onDelete(item.id)} },])
+                        Alert.alert("","Are you sure want to delete the supplier?",[ {text:"No"},{text:"Yes", onPress:()=>{onDelete(item.id)} },])
                       }}
                       style={{backgroundColor:'#f5425a', padding:5, alignItems:'center', justifyContent:'center', borderRadius:15}}>
                         <IIcons name='trash' size={20} color={'#fff'}/>
@@ -165,19 +159,7 @@ const CustomerView = ({route, navigation}) => {
 
   return (
     <View style={{flex: 1, padding: 10, backgroundColor: '#f0f0f0'}}>
-      <VoucherDetails
-        open={showVoucher}
-        onClose={() => setShowVoucher(false)}
-        data={vocherData}
-        setData={setVoucherData}
-        navigation={navigation}
-        reload={() => setEndd(true)}
-      />
-      <AddNewCustomerModal
-        show={showCustomer}
-        onClose={() => setShowCustomer(false)}
-        onAdd={onCustomerAdd}
-      />
+     <AddNewSupplier show={showCustomer} onClose={()=> setShowCustomer(false)} onAdd={onCustomerAdd}/>
       <View
         style={{
           flexDirection: 'row',
@@ -186,14 +168,14 @@ const CustomerView = ({route, navigation}) => {
           justifyContent: 'space-between',
         }}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Icons name="people" size={25} color={'#000'} />
-          <Text style={{...s.bold_label, marginLeft: 4}}>Customer</Text>
+          <MIcons name="package-down" size={25} color={'#000'} />
+          <Text style={{...s.bold_label, marginLeft: 4}}>Supplier</Text>
         </View>
         <TouchableOpacity
           style={{...s.blue_button}}
           onPress={() => setShowCustomer(true)}>
           <Text style={{...s.bold_label, color: 'white'}}>
-            + Add New Customer
+            + Add New Supplier
           </Text>
         </TouchableOpacity>
       </View>
@@ -214,7 +196,7 @@ const CustomerView = ({route, navigation}) => {
               flex: 1,
               fontWeight: '900',
             }}
-            placeholder={'Search Customer'}
+            placeholder={'Search Supplier'}
             onChangeText={e => setSearchText(e)}
           />
 
@@ -245,7 +227,7 @@ const CustomerView = ({route, navigation}) => {
             keyExtractor={(item, index) => index.toString()}
             refreshControl={
               <RefreshControl
-                onRefresh={getCustomerData}
+                onRefresh={getSupplierData}
                 refreshing={loading}
               />
             }
@@ -256,4 +238,4 @@ const CustomerView = ({route, navigation}) => {
   );
 };
 
-export default CustomerView;
+export default SupplierView;

@@ -35,8 +35,12 @@ import {AuthContext} from './pcomponents/context/AuthContext';
 import ExpenseReceiptView from './pcomponents/Expense/ReceiptView';
 import OtherIncomeRV from './pcomponents/OtherIncome/ReceiptView';
 import CustomerView from './pcomponents/sales/CustomerView';
+import SupplierView from './pcomponents/products/supplier'
+import SupplierReceiptView from './pcomponents/products/SupplierReceiptView'
 import CustomerReceiptView from './pcomponents/sales/CustomerReceiptView';
 import {useTranslation} from 'react-i18next';
+import {CustomerDataProvider} from './pcomponents/extra/CustomerDataProvider';
+import {SupplierDataProvider} from './pcomponents/extra/SupplierDataProvider';
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
   axios.defaults.baseURL = baseUrl;
@@ -106,105 +110,112 @@ const SContainer = () => {
   if (!isloading || userToken) {
     SplashScreen.hide();
     return (
-      <>
+      <React.Fragment>
         <AuthContext.Provider value={userTokenValue}>
-          <NavigationContainer>
-            <Stack.Navigator
-              screenOptions={{
-                headerShown: false,
-              }}>
-              {userToken == null ? (
-                <>
-                  <Stack.Screen
-                    name="login"
-                    component={Login}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="register"
-                    component={Register}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="forgotpassword"
-                    component={ForgotPassword}
-                  />
-                </>
-              ) : (
-                <>
-                  <Stack.Screen
-                    name="main"
-                    component={Container}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="salesvoucher"
-                    component={ReceiptView}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="expensereceipt"
-                    component={ExpenseReceiptView}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="otherincomereceipt"
-                    component={OtherIncomeRV}
-                    initialParams={{token: setToken}}
-                  />
+        <SupplierDataProvider>
+          <CustomerDataProvider>
+            <NavigationContainer>
+              <Stack.Navigator
+                screenOptions={{
+                  headerShown: false,
+                }}>
+                {userToken == null ? (
+                  <>
+                    <Stack.Screen
+                      name="login"
+                      component={Login}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="register"
+                      component={Register}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="forgotpassword"
+                      component={ForgotPassword}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <Stack.Screen
+                      name="main"
+                      component={Container}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="salesvoucher"
+                      component={ReceiptView}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="expensereceipt"
+                      component={ExpenseReceiptView}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="otherincomereceipt"
+                      component={OtherIncomeRV}
+                      initialParams={{token: setToken}}
+                    />
 
-                  <Stack.Screen
-                    name="netPrinter"
-                    component={FindPrinter}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="profile"
-                    component={Profile}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="printers"
-                    component={SetPrinter}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="pricing"
-                    component={Pricing}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="admin_pricing"
-                    component={AdminPricing}
-                    initialParams={{token: setToken}}
-                  />
-                  <Stack.Screen
-                    name="localreport"
-                    component={LocalStorageReport}
-                  />
-                  <Stack.Screen name="customer" component={CustomerView} />
-                  <Stack.Screen
-                    name="customersales"
-                    component={CustomerReceiptView}
-                  />
+                    <Stack.Screen
+                      name="netPrinter"
+                      component={FindPrinter}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="profile"
+                      component={Profile}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="printers"
+                      component={SetPrinter}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="pricing"
+                      component={Pricing}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="admin_pricing"
+                      component={AdminPricing}
+                      initialParams={{token: setToken}}
+                    />
+                    <Stack.Screen
+                      name="localreport"
+                      component={LocalStorageReport}
+                    />
+                    <Stack.Screen name="customer" component={CustomerView} />
+                    <Stack.Screen
+                      name="customersales"
+                      component={CustomerReceiptView}
+                    />
+                    <Stack.Screen name="supplier" component={SupplierView}/>
+                    <Stack.Screen name="supplierproducts" component={SupplierReceiptView}/>
+                 
                   <Stack.Screen name="security" component={SecurityView} />
-                  <Stack.Screen
-                    name="changepassword"
-                    component={ChangePassword}
-                  />
-                  <Stack.Screen
-                    name="forgotpassword"
-                    component={ForgotPassword}
-                  />
-                </>
-              )}
-            </Stack.Navigator>
-          </NavigationContainer>
+                    <Stack.Screen
+                      name="changepassword"
+                      component={ChangePassword}
+                    />
+                    <Stack.Screen
+                      name="forgotpassword"
+                      component={ForgotPassword}
+                    />
+                  </>
+                )}
+              </Stack.Navigator>
+            </NavigationContainer>
+          </CustomerDataProvider>
+</SupplierDataProvider>
           {showModal && <OfflineWarningModel setShowModal={setShowModal} />}
           {!isConnected && <YoureOffline />}
           {IsSyncing && <SyncingDataWithServer />}
         </AuthContext.Provider>
-      </>
+      </React.Fragment>
     );
   }
   return <Loading />;

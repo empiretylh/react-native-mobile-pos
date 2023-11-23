@@ -6,6 +6,7 @@ import React, {Component} from 'react';
 import {StyleSheet, View, Image, Button} from 'react-native';
 import {BluetoothEscposPrinter} from 'react-native-bluetooth-escpos-printer';
 import axios from 'axios';
+import {numberWithCommas} from '../../../Database';
 
 var dateFormat = (date, fmt) => {
   var o = {
@@ -92,6 +93,7 @@ export const printReceipt = async (data, shopdata, offline = false) => {
     deliveryCharges,
     date,
     description,
+    customer_payment,
   } = data;
 
   const columnWidths = [12, 6, 6, 8];
@@ -173,9 +175,53 @@ export const printReceipt = async (data, shopdata, offline = false) => {
       BluetoothEscposPrinter.ALIGN.CENTER,
       BluetoothEscposPrinter.ALIGN.RIGHT,
     ],
-    ['Total Amount', '', '', totalAmount],
+    ['Total Amount', '', '', numberWithCommas(totalAmount)],
     {},
   );
+
+  if (tax !== '0') {
+    await BluetoothEscposPrinter.printText('\r\n', {});
+    await BluetoothEscposPrinter.printColumn(
+      columnWidths,
+      [
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.CENTER,
+        BluetoothEscposPrinter.ALIGN.RIGHT,
+      ],
+      ['Tax', '', '', tax + '%'],
+      {},
+    );
+  }
+  if (discount !== '0') {
+    await BluetoothEscposPrinter.printText('\r\n', {});
+    await BluetoothEscposPrinter.printColumn(
+      columnWidths,
+      [
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.CENTER,
+        BluetoothEscposPrinter.ALIGN.RIGHT,
+      ],
+      ['Discount', '', '', discount + '%'],
+      {},
+    );
+  }
+  if (deliveryCharges !== '0') {
+    await BluetoothEscposPrinter.printText('\r\n', {});
+    await BluetoothEscposPrinter.printColumn(
+      columnWidths,
+      [
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.CENTER,
+        BluetoothEscposPrinter.ALIGN.RIGHT,
+      ],
+      ['Delivery', '', '', numberWithCommas(deliveryCharges)],
+      {},
+    );
+  }
+
   await BluetoothEscposPrinter.printText('\r\n', {});
   await BluetoothEscposPrinter.printColumn(
     columnWidths,
@@ -185,62 +231,62 @@ export const printReceipt = async (data, shopdata, offline = false) => {
       BluetoothEscposPrinter.ALIGN.CENTER,
       BluetoothEscposPrinter.ALIGN.RIGHT,
     ],
-    ['Tax', '', '', tax],
+    ['Grand Total', '', '', numberWithCommas(grandtotal)],
     {},
   );
-  await BluetoothEscposPrinter.printText('\r\n', {});
-  await BluetoothEscposPrinter.printColumn(
-    columnWidths,
-    [
-      BluetoothEscposPrinter.ALIGN.LEFT,
-      BluetoothEscposPrinter.ALIGN.LEFT,
-      BluetoothEscposPrinter.ALIGN.CENTER,
-      BluetoothEscposPrinter.ALIGN.RIGHT,
-    ],
-    ['Discount', '', '', discount],
-    {},
-  );
-  await BluetoothEscposPrinter.printText('\r\n', {});
-  await BluetoothEscposPrinter.printColumn(
-    columnWidths,
-    [
-      BluetoothEscposPrinter.ALIGN.LEFT,
-      BluetoothEscposPrinter.ALIGN.LEFT,
-      BluetoothEscposPrinter.ALIGN.CENTER,
-      BluetoothEscposPrinter.ALIGN.RIGHT,
-    ],
-    ['Grand Total', '', '', grandtotal],
-    {},
-  );
-  await BluetoothEscposPrinter.printText('\r\n', {});
-  await BluetoothEscposPrinter.printColumn(
-    columnWidths,
-    [
-      BluetoothEscposPrinter.ALIGN.LEFT,
-      BluetoothEscposPrinter.ALIGN.LEFT,
-      BluetoothEscposPrinter.ALIGN.CENTER,
-      BluetoothEscposPrinter.ALIGN.RIGHT,
-    ],
-    ['Delivery', '', '', deliveryCharges],
-    {},
-  );
-  await BluetoothEscposPrinter.printText('\r\n', {});
-  await BluetoothEscposPrinter.printColumn(
-    columnWidths,
-    [
-      BluetoothEscposPrinter.ALIGN.LEFT,
-      BluetoothEscposPrinter.ALIGN.LEFT,
-      BluetoothEscposPrinter.ALIGN.CENTER,
-      BluetoothEscposPrinter.ALIGN.RIGHT,
-    ],
-    ['Description', '', '', description],
-    {},
-  );
-  await BluetoothEscposPrinter.printText('\r\n', {});
-  await BluetoothEscposPrinter.printText(
-    '--------------------------------\r\n',
-    {},
-  );
+
+  if (customer_payment !== '0' && customer_payment !== '') {
+    await BluetoothEscposPrinter.printText('\r\n', {});
+    await BluetoothEscposPrinter.printColumn(
+      columnWidths,
+      [
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.CENTER,
+        BluetoothEscposPrinter.ALIGN.RIGHT,
+      ],
+      ['Customer Payment', '', '', numberWithCommas(customer_payment)],
+      {},
+    );
+
+    await BluetoothEscposPrinter.printText('\r\n', {});
+    await BluetoothEscposPrinter.printColumn(
+      columnWidths,
+      [
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.CENTER,
+        BluetoothEscposPrinter.ALIGN.RIGHT,
+      ],
+      [
+        'Remaining Amount',
+        '',
+        '',
+        numberWithCommas(parseInt(grandtotal) - parseInt(customer_payment)),
+      ],
+      {},
+    );
+  }
+
+  if (description !== '') {
+    await BluetoothEscposPrinter.printText('\r\n', {});
+    await BluetoothEscposPrinter.printColumn(
+      columnWidths,
+      [
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.LEFT,
+        BluetoothEscposPrinter.ALIGN.CENTER,
+        BluetoothEscposPrinter.ALIGN.RIGHT,
+      ],
+      ['Description', '', '', description],
+      {},
+    );
+    await BluetoothEscposPrinter.printText('\r\n', {});
+    await BluetoothEscposPrinter.printText(
+      '--------------------------------\r\n',
+      {},
+    );
+  }
   await BluetoothEscposPrinter.printText('Thanks for your shopping \r\n', {});
   await BluetoothEscposPrinter.printText('\r\n\r\n\r\n', {});
 
@@ -261,8 +307,8 @@ async function printColumns(sproduct, columnWidths, offline) {
         [
           offline ? item.pdname : item.name,
           item.qty,
-          item.price,
-          item.price * item.qty,
+          numberWithCommas(item.price),
+          numberWithCommas(item.price * item.qty),
         ],
         {},
       );
