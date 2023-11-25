@@ -32,6 +32,7 @@ import axios from 'axios';
 import ProductView from './sales/ProductView';
 import {DeleteAllProfile, insertProfile} from '../../localDatabase/profile';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import SaleContainer from './sales/SaleContainer';
 
 // eslint-disable-next-line prettier/prettier
 
@@ -121,7 +122,7 @@ const Sales = ({navigation, route}) => {
         .post(
           '/api/otherincome/',
           {
-          title: data.title,
+            title: data.title,
             price: data.price,
 
             date: data.date,
@@ -276,7 +277,7 @@ const Sales = ({navigation, route}) => {
       <View
         style={{
           ...s.flexrow_aligncenter_j_between,
-          padding: 8,
+          padding: 0,
         }}>
         <TouchableOpacity
           style={{flexDirection: 'row', alignItems: 'center'}}
@@ -285,64 +286,73 @@ const Sales = ({navigation, route}) => {
             source={I.app_logo}
             style={{width: 35, height: 35, borderRadius: 39}}
           />
-          <Text style={{...s.bold_text, fontSize: 20, marginLeft: 5}}>
+          <Text
+            style={{
+              ...s.bold_text,
+              fontSize: 20,
+              marginLeft: 5,
+              color: 'black',
+            }}>
             Cashier
           </Text>
         </TouchableOpacity>
+        <View style={{...s.flexrow_aligncenter_j_center}}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('s');
+              setFocusView('p');
+            }}>
+            <Text
+              style={{
+                ...s.normal_label,
+                ...s.black_button,
+                color: focusView === 'p' ? 'white' : 'black',
+                backgroundColor: focusView === 'p' ? C.blackbutton : '#f0f0f0',
+                padding: 10,
+                borderRadius: 15,
+                fontSize: 15,
+              }}>
+              {t('Sales')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('o');
+              setFocusView('c');
+            }}>
+            <Text
+              style={{
+                ...s.normal_label,
+                ...s.black_button,
+                color: focusView === 'c' ? 'white' : 'black',
+                backgroundColor: focusView === 'c' ? C.blackbutton : '#f0f0f0',
+                padding: 10,
+                borderRadius: 15,
+                fontSize: 15,
+              }}>
+              {t('Other_Income')}
+            </Text>
+          </TouchableOpacity>
+        </View>
         <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity onPress={() => navigation.navigate('customer')}>
+            <Icons name="people-circle" size={30} color={'#000'} />
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() =>
               navigation.navigate(
                 focusView === 'p' ? 'salesvoucher' : 'otherincomereceipt',
               )
             }>
-            <MIcons name={'file-chart'} size={25} color={'#000'} />
+            <MIcons name={'file-chart'} size={30} color={'#000'} />
           </TouchableOpacity>
         </View>
       </View>
       {/* view */}
 
-      <View style={{...s.flexrow_aligncenter_j_center}}>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('s');
-            setFocusView('p');
-          }}>
-          <Text
-            style={{
-              ...s.normal_label,
-              ...s.black_button,
-              color: focusView === 'p' ? 'white' : 'black',
-              backgroundColor: focusView === 'p' ? C.blackbutton : '#f0f0f0',
-              padding: 10,
-              borderRadius: 15,
-              fontSize: 15,
-            }}>
-            {t('Sales')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('o');
-            setFocusView('c');
-          }}>
-          <Text
-            style={{
-              ...s.normal_label,
-              ...s.black_button,
-              color: focusView === 'c' ? 'white' : 'black',
-              backgroundColor: focusView === 'c' ? C.blackbutton : '#f0f0f0',
-              padding: 10,
-              borderRadius: 15,
-              fontSize: 15,
-            }}>
-            {t('Other_Income')}
-          </Text>
-        </TouchableOpacity>
-      </View>
       <View style={{flex: 1}}>
         <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Screen name={'s'} component={ProductView} />
+          <Stack.Screen name={'s'} component={SaleContainer} />
           <Stack.Screen name={'o'} component={OtherIncome} />
         </Stack.Navigator>
       </View>

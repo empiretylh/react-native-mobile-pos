@@ -40,6 +40,9 @@ import * as ImagePicker from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import ProductField from './extra/productfield';
 import ProductList from './extra/productlist';
+import {useSupplier} from './extra/SupplierDataProvider';
+import Collapsible from 'react-native-collapsible';
+
 import Purchase from './Purchase';
 import Loading from '../Loading';
 import {useTranslation} from 'react-i18next';
@@ -168,6 +171,8 @@ const Product = ({navigation}) => {
       'description',
       pd.description ? pd.description + ' ' + '#cashier' : '#cashier',
     );
+    if (!suppcoll) d.append('supplier_name', pd.supplier);
+
     d.append('barcode', barcode);
     d.append('pic', pic);
 
@@ -775,7 +780,7 @@ const Product = ({navigation}) => {
             nobackExit={true}>
             <ScrollView style={{}}>
               {/*Edit Image Here by commething this code  */}
-             <View
+              <View
                 style={{
                   backgroundColor: C.bluecolor,
                   alignItems: 'center',
@@ -1336,6 +1341,20 @@ const Product = ({navigation}) => {
     onOpenAndCloseAPModal();
   };
 
+  const {supplierData, loading, getSupplierData} = useSupplier();
+  const [showSupplier, setShowSupplier] = useState(false);
+  const [selectedSupplier, setselectedSupplier] = useState('');
+  const [suppcoll, setsuppcoll] = useState(true);
+
+  useEffect(() => {
+    getSupplierData();
+  }, []);
+
+  const onSelectedSupplier = name => {
+    onHandlePdtData(name, 'supplier');
+    setselectedSupplier(name);
+  };
+
   return (
     <View style={{...s.Container}}>
       <Loading show={isUpload} infotext={'Creating Product'} />
@@ -1477,7 +1496,7 @@ const Product = ({navigation}) => {
               </Text>
             </View>
           </TouchableOpacity>*/}
-         {/* <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
               setChangePriceShow(true);
             }}>
@@ -1498,7 +1517,7 @@ const Product = ({navigation}) => {
         nobackExit={true}>
         <ScrollView style={{}}>
           {/*Edit Image Here by commething this code  */}
-    <View
+          <View
             style={{
               backgroundColor: C.bluecolor,
               alignItems: 'center',
@@ -1532,7 +1551,7 @@ const Product = ({navigation}) => {
                 />
               </TouchableOpacity>
             </View>
-            </View>
+          </View>
 
           <View style={{marginTop: 10}}>
             <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
@@ -1631,6 +1650,44 @@ const Product = ({navigation}) => {
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'price')
               }
             />
+            <View>
+              <TouchableOpacity
+                onPress={() => setsuppcoll(!suppcoll)}
+                style={{...s.flexrow_aligncenter, marginTop: 8}}>
+                <Text style={{...s.bold_label}}>{t('Supplier_Name')}</Text>
+                <Icons
+                  name={
+                    suppcoll ? 'checkmark-circle-outline' : 'checkmark-circle'
+                  }
+                  size={20}
+                  color="#000"
+                  style={{marginLeft: 8}}
+                />
+              </TouchableOpacity>
+
+              <Collapsible collapsed={suppcoll}>
+                <View style={{...inputS}}>
+                  <TextInput
+                    style={{
+                      height: 45,
+                      ...s.bold_label,
+                      color: '#0f0f0f',
+                      flex: 1,
+                    }}
+                    placeholder={t('Supplier_Name')}
+                    value={pdtData.supplier}
+                    onChangeText={e => onHandlePdtData(e, 'supplier')}
+                  />
+                  <TouchableOpacity
+                    onPress={() => onHandlePdtData('', 'supplier')}>
+                    <Icons name="close-outline" size={20} color={'#000'} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowSupplier(true)}>
+                    <Icons name="people-outline" size={20} color={'#000'} />
+                  </TouchableOpacity>
+                </View>
+              </Collapsible>
+            </View>
             <Text style={{...s.bold_label, marginTop: 5}}>
               {t('Description')}
             </Text>
@@ -1737,7 +1794,13 @@ const Product = ({navigation}) => {
         show={barcodemodal}
         onClose={onCloseBarCodeModal}
       />
-
+      <SupplierListModal
+        showSupplier={showSupplier}
+        onClose={() => setShowSupplier(false)}
+        onApply={onSelectedSupplier}
+        suppliername={selectedSupplier}
+        supplierData={supplierData}
+      />
       {/* appbar */}
       <View
         style={{
@@ -1886,6 +1949,39 @@ const Container = ({navigation}) => {
   );
 };
 
+const SupplierListModal = ({
+  showSupplier,
+  supplierData,
+  onClose = {},
+  suppliername,
+  onApply,
+}) => {
+  return (
+    <MessageModalNormal show={showSupplier} onClose={onClose}>
+      <Text style={{...s.bold_label, marginBottom: 10}}>Select Supplier</Text>
+      <ScrollView style={{maxHeight: Dimensions.get('window').height - 10}}>
+        {supplierData.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => {
+              onClose();
+              onApply(item.name);
+            }}
+            style={{
+              ...s.flexrow_aligncenter_j_between,
+              padding: 10,
+              borderColor: item.name == suppliername ? C.bluecolor : 'black',
+              borderWidth: 1,
+              borderRadius: 5,
+              marginBottom: 10,
+            }}>
+            <Text style={{...s.bold_label}}>{item.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </MessageModalNormal>
+  );
+};
 export default Container;
 
 const BarcodeScanner = ({onBarcodeRead, onClose, show}) => {

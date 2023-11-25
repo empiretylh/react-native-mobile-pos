@@ -24,7 +24,7 @@ String.prototype.replaceAllTxt = function replaceAll(search, replace) {
 };
 const LoginScreen = ({navigation, route}) => {
   const {token} = route.params;
-  const [data, setData] = useState();
+  const [data, setData] = useState({username:'', password:''});
   const [isfocus, setIsFocus] = useState({
     username: false,
     password: false,
@@ -33,6 +33,10 @@ const LoginScreen = ({navigation, route}) => {
   const [load, setLoad] = useState(false);
 
   const LoginToServer = () => {
+    if(!data.username)  return Alert.alert("","Please Enter Username & Password")
+
+    if(data.username == '' || data.password == '') return Alert.alert("","Please Enter Username & Password")
+   
     console.log(data);
     setLoad(true);
     axios
@@ -60,13 +64,11 @@ const LoginScreen = ({navigation, route}) => {
       .catch(err => {
         console.log(JSON.stringify(err));
         console.log(err);
-        if (err.response.status == 400) {
-          Alert.alert('Login Failed', 'Username or Password is incorrect.', [
-            {
-              text: 'OK',
-            },
-          ]);
-        }
+        Alert.alert('Login Failed', 'Username or Password is incorrect.', [
+          {
+            text: 'OK',
+          },
+        ]);
         setLoad(false);
       });
   };

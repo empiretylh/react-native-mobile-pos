@@ -238,7 +238,6 @@ const EditVoucherList = ({show, onClose, data}) => {
               borderWidth: 1,
               borderColor: 'black',
               ...s.bold_label,
-              color: 'white',
               paddingLeft: 10,
             }}
             defaultValue={data.customerName}

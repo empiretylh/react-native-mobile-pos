@@ -12,6 +12,8 @@ import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
+import SupplierView from './products/supplier';
+import CustomerView from './sales/CustomerView';
 
 const Tab = createBottomTabNavigator();
 const Container = ({navigation, route}) => {
@@ -67,7 +69,7 @@ const Container = ({navigation, route}) => {
               <Text
                 style={{
                   fontSize: 10,
-                  fontWeight: focused ? 'bold' : '200',
+                  fontWeight: focused ? 'bold' : '500',
                   color: 'black',
                 }}>
                 {t('Sales')}
@@ -90,7 +92,7 @@ const Container = ({navigation, route}) => {
               <Text
                 style={{
                   fontSize: 10,
-                  fontWeight: focused ? 'bold' : '200',
+                  fontWeight: focused ? 'bold' : '500',
                   color: 'black',
                 }}>
                 {t('Expense')}
@@ -113,10 +115,56 @@ const Container = ({navigation, route}) => {
               <Text
                 style={{
                   fontSize: 10,
-                  fontWeight: focused ? 'bold' : '200',
+                  fontWeight: focused ? 'bold' : '500',
                   color: 'black',
                 }}>
                 {t('Products')}
+              </Text>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="customer"
+        component={CustomerView}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <View style={{alignItems: 'center'}}>
+              <Icon
+                name={focused ? 'people' : 'people-outline'}
+                size={bottomIconsize}
+                color={'#0f0f0f'}
+              />
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: focused ? 'bold' : '500',
+                  color: 'black',
+                }}>
+                {t('Customer')}
+              </Text>
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="supplier"
+        component={SupplierView}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <View style={{alignItems: 'center'}}>
+              <MIcon
+                name={focused ? 'package-down' : 'package-down'}
+                size={bottomIconsize}
+                color={'#0f0f0f'}
+              />
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: focused ? 'bold' : '500',
+                  color: 'black',
+                }}>
+                {t('Supplier')}
               </Text>
             </View>
           ),
