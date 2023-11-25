@@ -53,6 +53,12 @@ const SContainer = () => {
 
   const {t} = useTranslation();
 
+
+  useEffect(() => {
+    GetToken();
+    console.log('Get Tokens');
+  }, []);
+
   const UploadToServer = () => {
     setIsSyncing(true);
     UploadToCloud()
@@ -74,10 +80,6 @@ const SContainer = () => {
     }
   }, [isConnected, userToken]);
 
-  useEffect(() => {
-    GetToken();
-    console.log('Get Tokens');
-  }, []);
 
   const [showModal, setShowModal] = useState(false);
 

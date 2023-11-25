@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Vibration,
   Dimensions,
+  RefreshControl,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
 import {
@@ -74,15 +75,19 @@ const ProductView = React.memo(({navigation}) => {
   const [showCustomer, setShowCustomer] = useState(false);
   const [ISsaveCustomer, setISsaveCustomer] = useState(false);
   const [CustomerPayment, setCustomerPayment] = useState('');
+  const [customerload, setCustomerLoad] = useState(false);
   const loaddata = () => {
+    setCustomerLoad(true);
     axios
       .get('/api/customer/')
       .then(res => {
         setCustomerData(res.data);
         // ComputeSalesData(res.data, time);
+        setCustomerLoad(false);
       })
       .catch(err => {
         console.log(err);
+        setCustomerLoad(false);
       });
   };
 
@@ -277,7 +282,11 @@ const ProductView = React.memo(({navigation}) => {
           setData={setVoucherData}
         />
       )}
-      <ScrollView style={{flex: 1, backgroundColor: 'white', padding: 8}}>
+      <ScrollView
+        style={{flex: 1, backgroundColor: 'white', padding: 8}}
+        refreshControl={
+          <RefreshControl onRefresh={loaddata} refreshing={customerload} />
+        }>
         <CustomerList
           showCustomer={showCustomer}
           onClose={() => setShowCustomer(false)}

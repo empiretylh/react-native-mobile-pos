@@ -780,7 +780,7 @@ const Product = ({navigation}) => {
             nobackExit={true}>
             <ScrollView style={{}}>
               {/*Edit Image Here by commething this code  */}
-              <View
+           {/*   <View
                 style={{
                   backgroundColor: C.bluecolor,
                   alignItems: 'center',
@@ -816,7 +816,7 @@ const Product = ({navigation}) => {
                   </TouchableOpacity>
                 </View>
               </View>
-
+                */}
               <View style={{marginTop: 10}}>
                 <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
                 <TextInput
@@ -1517,7 +1517,7 @@ const Product = ({navigation}) => {
         nobackExit={true}>
         <ScrollView style={{}}>
           {/*Edit Image Here by commething this code  */}
-          <View
+       { /*  <View
             style={{
               backgroundColor: C.bluecolor,
               alignItems: 'center',
@@ -1551,7 +1551,7 @@ const Product = ({navigation}) => {
                 />
               </TouchableOpacity>
             </View>
-          </View>
+            </View>*/}
 
           <View style={{marginTop: 10}}>
             <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
