@@ -63,13 +63,12 @@ const LoginScreen = ({navigation, route}) => {
       .catch(err => {
         console.log(JSON.stringify(err));
         console.log(err);
-        if (err.response.status == 400) {
+        
           Alert.alert('Login Failed', 'Username or Password is incorrect.', [
             {
               text: 'OK',
             },
           ]);
-        }
         setLoad(false);
       });
   };

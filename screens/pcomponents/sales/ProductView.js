@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
+  Dimensions,
   Vibration,
 } from 'react-native';
+
 import Icons from 'react-native-vector-icons/Ionicons';
 import {
   STYLE as s,
@@ -476,38 +478,39 @@ const ProductView = React.memo(({navigation}) => {
             </Collapsible>
           </View>
 
-          <View>
-            <TouchableOpacity style={{...s.flexrow_aligncenter, marginTop: 8}}>
-              <Text style={{...s.bold_label, marginTop: 8}}>
-                {t('Customer_Payment')}
-              </Text>
-              <Icons
-                name={
-                  !ISsaveCustomer
-                    ? 'checkmark-circle-outline'
-                    : 'checkmark-circle'
-                }
-                size={20}
-                color="#000"
-                style={{marginLeft: 8}}
-              />
-            </TouchableOpacity>
-
-            <Collapsible collapsed={!ISsaveCustomer}>
-              <View>
-                <TextInput
-                  style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-                  placeholder={t('Customer_Payment')}
-                  keyboardType={'number-pad'}
-                  value={CustomerPayment + ''}
-                  defaultValue={CustomerPayment + ''}
-                  onChangeText={e => setCustomerPayment(e)}
-                  selectTextOnFocus={true}
-                />
-              </View>
-            </Collapsible>
-          </View>
-
+         {ISsaveCustomer ? <View>
+         
+                     <TouchableOpacity style={{...s.flexrow_aligncenter, marginTop: 8}}>
+                       <Text style={{...s.bold_label, marginTop: 8}}>
+                         {t('Customer_Payment')}
+                       </Text>
+                       <Icons
+                         name={
+                           !ISsaveCustomer
+                             ? 'checkmark-circle-outline'
+                             : 'checkmark-circle'
+                         }
+                         size={20}
+                         color="#000"
+                         style={{marginLeft: 8}}
+                       />
+                     </TouchableOpacity>
+         
+                     <Collapsible collapsed={!ISsaveCustomer}>
+                       <View>
+                         <TextInput
+                           style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
+                           placeholder={t('Customer_Payment')}
+                           keyboardType={'number-pad'}
+                           value={CustomerPayment + ''}
+                           defaultValue={CustomerPayment + ''}
+                           onChangeText={e => setCustomerPayment(e)}
+                           selectTextOnFocus={true}
+                         />
+                       </View>
+                     </Collapsible>
+                   </View>:null}
+        
           <View>
             <TouchableOpacity
               onPress={() => setDesccoll(!desccoll)}
@@ -589,7 +592,7 @@ const CustomerList = ({
   return (
     <MessageModalNormal show={showCustomer} onClose={onClose}>
       <Text style={{...s.bold_label, marginBottom: 10}}>Select Customer</Text>
-      <ScrollView>
+      <ScrollView style={{maxHeight:Dimensions.get('window').height - 10}}>
         {customerData.map((item, index) => (
           <TouchableOpacity
             key={index}
@@ -600,8 +603,11 @@ const CustomerList = ({
             style={{
               ...s.flexrow_aligncenter_j_between,
               padding: 10,
-              borderColor: item.name == customername ? 'blue' : 'black',
+              borderColor: item.name == customername ? C.bluecolor : 'black',
               borderWidth: 1,
+               borderWidth: 1,
+              borderRadius:5,
+              marginBottom:10,
             }}>
             <Text style={{...s.bold_label}}>{item.name}</Text>
           </TouchableOpacity>

@@ -776,42 +776,42 @@ const Product = ({navigation}) => {
             nobackExit={true}>
             <ScrollView style={{}}>
               {/*Edit Image Here by commething this code  */}
-              <View
-                style={{
-                  backgroundColor: C.bluecolor,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 0,
-                  borderRadius: 15,
-                }}>
-                <Image
-                  source={{
-                    uri: isImage
-                      ? isImage.uri
-                      : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
-                  }}
-                  style={{width: '100%', height: 180, backgroundColor: 'black'}}
-                />
-
-                <View style={{...s.flexrow_aligncenter_j_between}}>
-                  <TouchableOpacity onPress={() => LaunchCamera()}>
-                    <Icons
-                      name={'camera'}
-                      size={30}
-                      color={'#fff'}
-                      style={{margin: 5}}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => launchImageLibrary()}>
-                    <Icons
-                      name={'image'}
-                      size={30}
-                      color={'#fff'}
-                      style={{margin: 5}}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
+              {/*<View
+                              style={{
+                                backgroundColor: C.bluecolor,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: 0,
+                                borderRadius: 15,
+                              }}>
+                              <Image
+                                source={{
+                                  uri: isImage
+                                    ? isImage.uri
+                                    : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
+                                }}
+                                style={{width: '100%', height: 180, backgroundColor: 'black'}}
+                              />
+              
+                              <View style={{...s.flexrow_aligncenter_j_between}}>
+                                <TouchableOpacity onPress={() => LaunchCamera()}>
+                                  <Icons
+                                    name={'camera'}
+                                    size={30}
+                                    color={'#fff'}
+                                    style={{margin: 5}}
+                                  />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => launchImageLibrary()}>
+                                  <Icons
+                                    name={'image'}
+                                    size={30}
+                                    color={'#fff'}
+                                    style={{margin: 5}}
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                            </View>*/}
 
               <View style={{marginTop: 10}}>
                 <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
@@ -1515,41 +1515,41 @@ const Product = ({navigation}) => {
         nobackExit={true}>
         <ScrollView style={{}}>
           {/*Edit Image Here by commething this code  */}
-          <View
-            style={{
-              backgroundColor: C.bluecolor,
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 0,
-              borderRadius: 15,
-            }}>
-            <Image
-              source={{
-                uri: isImage
-                  ? isImage.uri
-                  : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
-              }}
-              style={{width: '100%', height: 180, backgroundColor: 'black'}}
-            />
-            <View style={{...s.flexrow_aligncenter_j_between}}>
-              <TouchableOpacity onPress={() => LaunchCamera()}>
-                <Icons
-                  name={'camera'}
-                  size={30}
-                  color={'#fff'}
-                  style={{margin: 5}}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => launchImageLibrary()}>
-                <Icons
-                  name={'image'}
-                  size={30}
-                  color={'#fff'}
-                  style={{margin: 5}}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
+       {/*   <View
+                   style={{
+                     backgroundColor: C.bluecolor,
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     padding: 0,
+                     borderRadius: 15,
+                   }}>
+                   <Image
+                     source={{
+                       uri: isImage
+                         ? isImage.uri
+                         : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
+                     }}
+                     style={{width: '100%', height: 180, backgroundColor: 'black'}}
+                   />
+                   <View style={{...s.flexrow_aligncenter_j_between}}>
+                     <TouchableOpacity onPress={() => LaunchCamera()}>
+                       <Icons
+                         name={'camera'}
+                         size={30}
+                         color={'#fff'}
+                         style={{margin: 5}}
+                       />
+                     </TouchableOpacity>
+                     <TouchableOpacity onPress={() => launchImageLibrary()}>
+                       <Icons
+                         name={'image'}
+                         size={30}
+                         color={'#fff'}
+                         style={{margin: 5}}
+                       />
+                     </TouchableOpacity>
+                   </View>
+                 </View> */}
 
           <View style={{marginTop: 10}}>
             <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
@@ -1824,12 +1824,6 @@ const Product = ({navigation}) => {
           <Text style={{...s.bold_label}}>
             {numberWithCommas(SumProductBalance(ProductData))} MMK
           </Text>
-          <TouchableOpacity 
-          onPress={()=> navigation.navigate('supplier')}
-          style={{padding:4, backgroundColor:C.bluecolor, flexDirection:'row', alignItems:'center', borderRadius:5, marginLeft:5, marginRight:-5}}>
-          <MIcons name="package-down" size={25} color={'#fff'}/>
-          <Text style={{...s.normal_label, color:'white'}}>Suppliers</Text>
-          </TouchableOpacity> 
           </View>
       </View>
       {/* view */}
@@ -1980,8 +1974,8 @@ const SupplierListModal = ({
 }) => {
   return (
     <MessageModalNormal show={showSupplier} onClose={onClose}>
-      <Text style={{...s.bold_label, marginBottom: 10}}>Select Customer</Text>
-      <ScrollView>
+      <Text style={{...s.bold_label, marginBottom: 10}}>Select Supplier</Text>
+      <ScrollView style={{maxHeight:Dimensions.get('window').height - 10}}>
         {supplierData.map((item, index) => (
           <TouchableOpacity
             key={index}
@@ -1992,8 +1986,10 @@ const SupplierListModal = ({
             style={{
               ...s.flexrow_aligncenter_j_between,
               padding: 10,
-              borderColor: item.name == suppliername ? 'blue' : 'black',
+              borderColor: item.name == suppliername ? C.bluecolor : 'black',
               borderWidth: 1,
+              borderRadius:5,
+              marginBottom:10,
             }}>
             <Text style={{...s.bold_label}}>{item.name}</Text>
           </TouchableOpacity>

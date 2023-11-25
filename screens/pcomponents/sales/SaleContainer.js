@@ -22,41 +22,87 @@ import AddNewCustomerModal from './AddNewCustomer';
 import {useCustomer} from '../extra/CustomerDataProvider';
 import {RefreshControl} from 'react-native-gesture-handler';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import ProductView  from "./ProductView"
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-const Tab = createMaterialTopTabNavigator();
+import ProductView from './ProductView';
 
+const Stack = createNativeStackNavigator();
 
-const SaleContainer = ({navigation})=>{
+const SaleContainer = ({navigation}) => {
+  const [screen, setScreen] = useState([1]);
+  const [selected, setSelected] = useState(1);
 
-  const [screen, setScreen] = useState([1])
+  //Remove by index
+  const onRemove = (index)=>{
+    if(screen.length==1) return Alert.alert("","You can not remove all sales")
+    Alert.alert("", "Are you sure want to remove this sale?", [
+      {
+        text: "Cancel",
+        onPress: () => {},
+        style: "cancel"
+      },
+      {
+        text: "Remove",
+        onPress: () => {
+          setScreen(prev => prev.filter((item, i) => i != index));
+          setSelected(1);
+        }
+      }
+    ]);
+    
+  }
 
-  return(
-    <View style={{flex:1, backgroundColor:'white'}}>
-    <View style={{justifyContent:'flex-end'}}>
-      <TouchableOpacity style={{...s.blue_button}} onPress={()=>{
-        setScreen(prev=> [...prev, 1])
-      }}>
-        <Text style={{color:'white'}}>Create New Sales</Text>
-      </TouchableOpacity>
-    </View>
-     <Tab.Navigator
-            screenOptions={{
-              tabBarStyle: {
-                shadowOffset: {width: 0, height: 0},
-                elevation: 0,
-              },
+  return (
+    <View style={{flex: 1, backgroundColor: 'white'}}>
+      <ScrollView style={{flexDirection: 'row', maxHeight: 50}} horizontal>
+        {screen.map((item, index) => (
+          <TouchableOpacity
+            style={{
+              ...s.blue_button,
+              backgroundColor: '#f0f0f0',
+              borderColor: selected == index + 1 ? C.bluecolor : C.white,
+              borderWidth: 2,
+              flexDirection: 'row',
+            }}
+            onPress={() => {
+              setSelected(index + 1);
+              navigation.navigate('Sale' + (index + 1));
             }}>
-            {
-              screen.map((item,index)=>
-                <Tab.Screen name={'Sale '+( parseInt(index+1))} component={ProductView}/>
-              )
-            }
-
-          </Tab.Navigator>
-          </View>
-    )
-}
+            <Text style={{color: 'black', marginRight: 5}}>
+              Sales {index + 1}
+            </Text>
+            <TouchableOpacity
+            onPress={()=>onRemove(index)}
+              style={{padding: 2, backgroundColor: 'red', borderRadius: 50}}>
+              <Icons name={'close'} size={15} color={'white'} />
+            </TouchableOpacity>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity
+          style={{...s.blue_button}}
+          onPress={() => {
+            setScreen(prev => [...prev, 1]);
+          }}>
+          <Text style={{color: 'white'}}> + Create New Sales</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      <View style={{flex: 1}}>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+          }}>
+          {screen.map((item, index) => (
+            <Stack.Screen
+              name={'Sale' + parseInt(index + 1)}
+              component={ProductView}
+            />
+          ))}
+        </Stack.Navigator>
+      </View>
+    </View>
+  );
+};
 
 export default SaleContainer;
 /*
@@ -74,4 +120,3 @@ export default SaleContainer;
             <Tab.Screen name={t('Profit&Loss')} component={ProfitnLossView} />
           </Tab.Navigator>
           */
-

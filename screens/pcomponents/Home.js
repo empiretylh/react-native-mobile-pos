@@ -969,17 +969,7 @@ const HomeScreen = ({navigation, route}) => {
     
 
 
-      <View style={{...s.flexrow_aligncenter_j_between, marginTop: 8}}>
-        <Text style={{...s.bold_label}}>{t('Report')}</Text>
-
-        <TouchableOpacity style={{padding: 5}}>
-          <Icons
-            name={'arrow-forward-circle-outline'}
-            size={25}
-            color={'#000'}
-          />
-        </TouchableOpacity>
-      </View>
+      <View style={{...s.flexrow_aligncenter_j_between, marginTop: 8}}/>
       <View>
         {productData ? (
           <View style={{flexDirection: 'column'}}>
@@ -1041,12 +1031,12 @@ const HomeScreen = ({navigation, route}) => {
             <View style={{marginTop: 8}}>
               <Text style={{...s.font_bold, color: 'black'}}>{t('TFSP')}</Text>
               {topProduct ? (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{flex:1}}>
                   <PieChart
                     data={
                       topProduct.length >= 4
-                        ? topProduct.slice(0, 4).reverse()
-                        : topproduct
+                        ? topproduct.slice(0, 4).reverse()
+                        : topproduct.reverse()
                     }
                     width={300}
                     height={200}
@@ -1064,7 +1054,22 @@ const HomeScreen = ({navigation, route}) => {
                     backgroundColor="transparent"
                     paddingLeft="15"
                     absolute
+                    hasLegend={false}
                   />
+                  {/*Custom Legend*/}
+                  <View style={{flex:1, position:'absolute', right:-15, marginTop:15, width:120}}>
+                    {(topProduct.length >= 4
+                      ? topproduct.slice(0, 4).sort((a,b)=> a.freq - b.freq).reverse()
+                      : topproduct.sort((a,b)=> a.freq-b.freq).reverse()).map((item) => {
+                        return(
+                          <View style={{flexDirection:'row', alignItems:'center', margin:8,}}>
+                            <View style={{backgroundColor:item.color, width:10, height:10, borderRadius:50, marginRight:5}}/>
+                            <Text style={{color:'black', fontSize:15, fontWeight:'bold'}}>{item.name}</Text>
+                          </View>
+                        )
+                      })
+                    }
+                  </View>
                 </ScrollView>
               ) : null}
             </View>
