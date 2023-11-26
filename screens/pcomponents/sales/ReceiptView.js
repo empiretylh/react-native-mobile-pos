@@ -139,7 +139,7 @@ const ReceiptView = ({route, navigation}) => {
         data={vocherData}
         setData={setVoucherData}
         navigation={navigation}
-        reload={() => setEndd(true)}
+        reload={() => setEndd(prev => !prev)}
       />
       <View style={{flexDirection: 'row', marginBottom: 5}}>
         <MIcons name="file-chart" size={25} color={'#000'} />

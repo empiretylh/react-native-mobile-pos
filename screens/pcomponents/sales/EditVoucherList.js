@@ -8,6 +8,8 @@ import {
   TextInput,
   FlatList,
   Modal,
+  Dimensions,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {SaleContext} from '../context/SaleContext';
 import {numberWithCommas} from '../../../Database';
@@ -21,6 +23,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AddNewProduct from './AddNewProduct';
 import axios from 'axios';
+import ProductField from '../extra/productfield';
+import {CartContext} from '../context/CartContext';
+let screenwidth = Dimensions.get('window').width;
+let totalWidth = 365; // Sum of all widths
+const width = [97, 40, 80, 85, 50].map(w => (w / totalWidth) * screenwidth);
 
 const headerLabel = {
   flex: 1,
@@ -28,13 +35,12 @@ const headerLabel = {
   backgroundColor: '#70c9cc',
   justifyContent: 'center',
   color: 'black',
-  flex: 1,
-  padding: 2,
+  padding: 3,
   textAlign: 'center',
   borderColor: 'black',
   borderWidth: 1,
 };
-const CTITEM = ({item, onUpdate, onRemove}) => {
+const CTITEM = ({item, onUpdate, onRemove, isnew = false}) => {
   const [qty, setQty] = useState(item.qty.toString());
   const [price, setPrice] = useState(item.price.toString());
 
@@ -68,11 +74,17 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
   return (
     <View
       style={{
-        flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-around',
       }}>
-      <Text style={{...labelstyle, textAlign: 'right'}}>{item.name}</Text>
+      <Text
+        style={{
+          ...labelstyle,
+          textAlign: 'left',
+          width: width[0],
+          minWidth: width[0],
+        }}>
+        {isnew ? item.pdname : item.name}
+      </Text>
       <TextInput
         ref={qtyInputRef}
         style={{
@@ -83,9 +95,10 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
 
           ...s.bold_label,
           color: 'white',
-          flex: 1,
           padding: 2,
           textAlign: 'center',
+          minWidth: width[1],
+          width: width[1],
         }}
         value={qty}
         onChangeText={handleQtyChange}
@@ -102,47 +115,80 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
 
           ...s.bold_label,
           color: 'white',
-          flex: 1,
           padding: 2,
           textAlign: 'center',
+          minWidth: width[2],
+          width: width[2],
         }}
         value={price}
         onChangeText={handlePriceChange}
         keyboardType="numeric"
         selectTextOnFocus={true}
       />
-      <Text style={{...labelstyle, textAlign: 'right'}}>
+      <Text
+        style={{
+          ...labelstyle,
+          textAlign: 'right',
+          minWidth: width[3],
+          width: width[3],
+        }}>
         {numberWithCommas(item.qty * item.price)}
       </Text>
-      {/*Remove Item from cartdata using filter and with remove icon */}
-      <TouchableOpacity
-        onPress={() => {
-          onRemove(item.name);
-        }}>
-        <Icon name="trash-outline" size={30} color="red" />
-      </TouchableOpacity>
+      {/*Remove Item from cartdata using fuilter and with remove icon */}
+      <View style={{width: width[4]}}>
+        <TouchableOpacity
+          onPress={() => {
+            if (isnew) {
+              return onRemove(item.name);
+            }
+            onRemove(item.id);
+          }}>
+          <Icon name="trash-outline" size={30} color="red" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 /* Implemet Product Data from Context and useFlat list and use CartList */
 
-const EditVoucherList = ({show, onClose, data}) => {
-  const [CartData, setCartData] = useState(data.sproduct);
+const EditVoucherList = ({show, onClose, data, reload}) => {
+  const [oldCartData, setOldCartData] = useState(data.sproduct);
+  const [CartData, setCartData] = useState([]);
   const [addProductShow, setAddProductShow] = useState(false);
 
+  const data_bridge = useMemo(
+    () => ({CartData, setCartData}),
+    [CartData, setCartData],
+  );
+
   const SumTotal = useMemo(() => {
-    console.log('here', CartData);
-    if (CartData.length === 0) return 0;
+    console.log('here', oldCartData);
+    if (oldCartData.length === 0) return 0;
 
     let amount = 0;
+    oldCartData.forEach(e => {
+      amount += parseInt(e.price, 10) * parseInt(e.qty, 10);
+    });
+
     CartData.forEach(e => {
       amount += parseInt(e.price, 10) * parseInt(e.qty, 10);
     });
 
     return amount;
-  }, [CartData]);
+  }, [oldCartData, CartData]);
 
   const handleItemUpdate = newItem => {
+    const newCartData = oldCartData.map(item => {
+      if (item.id === newItem.id) {
+        return newItem;
+      } else {
+        return item;
+      }
+    });
+    setOldCartData(newCartData);
+  };
+
+  const handleNewItemUpdate = newItem => {
     const newCartData = CartData.map(item => {
       if (item.name === newItem.name) {
         return newItem;
@@ -161,16 +207,22 @@ const EditVoucherList = ({show, onClose, data}) => {
       total: price * qty,
       pdname: pdname,
     };
-    setCartData([...CartData, d]);
+    setOldCartData([...oldCartData, d]);
   };
 
   const handleItemRemove = itemId => {
+    const newCartData = oldCartData.filter(item => item.id !== itemId);
+    setOldCartData(newCartData);
+  };
+
+  const handleNewItemRemove = itemId => {
+    console.log(itemId);
     const newCartData = CartData.filter(item => item.name !== itemId);
     setCartData(newCartData);
   };
   //if  pdname , qty , price are empty , show alert
   const handleSave = () => {
-    const newCartData = CartData.filter(
+    const newCartData = oldCartData.filter(
       item => item.name === '' || item.qty === 0 || item.price === 0,
     );
 
@@ -181,129 +233,181 @@ const EditVoucherList = ({show, onClose, data}) => {
       return;
     }
 
-    axios
-      .put('/api/sales/', {
+    let d = {
+      id: data.receiptNumber,
+      customerName: data.customerName,
+      products: oldCartData,
+    };
+
+    if (CartData.length > 0) {
+      d = {
         id: data.receiptNumber,
         customerName: data.customerName,
-        products: CartData,
-      })
+        products: oldCartData,
+        newproducts: CartData,
+      };
+    }
+
+    axios
+      .put('/api/sales/', d)
       .then(() => {
         onClose();
       })
       .catch(err => {
-        a.alert('Error');
+        a.alert('Error', err);
       });
   };
 
   return (
-    <Modal visible={show} onRequestClose={onClose}>
-      <AddNewProduct
-        show={addProductShow}
-        onClose={() => setAddProductShow(false)}
-        onAdd={addNewItem}
-      />
-      <View style={{flex: 1, padding: 10}}>
-        <View style={{flexDirection: 'row'}}>
-          <View style={{...s.flexrow_aligncenter_j_between}}>
-            <Icon
-              name="receipt-outline"
-              size={30}
-              color="black"
-              style={{marginRight: 10}}
-            />
-            <Text style={{...s.normal_label, ...s.bold_label, fontSize: 30}}>
-              Edit Voucher
-            </Text>
-          </View>
+    <CartContext.Provider value={data_bridge}>
+      <Modal visible={show} onRequestClose={onClose}>
+        <AddNewProduct
+          show={addProductShow}
+          onClose={() => setAddProductShow(false)}
+          onAdd={addNewItem}
+        />
+        <View style={{flex: 1, padding: 10}}>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{...s.flexrow_aligncenter_j_between}}>
+              <Icon
+                name="receipt-outline"
+                size={30}
+                color="black"
+                style={{marginRight: 10}}
+              />
+              <Text style={{...s.normal_label, ...s.bold_label, fontSize: 30}}>
+                Edit Voucher
+              </Text>
+            </View>
 
-          <View style={{flexDirection: 'row', position: 'absolute', right: 0}}>
-            <Icon
-              name="close"
-              size={30}
-              color="black"
-              onPress={onClose}
-              style={{top: 0, right: 0}}
-            />
-          </View>
-        </View>
-        <View
-          style={{
-            marginTop: 10,
-            marginBottom: 5,
-            flexDirection: 'column',
-          }}>
-          <TextInput
-            style={{
-              borderRadius: 5,
-              borderWidth: 1,
-              borderColor: 'black',
-              ...s.bold_label,
-              paddingLeft: 10,
-            }}
-            defaultValue={data.customerName}
-            placeholder={'Customer Name'}
-          />
-        </View>
-        <FlatList
-          ListHeaderComponent={() => (
             <View
               style={{
-                flex: 1,
                 flexDirection: 'row',
-                justifyContent: 'space-around',
+                position: 'absolute',
+                right: 0,
+                alignItems: 'center',
               }}>
-              <Text style={{...headerLabel}}>Product Name</Text>
-              <Text style={headerLabel}>Qty</Text>
-              <Text style={headerLabel}>Price</Text>
-              <Text style={headerLabel}>Total Price</Text>
-              <Text style={headerLabel}>Action</Text>
-            </View>
-          )}
-          contentContainerStyle={{
-            flexDirection: 'column',
-            marginTop: 10,
-          }}
-          style={{backgroundColor: C.white}}
-          data={CartData}
-          renderItem={({item}) => (
-            <CTITEM
-              item={item}
-              onUpdate={handleItemUpdate}
-              onRemove={handleItemRemove}
-            />
-          )}
-          keyExtractor={item => item.name}
-        />
+              <ProductField
+                ContainerProps={{
+                  backgroundColor: '#ddd',
+                  padding: 5,
+                  borderRadius: 15,
+                  marginRight: 5,
+                }}
+                custom={true}
+                data={CartData}
+                setData={setCartData}
+                setTotalAmount={e => console.log(e)}
+              />
 
-        <View style={{bottom: 0, alignItems: 'center'}}>
+              <Icon
+                name="close"
+                size={30}
+                color="black"
+                onPress={onClose}
+                style={{top: 0, right: 0}}
+              />
+            </View>
+          </View>
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              padding: 5,
+              marginTop: 10,
+              marginBottom: 5,
+              flexDirection: 'column',
             }}>
-            <Text style={{...s.bold_label}}>Total Amount :</Text>
-            <Text style={{...s.bold_label}}>
-              {numberWithCommas(SumTotal)} MMK
-            </Text>
+            <TextInput
+              style={{
+                borderRadius: 5,
+                borderWidth: 1,
+                borderColor: 'black',
+                ...s.bold_label,
+                paddingLeft: 10,
+              }}
+              defaultValue={data.customerName}
+              placeholder={'Customer Name'}
+            />
           </View>
-          {/*Touchable Opacity */}
-
-          <TouchableOpacity
-            style={{
-              ...s.blue_button,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              width: C.windowWidth * 90,
+          <FlatList
+            ListHeaderComponent={() => (
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}>
+                <Text style={{...headerLabel, minWidth: width[0]}}>
+                  Product Name
+                </Text>
+                <Text style={{...headerLabel, minWidth: width[1]}}>Qty</Text>
+                <Text style={{...headerLabel, minWidth: width[2]}}>Price</Text>
+                <Text style={{...headerLabel, minWidth: width[3]}}>
+                  Total Price
+                </Text>
+                <Text style={{...headerLabel, minWidth: width[4]}}></Text>
+              </View>
+            )}
+            contentContainerStyle={{
+              flexDirection: 'column',
+              marginTop: 10,
             }}
-            onPress={() => {
-              handleSave();
-            }}>
-            <Text style={{...s.bold_label, color: C.white}}>Save</Text>
-          </TouchableOpacity>
+            style={{backgroundColor: C.white}}
+            data={oldCartData}
+            renderItem={({item}) => (
+              <CTITEM
+                item={item}
+                onUpdate={handleItemUpdate}
+                onRemove={handleItemRemove}
+              />
+            )}
+            keyExtractor={item => item.id.toString()}
+            ListFooterComponent={
+              <FlatList
+                contentContainerStyle={{
+                  flexDirection: 'column',
+                }}
+                style={{backgroundColor: C.white}}
+                data={CartData}
+                renderItem={({item}) => (
+                  <CTITEM
+                    item={item}
+                    onUpdate={handleNewItemUpdate}
+                    onRemove={handleNewItemRemove}
+                    isnew={true}
+                  />
+                )}
+                keyExtractor={item => item.name}
+              />
+            }
+          />
+
+          <View style={{bottom: 0, alignItems: 'center'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                padding: 5,
+              }}>
+              <Text style={{...s.bold_label}}>Total Amount :</Text>
+              <Text style={{...s.bold_label}}>
+                {numberWithCommas(SumTotal)} MMK
+              </Text>
+            </View>
+            {/*Touchable Opacity */}
+
+            <TouchableOpacity
+              style={{
+                ...s.blue_button,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                width: C.windowWidth * 90,
+              }}
+              onPress={() => {
+                handleSave();
+              }}>
+              <Text style={{...s.bold_label, color: C.white}}>Save</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+    </CartContext.Provider>
   );
 };
 
