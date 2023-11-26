@@ -51,7 +51,13 @@ import {
 import {useNetInfo} from '@react-native-community/netinfo';
 import {set} from 'react-native-reanimated';
 
-const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
+const ProductField = ({
+  ContainerProps,
+  setTotalAmount,
+  data,
+  setData,
+  custom = false,
+}) => {
   const [open, setOpen] = useState(false);
 
   const [load, setLoad] = useState(false);
@@ -226,7 +232,7 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <ActivityIndicator size={50} color={C.bluecolor}/>
+        <ActivityIndicator size={50} color={C.bluecolor} />
       </View>;
     }
 
@@ -405,30 +411,43 @@ const ProductField = ({ContainerProps, setTotalAmount, data, setData}) => {
 
   return (
     <>
-      <View {...ContainerProps}>
-        <Modal visible={open}>{ProductView()}</Modal>
-        <View style={{flex: 1}}>
-          {CartData ? (
-            <FlatList
-              horizontal
-              contentContainerStyle={{flexDirection: 'row'}}
-              style={{backgroundColor: C.white}}
-              data={CartData}
-              renderItem={ListItem}
-              keyExtractor={i => i.name}
-            />
-          ) : (
-            <TouchableOpacity
-              style={{padding: 5}}
-              onPress={() => SetOpenModal()}>
-              <Text>Choose Prodcuts</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <TouchableOpacity style={{padding: 5}} onPress={() => SetOpenModal()}>
-          <Icon name={'add'} size={20} color={'#000'} />
+      <Modal visible={open}>{ProductView()}</Modal>
+      {custom ? (
+        <TouchableOpacity
+          style={{
+            padding: 5,
+            backgroundColor: C.bluecolor,
+            borderRadius: 15,
+            marginRight: 5,
+          }}
+          onPress={() => SetOpenModal()}>
+          <Icon name={'add'} size={25} color={'#fff'} />
         </TouchableOpacity>
-      </View>
+      ) : (
+        <View {...ContainerProps}>
+          <View style={{flex: 1}}>
+            {CartData ? (
+              <FlatList
+                horizontal
+                contentContainerStyle={{flexDirection: 'row'}}
+                style={{backgroundColor: C.white}}
+                data={CartData}
+                renderItem={ListItem}
+                keyExtractor={i => i.name}
+              />
+            ) : (
+              <TouchableOpacity
+                style={{padding: 5}}
+                onPress={() => SetOpenModal()}>
+                <Text>Choose Prodcuts</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <TouchableOpacity style={{padding: 5}} onPress={() => SetOpenModal()}>
+            <Icon name={'add'} size={20} color={'#000'} />
+          </TouchableOpacity>
+        </View>
+      )}
     </>
   );
 };
