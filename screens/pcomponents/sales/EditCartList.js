@@ -8,6 +8,7 @@ import {
   TextInput,
   FlatList,
   Modal,
+  Dimensions,
 } from 'react-native';
 import {CartContext} from '../context/CartContext';
 import {numberWithCommas} from '../../../Database';
@@ -20,6 +21,9 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import AddNewProduct from './AddNewProduct';
+let screenwidth = Dimensions.get('window').width;
+let totalWidth = 365; // Sum of all widths
+const width = [97, 40, 80, 85, 50].map(w => (w / totalWidth) * screenwidth);
 
 const headerLabel = {
   flex: 1,
@@ -66,11 +70,15 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
   return (
     <View
       style={{
-        flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-around',
       }}>
-      <Text style={{...labelstyle, textAlign: 'right'}}>
+      <Text
+        style={{
+          ...labelstyle,
+          textAlign: 'left',
+          width: width[0],
+          minWidth: width[0],
+        }}>
         {numberWithCommas(item.pdname)}
       </Text>
       <TextInput
@@ -86,6 +94,8 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
           flex: 1,
           padding: 2,
           textAlign: 'center',
+          minWidth: width[1],
+          width: width[1],
         }}
         value={qty}
         onChangeText={handleQtyChange}
@@ -105,22 +115,32 @@ const CTITEM = ({item, onUpdate, onRemove}) => {
           flex: 1,
           padding: 2,
           textAlign: 'center',
+          minWidth: width[2],
+          width: width[2],
         }}
         value={price}
         onChangeText={handlePriceChange}
         keyboardType="numeric"
         selectTextOnFocus={true}
       />
-      <Text style={{...labelstyle, textAlign: 'right'}}>
+      <Text
+        style={{
+          ...labelstyle,
+          textAlign: 'right',
+          minWidth: width[3],
+          width: width[3],
+        }}>
         {numberWithCommas(item.total)}
       </Text>
       {/*Remove Item from cartdata using filter and with remove icon */}
-      <TouchableOpacity
-        onPress={() => {
-          onRemove(item.name);
-        }}>
-        <Icon name="trash-outline" size={30} color="red" />
-      </TouchableOpacity>
+      <View style={{width: width[4]}}>
+        <TouchableOpacity
+          onPress={() => {
+            onRemove(item.name);
+          }}>
+          <Icon name="trash-outline" size={30} color="red" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -227,15 +247,17 @@ const CartView = ({setTotalAmount, show, onClose}) => {
           ListHeaderComponent={() => (
             <View
               style={{
-                flex: 1,
                 flexDirection: 'row',
-                justifyContent: 'space-around',
               }}>
-              <Text style={{...headerLabel}}>Product Name</Text>
-              <Text style={headerLabel}>Qty</Text>
-              <Text style={headerLabel}>Price</Text>
-              <Text style={headerLabel}>Total Price</Text>
-              <Text style={headerLabel}>Action</Text>
+              <Text style={{...headerLabel, minWidth: width[0]}}>
+                Product Name
+              </Text>
+              <Text style={{...headerLabel, minWidth: width[1]}}>Qty</Text>
+              <Text style={{...headerLabel, minWidth: width[2]}}>Price</Text>
+              <Text style={{...headerLabel, minWidth: width[3]}}>
+                Total Price
+              </Text>
+              <Text style={{...headerLabel, minWidth: width[4]}}></Text>
             </View>
           )}
           contentContainerStyle={{
