@@ -429,32 +429,6 @@ const VoucherDetails = ({
                 </>
               )}
             </TouchableOpacity>
-            <View style={{...s.flexrow_aligncenter_j_center}}>
-              <TouchableOpacity
-                style={[
-                  s.blue_button,
-                  s.flexrow_aligncenter,
-                  {flex: 1, backgroundColor: 'red'},
-                ]}
-                onPress={() => {
-                  A.aswantodelete(DeleteVoucher, data.receiptNumber);
-                }}>
-                <Icons name="remove" size={20} color={'white'} />
-                <Text
-                  style={{...s.normal_label, color: 'white', marginLeft: 5}}>
-                  {t('Delete Voucher')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[s.blue_button, s.flexrow_aligncenter, {flex: 1}]}
-                onPress={() => EditVoucher()}>
-                <Icons name="edit" size={20} color={'white'} />
-                <Text
-                  style={{...s.normal_label, color: 'white', marginLeft: 5}}>
-                  {t('Edit Voucher')}
-                </Text>
-              </TouchableOpacity>
-            </View>
             <TouchableOpacity
               style={[
                 s.blue_button,
