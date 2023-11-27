@@ -40,7 +40,7 @@ import * as ImagePicker from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import ProductField from './extra/productfield';
 import ProductList from './extra/productlist';
-import {useSupplier} from './extra/SupplierDataProvider'
+import {useSupplier} from './extra/SupplierDataProvider';
 import Purchase from './Purchase';
 import Loading from '../Loading';
 import {useTranslation} from 'react-i18next';
@@ -168,7 +168,7 @@ const Product = ({navigation}) => {
     d.append('category', pd.category);
     d.append('description', pd.description);
 
-    if(!suppcoll) d.append('supplier_name', pd.supplier);
+    if (!suppcoll) d.append('supplier_name', pd.supplier);
     d.append('barcode', barcode);
     d.append('pic', pic);
 
@@ -776,42 +776,42 @@ const Product = ({navigation}) => {
             nobackExit={true}>
             <ScrollView style={{}}>
               {/*Edit Image Here by commething this code  */}
-              {/*<View
-                              style={{
-                                backgroundColor: C.bluecolor,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: 0,
-                                borderRadius: 15,
-                              }}>
-                              <Image
-                                source={{
-                                  uri: isImage
-                                    ? isImage.uri
-                                    : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
-                                }}
-                                style={{width: '100%', height: 180, backgroundColor: 'black'}}
-                              />
-              
-                              <View style={{...s.flexrow_aligncenter_j_between}}>
-                                <TouchableOpacity onPress={() => LaunchCamera()}>
-                                  <Icons
-                                    name={'camera'}
-                                    size={30}
-                                    color={'#fff'}
-                                    style={{margin: 5}}
-                                  />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => launchImageLibrary()}>
-                                  <Icons
-                                    name={'image'}
-                                    size={30}
-                                    color={'#fff'}
-                                    style={{margin: 5}}
-                                  />
-                                </TouchableOpacity>
-                              </View>
-                            </View>*/}
+              <View
+                style={{
+                  backgroundColor: C.bluecolor,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  borderRadius: 15,
+                }}>
+                <Image
+                  source={{
+                    uri: isImage
+                      ? isImage.uri
+                      : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
+                  }}
+                  style={{width: '100%', height: 180, backgroundColor: 'black'}}
+                />
+
+                <View style={{...s.flexrow_aligncenter_j_between}}>
+                  <TouchableOpacity onPress={() => LaunchCamera()}>
+                    <Icons
+                      name={'camera'}
+                      size={30}
+                      color={'#fff'}
+                      style={{margin: 5}}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => launchImageLibrary()}>
+                    <Icons
+                      name={'image'}
+                      size={30}
+                      color={'#fff'}
+                      style={{margin: 5}}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
 
               <View style={{marginTop: 10}}>
                 <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
@@ -1235,7 +1235,6 @@ const Product = ({navigation}) => {
 
   const [isImporting, setIsImporting] = useState(false);
 
-
   const handleExcelImport = async () => {
     try {
       const granted = await PermissionsAndroid.request(
@@ -1340,18 +1339,17 @@ const Product = ({navigation}) => {
 
   const {supplierData, loading, getSupplierData} = useSupplier();
   const [showSupplier, setShowSupplier] = useState(false);
-  const [selectedSupplier,setselectedSupplier] = useState('');
-  const [suppcoll,setsuppcoll] = useState(true);
+  const [selectedSupplier, setselectedSupplier] = useState('');
+  const [suppcoll, setsuppcoll] = useState(true);
 
-  useEffect(()=>{
+  useEffect(() => {
     getSupplierData();
-  },[])
+  }, []);
 
-
-  const onSelectedSupplier = (name)=>{
-    onHandlePdtData(name, 'supplier')
-    setselectedSupplier(name)
-  }
+  const onSelectedSupplier = name => {
+    onHandlePdtData(name, 'supplier');
+    setselectedSupplier(name);
+  };
 
   return (
     <View style={{...s.Container}}>
@@ -1515,41 +1513,41 @@ const Product = ({navigation}) => {
         nobackExit={true}>
         <ScrollView style={{}}>
           {/*Edit Image Here by commething this code  */}
-       {/*   <View
-                   style={{
-                     backgroundColor: C.bluecolor,
-                     alignItems: 'center',
-                     justifyContent: 'center',
-                     padding: 0,
-                     borderRadius: 15,
-                   }}>
-                   <Image
-                     source={{
-                       uri: isImage
-                         ? isImage.uri
-                         : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
-                     }}
-                     style={{width: '100%', height: 180, backgroundColor: 'black'}}
-                   />
-                   <View style={{...s.flexrow_aligncenter_j_between}}>
-                     <TouchableOpacity onPress={() => LaunchCamera()}>
-                       <Icons
-                         name={'camera'}
-                         size={30}
-                         color={'#fff'}
-                         style={{margin: 5}}
-                       />
-                     </TouchableOpacity>
-                     <TouchableOpacity onPress={() => launchImageLibrary()}>
-                       <Icons
-                         name={'image'}
-                         size={30}
-                         color={'#fff'}
-                         style={{margin: 5}}
-                       />
-                     </TouchableOpacity>
-                   </View>
-                 </View> */}
+          <View
+            style={{
+              backgroundColor: C.bluecolor,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+              borderRadius: 15,
+            }}>
+            <Image
+              source={{
+                uri: isImage
+                  ? isImage.uri
+                  : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
+              }}
+              style={{width: '100%', height: 180, backgroundColor: 'black'}}
+            />
+            <View style={{...s.flexrow_aligncenter_j_between}}>
+              <TouchableOpacity onPress={() => LaunchCamera()}>
+                <Icons
+                  name={'camera'}
+                  size={30}
+                  color={'#fff'}
+                  style={{margin: 5}}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => launchImageLibrary()}>
+                <Icons
+                  name={'image'}
+                  size={30}
+                  color={'#fff'}
+                  style={{margin: 5}}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
 
           <View style={{marginTop: 10}}>
             <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
@@ -1664,42 +1662,45 @@ const Product = ({navigation}) => {
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'cost')
               }
             />
-            
-        
 
             <View>
-            <TouchableOpacity
-              onPress={() => setsuppcoll(!suppcoll)}
-              style={{...s.flexrow_aligncenter, marginTop: 8}}>
-               <Text style={{...s.bold_label}}>{t('Supplier_Name')}</Text>
-              <Icons
-                name={
-                  suppcoll ? 'checkmark-circle-outline' : 'checkmark-circle'
-                }
-                size={20}
-                color="#000"
-                style={{marginLeft: 8}}
-              />
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setsuppcoll(!suppcoll)}
+                style={{...s.flexrow_aligncenter, marginTop: 8}}>
+                <Text style={{...s.bold_label}}>{t('Supplier_Name')}</Text>
+                <Icons
+                  name={
+                    suppcoll ? 'checkmark-circle-outline' : 'checkmark-circle'
+                  }
+                  size={20}
+                  color="#000"
+                  style={{marginLeft: 8}}
+                />
+              </TouchableOpacity>
 
-            <Collapsible collapsed={suppcoll}>
+              <Collapsible collapsed={suppcoll}>
                 <View style={{...inputS}}>
-            <TextInput
-              style={{height: 45, ...s.bold_label, color: '#0f0f0f', flex: 1}}
-              placeholder={t('Supplier_Name')}
-              value={pdtData.supplier}
-              onChangeText={e =>   onHandlePdtData(e, 'supplier')}
-            />
-            <TouchableOpacity onPress={() => onHandlePdtData('', 'supplier')}>
-              <Icons name="close-outline" size={20} color={'#000'} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() =>setShowSupplier(true)}>
-              <Icons name="people-outline" size={20} color={'#000'} />
-            </TouchableOpacity>
-          </View>
-
-            </Collapsible>
-          </View>
+                  <TextInput
+                    style={{
+                      height: 45,
+                      ...s.bold_label,
+                      color: '#0f0f0f',
+                      flex: 1,
+                    }}
+                    placeholder={t('Supplier_Name')}
+                    value={pdtData.supplier}
+                    onChangeText={e => onHandlePdtData(e, 'supplier')}
+                  />
+                  <TouchableOpacity
+                    onPress={() => onHandlePdtData('', 'supplier')}>
+                    <Icons name="close-outline" size={20} color={'#000'} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setShowSupplier(true)}>
+                    <Icons name="people-outline" size={20} color={'#000'} />
+                  </TouchableOpacity>
+                </View>
+              </Collapsible>
+            </View>
             <Text style={{...s.bold_label, marginTop: 5}}>
               {t('Description')}
             </Text>
@@ -1807,12 +1808,13 @@ const Product = ({navigation}) => {
         show={barcodemodal}
         onClose={onCloseBarCodeModal}
       />
-      <SupplierListModal 
-      showSupplier={showSupplier} 
-      onClose={()=> setShowSupplier(false)}
-      onApply={onSelectedSupplier}
-       suppliername={selectedSupplier}
-        supplierData={supplierData} />
+      <SupplierListModal
+        showSupplier={showSupplier}
+        onClose={() => setShowSupplier(false)}
+        onApply={onSelectedSupplier}
+        suppliername={selectedSupplier}
+        supplierData={supplierData}
+      />
       {/* appbar */}
       <View
         style={{
@@ -1820,11 +1822,11 @@ const Product = ({navigation}) => {
           padding: 8,
         }}>
         <Text style={{...s.bold_label, fontSize: 23}}>{t('Products')}</Text>
-        <View style={{flexDirection: 'row', alignItems:'center'}}>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Text style={{...s.bold_label}}>
             {numberWithCommas(SumProductBalance(ProductData))} MMK
           </Text>
-          </View>
+        </View>
       </View>
       {/* view */}
       <View
@@ -1953,7 +1955,6 @@ const Product = ({navigation}) => {
   );
 };
 
-
 const Container = ({navigation}) => {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
@@ -1961,9 +1962,6 @@ const Container = ({navigation}) => {
     </Stack.Navigator>
   );
 };
-
-
-
 
 const SupplierListModal = ({
   showSupplier,
@@ -1975,7 +1973,7 @@ const SupplierListModal = ({
   return (
     <MessageModalNormal show={showSupplier} onClose={onClose}>
       <Text style={{...s.bold_label, marginBottom: 10}}>Select Supplier</Text>
-      <ScrollView style={{maxHeight:Dimensions.get('window').height - 10}}>
+      <ScrollView style={{maxHeight: Dimensions.get('window').height - 10}}>
         {supplierData.map((item, index) => (
           <TouchableOpacity
             key={index}
@@ -1988,8 +1986,8 @@ const SupplierListModal = ({
               padding: 10,
               borderColor: item.name == suppliername ? C.bluecolor : 'black',
               borderWidth: 1,
-              borderRadius:5,
-              marginBottom:10,
+              borderRadius: 5,
+              marginBottom: 10,
             }}>
             <Text style={{...s.bold_label}}>{item.name}</Text>
           </TouchableOpacity>
