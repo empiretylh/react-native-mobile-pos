@@ -1,9 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
-import {useNetInfo} from '@react-native-community/netinfo';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { useNetInfo } from '@react-native-community/netinfo';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import axios from 'axios';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Image,
   Text,
@@ -11,11 +11,12 @@ import {
   Vibration,
   View,
   ActivityIndicator,
+  ToastAndroid,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import SplashScreen from 'react-native-splash-screen';
-import {COLOR, IMAGE, baseUrl} from '../Database';
-import {createTables} from '../localDatabase/LocalDb';
+import { COLOR, IMAGE, baseUrl } from '../Database';
+import { createTables } from '../localDatabase/LocalDb';
 import Login from './Login';
 import Register from './SignUp';
 import Container from './pcomponents/Container';
@@ -30,17 +31,23 @@ import SecurityView from './pcomponents/Password/SecurityVIEW';
 import ReceiptView from './pcomponents/sales/ReceiptView';
 import ChangePassword from './pcomponents/Password/ChangePassword';
 import ForgotPassword from './pcomponents/Password/ForgotPassword';
-import {UploadToCloud} from '../localDatabase/UploadToCloud';
-import {AuthContext} from './pcomponents/context/AuthContext';
+import { UploadToCloud } from '../localDatabase/UploadToCloud';
+import { AuthContext } from './pcomponents/context/AuthContext';
 import ExpenseReceiptView from './pcomponents/Expense/ReceiptView';
 import OtherIncomeRV from './pcomponents/OtherIncome/ReceiptView';
 import CustomerView from './pcomponents/sales/CustomerView';
 import SupplierView from './pcomponents/products/supplier';
 import SupplierReceiptView from './pcomponents/products/SupplierReceiptView';
 import CustomerReceiptView from './pcomponents/sales/CustomerReceiptView';
-import {useTranslation} from 'react-i18next';
-import {CustomerDataProvider} from './pcomponents/extra/CustomerDataProvider';
-import {SupplierDataProvider} from './pcomponents/extra/SupplierDataProvider';
+import { useTranslation } from 'react-i18next';
+import { CustomerDataProvider } from './pcomponents/extra/CustomerDataProvider';
+import { SupplierDataProvider } from './pcomponents/extra/SupplierDataProvider';
+import {
+  BluetoothEscposPrinter,
+  BluetoothManager,
+  BluetoothTscPrinter,
+} from 'react-native-bluetooth-escpos-printer';
+
 
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
@@ -48,10 +55,10 @@ const SContainer = () => {
   const [isloading, setIsLoading] = useState();
   const [userToken, setToken] = useState();
 
-  const {isConnected, connectionType} = useNetInfo();
+  const { isConnected, connectionType } = useNetInfo();
   const [IsSyncing, setIsSyncing] = useState(false);
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
 
   useEffect(() => {
@@ -97,7 +104,7 @@ const SContainer = () => {
       if (res == null) {
         SplashScreen.hide();
       } else {
-        axios.defaults.headers.common = {Authorization: `Token ${res}`};
+        axios.defaults.headers.common = { Authorization: `Token ${res}` };
         SplashScreen.hide();
       }
     });
@@ -108,7 +115,30 @@ const SContainer = () => {
     createTables();
   }, []);
 
-  const userTokenValue = useMemo(() => ({userToken, setToken}), [userToken]);
+  const userTokenValue = useMemo(() => ({ userToken, setToken }), [userToken]);
+
+
+  //Connect Printer
+  useEffect(() => {
+    EncryptedStorage.getItem('printer').then(res => {
+      if(res != null){
+        let printer = JSON.parse(res);
+        BluetoothManager.connect(printer.boundAddress).then(
+          async (s) => {
+            console.log('connect success');
+            await BluetoothEscposPrinter.printerInit();
+            ToastAndroid.show('Printer Connected', ToastAndroid.SHORT);
+          },
+          (e) => {
+            console.log('connect failed');
+            console.log(e);
+            ToastAndroid.show('Printer Not Connected', ToastAndroid.SHORT);
+          },
+        );
+      }
+    })
+  
+  }, [])
 
   if (!isloading || userToken) {
     SplashScreen.hide();
@@ -127,12 +157,12 @@ const SContainer = () => {
                       <Stack.Screen
                         name="login"
                         component={Login}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="register"
                         component={Register}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="forgotpassword"
@@ -144,48 +174,48 @@ const SContainer = () => {
                       <Stack.Screen
                         name="main"
                         component={Container}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="salesvoucher"
                         component={ReceiptView}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="expensereceipt"
                         component={ExpenseReceiptView}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="otherincomereceipt"
                         component={OtherIncomeRV}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
 
                       <Stack.Screen
                         name="netPrinter"
                         component={FindPrinter}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="profile"
                         component={Profile}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="printers"
                         component={SetPrinter}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="pricing"
                         component={Pricing}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="admin_pricing"
                         component={AdminPricing}
-                        initialParams={{token: setToken}}
+                        initialParams={{ token: setToken }}
                       />
                       <Stack.Screen
                         name="localreport"
@@ -226,9 +256,9 @@ const SContainer = () => {
 };
 
 export default SContainer;
-const OfflineWarningModel = ({setShowModal}) => {
+const OfflineWarningModel = ({ setShowModal }) => {
   // Offiline Warning Model with style
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -250,7 +280,7 @@ const OfflineWarningModel = ({setShowModal}) => {
           position: 'relative',
           flexDirection: 'column',
         }}>
-        <Text style={{color: 'black', fontSize: 15, fontWeight: 'bold'}}>
+        <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>
           {t('NoInternet')}
         </Text>
 
@@ -266,15 +296,15 @@ const OfflineWarningModel = ({setShowModal}) => {
           onPress={() => {
             setShowModal(false);
           }}>
-          <Text style={{color: 'white', fontSize: 18}}>OK</Text>
+          <Text style={{ color: 'white', fontSize: 18 }}>OK</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-const YoureOffline = ({}) => {
-  const {t} = useTranslation();
+const YoureOffline = ({ }) => {
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -284,14 +314,14 @@ const YoureOffline = ({}) => {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      <Text style={{color: 'white', fontSize: 13, fontWeight: 'bold'}}>
+      <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>
         You're Offline
       </Text>
     </View>
   );
 };
 
-const SyncingDataWithServer = ({}) => {
+const SyncingDataWithServer = ({ }) => {
   return (
     <View
       style={{
@@ -303,7 +333,7 @@ const SyncingDataWithServer = ({}) => {
         flexDirection: 'row',
       }}>
       <ActivityIndicator size={20} color={COLOR.bluecolor} />
-      <Text style={{color: 'white', fontSize: 13, fontWeight: 'bold'}}>
+      <Text style={{ color: 'white', fontSize: 13, fontWeight: 'bold' }}>
         Syncing Data with server...
       </Text>
     </View>

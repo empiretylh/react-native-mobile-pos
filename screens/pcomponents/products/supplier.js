@@ -128,7 +128,7 @@ const SupplierView = ({route, navigation}) => {
             padding: 10,
             elevation: 1,
           }}>
-          <View>
+           <View style={{width:'78%'}}>
             <Text style={{...s.bold_label}}>
               {item.name == '' ? 'Unknown' : item.name}
             </Text>
@@ -140,8 +140,8 @@ const SupplierView = ({route, navigation}) => {
               {t('SRemaing')} : {computesales()} Ks
             </Text>
           </View>
-          <View>
-           <Text style={{...s.normal_label}}>
+          <View style={{flex:1}}>
+           <Text style={{...s.normal_label, textAlign:'center'}}>
               {item.products.length} Products
             </Text>
             

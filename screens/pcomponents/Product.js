@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -32,31 +32,31 @@ import {
 } from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {TextInput} from 'react-native-gesture-handler';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {MessageModalNormal} from '../MessageModal';
+import { TextInput } from 'react-native-gesture-handler';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { MessageModalNormal } from '../MessageModal';
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as ImagePicker from 'react-native-image-picker';
 import DatePicker from 'react-native-date-picker';
 import ProductField from './extra/productfield';
 import ProductList from './extra/productlist';
-import {useSupplier} from './extra/SupplierDataProvider';
+import { useSupplier } from './extra/SupplierDataProvider';
 import Collapsible from 'react-native-collapsible';
 
 import Purchase from './Purchase';
 import Loading from '../Loading';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import '../../assets/i18n/i18n';
 import DocumentPicker from 'react-native-document-picker';
 
-import {RNCamera} from 'react-native-camera';
+import { RNCamera } from 'react-native-camera';
 
 const Stack = createNativeStackNavigator();
 
 import axios from 'axios';
-import {nullLiteralTypeAnnotation} from '@babel/types';
+import { nullLiteralTypeAnnotation } from '@babel/types';
 import RNFetchBlob from 'rn-fetch-blob';
-import {set} from 'react-native-reanimated';
+import { set } from 'react-native-reanimated';
 import {
   deleteCategories,
   deleteProducts,
@@ -89,14 +89,14 @@ const requestStoragePermission = async () => {
     console.error(error);
   }
 };
-const Product = ({navigation}) => {
+const Product = ({ navigation }) => {
   const RemoveToken = () => {
     EncryptedStorage.removeItem('secure_token');
   };
 
   const renderCount = useRef(0);
 
-  const {t, i18n} = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [apmodal, setapmodal] = useState(false);
   const [cmodal, setcmodal] = useState(false);
@@ -108,7 +108,7 @@ const Product = ({navigation}) => {
   const onClosecmodal = () => setcmodal(false);
   const onClosepmodal = () => setpmodal(false);
 
-  const Category = () => {};
+  const Category = () => { };
   // let t;
   const [categorytext, setCtext] = useState();
 
@@ -124,7 +124,7 @@ const Product = ({navigation}) => {
       deleteCategories();
       let a = [];
       res.data.forEach(item => {
-        a.push({label: item.title, value: item.id, id: item.id});
+        a.push({ label: item.title, value: item.id, id: item.id });
         insertCategories(item.id, item.title);
       });
       console.log(a);
@@ -149,7 +149,7 @@ const Product = ({navigation}) => {
 
   const PostCategoryToServer = () => {
     axios
-      .post('/api/categorys/', {title: categorytext})
+      .post('/api/categorys/', { title: categorytext })
       .then(res => {
         setCtext(null);
         onClosecmodal();
@@ -159,7 +159,6 @@ const Product = ({navigation}) => {
   };
 
   const PostProductsToServer = (pd, pic, barcode = 0) => {
-    setIsUpload(true);
     const d = new FormData();
     d.append('name', pd.name);
     d.append('price', pd.price);
@@ -171,12 +170,18 @@ const Product = ({navigation}) => {
       'description',
       pd.description ? pd.description + ' ' + '#cashier' : '#cashier',
     );
-    if (!suppcoll) d.append('supplier_name', pd.supplier);
+    if (!suppcoll){
+      if(pd.supplier) d.append('supplier_name', pd.supplier);
+      return a.rqf()
+    }
+    if (!expcoll) d.append('expiry_date', date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate())
 
     d.append('barcode', barcode);
     d.append('pic', pic);
 
     console.log(d);
+
+    setIsUpload(true);
 
     axios
       .post('/api/products/', d, {
@@ -193,7 +198,11 @@ const Product = ({navigation}) => {
         Load();
         setIsUpload(false);
       })
-      .catch(err => a.spe());
+      .catch(err => {
+        console.log(err)
+        a.spe()
+        setIsUpload(false)
+      });
   };
 
   const PutProductsToServer = (pd, pic, id) => {
@@ -265,7 +274,7 @@ const Product = ({navigation}) => {
 
   const RequestExcelFomrat = async () => {
     requestStoragePermission();
-    const {dirs} = RNFetchBlob.fs;
+    const { dirs } = RNFetchBlob.fs;
     const pathToWrite = `${dirs.DownloadDir}/Products.xlsx`;
 
     // User fetch url from axios.defualts.baseURL also auth token headers
@@ -299,10 +308,8 @@ const Product = ({navigation}) => {
   const [selectItem, setSelectedItem] = useState();
 
   const [open, setOpen] = useState(false); //#DropDrwonPicker
-  const [dopen, setDopen] = useState(false); //DatePicker
   const [value, setValue] = useState(1);
 
-  const [date, setDate] = useState(new Date());
   const [isImage, setImage] = useState();
   const LaunchCamera = async () => {
     try {
@@ -388,7 +395,7 @@ const Product = ({navigation}) => {
   console.log(pdtData);
 
   const onHandlePdtData = (e, name) => {
-    const temp = {...pdtData, [name]: e};
+    const temp = { ...pdtData, [name]: e };
 
     console.log(temp);
     setPdData(temp);
@@ -458,9 +465,9 @@ const Product = ({navigation}) => {
     setFilterShow(false);
   };
 
-  const SelectProductItem = () => {};
+  const SelectProductItem = () => { };
 
-  const ProductView = React.memo(({navigation}) => {
+  const ProductView = React.memo(({ navigation }) => {
     console.log('product view');
     const [showed, setShowed] = useState(false);
     const [editpd, seteditpd] = useState();
@@ -561,7 +568,7 @@ const Product = ({navigation}) => {
     const ExportBarcode = async selectedItemsIds => {
       console.log(JSON.stringify(selectedItemsIds), 'SelectedItemsIds.....');
       requestStoragePermission();
-      const {dirs} = RNFetchBlob.fs;
+      const { dirs } = RNFetchBlob.fs;
       const pathToWrite = `${dirs.DownloadDir}/Products_BarCodeData.pdf`;
 
       RNFetchBlob.config({
@@ -579,8 +586,8 @@ const Product = ({navigation}) => {
         .fetch(
           'GET',
           axios.defaults.baseURL +
-            '/api/exportbarcode/?sid=' +
-            JSON.stringify(selectedItemsIds),
+          '/api/exportbarcode/?sid=' +
+          JSON.stringify(selectedItemsIds),
           {
             'Content-Type': 'application/json',
             Authorization: axios.defaults.headers.common['Authorization'],
@@ -594,7 +601,7 @@ const Product = ({navigation}) => {
       // Use axios.defaults.baseURL
     };
 
-    const PDITEM = ({item}) => {
+    const PDITEM = ({ item }) => {
       if (selectable) {
         return (
           <TouchableOpacity
@@ -627,17 +634,17 @@ const Product = ({navigation}) => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-              <Text style={{...s.bold_label, fontSize: 15}}>{item.name}</Text>
-              <Text style={{...s.bold_label, fontSize: 15}}>
+              <Text style={{ ...s.bold_label, fontSize: 15 }}>{item.name}</Text>
+              <Text style={{ ...s.bold_label, fontSize: 15 }}>
                 {numberWithCommas(item.price)} Ks
               </Text>
             </View>
             {selectedItemId.includes(item.id) ? (
-              <View style={{marginLeft: 20}}>
+              <View style={{ marginLeft: 20 }}>
                 <Icons name={'checkmark-circle'} size={30} color={'blue'} />
               </View>
             ) : (
-              <View style={{marginLeft: 20}}>
+              <View style={{ marginLeft: 20 }}>
                 <Icons
                   name={'checkmark-circle-outline'}
                   size={30}
@@ -665,10 +672,10 @@ const Product = ({navigation}) => {
                     ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
                     : axios.defaults.baseURL + item.pic,
               }}
-              style={{width: 100, height: 100}}
+              style={{ width: 100, height: 100 }}
             />
-            <View style={{marginLeft: 10}}>
-              <Text style={{...s.bold_label, fontSize: 18}}>{item.name}</Text>
+            <View style={{ marginLeft: 10 }}>
+              <Text style={{ ...s.bold_label, fontSize: 18 }}>{item.name}</Text>
               <Text
                 style={{
                   ...s.normal_label,
@@ -682,10 +689,10 @@ const Product = ({navigation}) => {
                 {CategoryToText(item.category)}
               </Text>
 
-              <Text style={{...s.bold_label, fontSize: 15, marginTop: 5}}>
+              <Text style={{ ...s.bold_label, fontSize: 15, marginTop: 5 }}>
                 {numberWithCommas(item.price)} MMK
               </Text>
-              <Text style={{...s.normal_label, fontSize: 12, marginTop: 5}}>
+              <Text style={{ ...s.normal_label, fontSize: 12, marginTop: 5 }}>
                 barcode : {item.barcode}
               </Text>
             </View>
@@ -731,7 +738,7 @@ const Product = ({navigation}) => {
       // const fd = new FormData()
       // fd.append('cid',id_)
       axios
-        .delete('/api/products/', {data: {id: id_}})
+        .delete('/api/products/', { data: { id: id_ } })
         .then(res => {
           onCloseShow();
           GetProdcutsFromServer();
@@ -752,7 +759,7 @@ const Product = ({navigation}) => {
     const [value, setValue] = useState();
 
     const onHandleEPdtData = (e, name) => {
-      const temp = {...editpd, [name]: e};
+      const temp = { ...editpd, [name]: e };
 
       console.log(temp, '');
       seteditpd(temp);
@@ -771,7 +778,7 @@ const Product = ({navigation}) => {
     };
 
     return (
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         {editpd ? (
           <MessageModalNormal
             show={editpdshow}
@@ -780,7 +787,7 @@ const Product = ({navigation}) => {
             nobackExit={true}>
             <ScrollView style={{}}>
               {/*Edit Image Here by commething this code  */}
-           {/*   <View
+              <View
                 style={{
                   backgroundColor: C.bluecolor,
                   alignItems: 'center',
@@ -794,16 +801,16 @@ const Product = ({navigation}) => {
                       ? isImage.uri
                       : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
                   }}
-                  style={{width: '100%', height: 180, backgroundColor: 'black'}}
+                  style={{ width: '100%', height: 180, backgroundColor: 'black' }}
                 />
 
-                <View style={{...s.flexrow_aligncenter_j_between}}>
+                <View style={{ ...s.flexrow_aligncenter_j_between }}>
                   <TouchableOpacity onPress={() => LaunchCamera()}>
                     <Icons
                       name={'camera'}
                       size={30}
                       color={'#fff'}
-                      style={{margin: 5}}
+                      style={{ margin: 5 }}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => launchImageLibrary()}>
@@ -811,14 +818,14 @@ const Product = ({navigation}) => {
                       name={'image'}
                       size={30}
                       color={'#fff'}
-                      style={{margin: 5}}
+                      style={{ margin: 5 }}
                     />
                   </TouchableOpacity>
                 </View>
               </View>
-                */}
-              <View style={{marginTop: 10}}>
-                <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
+
+              <View style={{ marginTop: 10 }}>
+                <Text style={{ ...s.bold_label }}>{t('ProductName')}</Text>
                 <TextInput
                   style={{
                     padding: 10,
@@ -852,7 +859,7 @@ const Product = ({navigation}) => {
                     placeholder={'Barcode ID'}
                   />
                   <TouchableOpacity
-                    style={{padding: 10}}
+                    style={{ padding: 10 }}
                     onPress={() => seteditBarCodeModal(true)}>
                     <Icons name={'barcode'} size={20} color={'#000'} />
                   </TouchableOpacity>
@@ -866,7 +873,7 @@ const Product = ({navigation}) => {
                     onClose={onCloseeditBarCodeModal}
                   />
                 </View>
-                <Text style={{...s.bold_label}}>{t('Category')}</Text>
+                <Text style={{ ...s.bold_label }}>{t('Category')}</Text>
                 <DropDownPicker
                   open={open}
                   value={editpd.category}
@@ -884,7 +891,7 @@ const Product = ({navigation}) => {
                     onHandleEPdtData(item.value, 'category');
                   }}
                 />
-                <Text style={{...s.bold_label, marginTop: 5}}>
+                <Text style={{ ...s.bold_label, marginTop: 5 }}>
                   {t('Quantity')}
                 </Text>
                 <TextInput
@@ -902,7 +909,7 @@ const Product = ({navigation}) => {
                     onHandleEPdtData(e.replaceAllTxt(' ', ''), 'qty')
                   }
                 />
-                <Text style={{...s.bold_label, marginTop: 5}}>
+                <Text style={{ ...s.bold_label, marginTop: 5 }}>
                   {t('Price4')}
                 </Text>
                 <TextInput
@@ -920,7 +927,7 @@ const Product = ({navigation}) => {
                     onHandleEPdtData(e.replaceAllTxt(' ', ''), 'price')
                   }
                 />
-                <Text style={{...s.bold_label, marginTop: 5}}>
+                <Text style={{ ...s.bold_label, marginTop: 5 }}>
                   {t('Price5')}
                 </Text>
                 <TextInput
@@ -939,7 +946,7 @@ const Product = ({navigation}) => {
                   }
                 />
 
-                <Text style={{...s.bold_label, marginTop: 5}}>
+                <Text style={{ ...s.bold_label, marginTop: 5 }}>
                   {t('Description')}
                 </Text>
                 <TextInput
@@ -977,7 +984,7 @@ const Product = ({navigation}) => {
                       padding: 10,
                       ...s.blue_button,
                     }}>
-                    <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                    <Text style={{ ...s.font_bold, color: 'white', padding: 10 }}>
                       {t('Edit_Product')}
                     </Text>
                   </View>
@@ -991,14 +998,14 @@ const Product = ({navigation}) => {
           show={depdshow}
           onClose={onCloseDepShow}
           width={'95%'}>
-          <View style={{justifyContent: 'center'}}>
+          <View style={{ justifyContent: 'center' }}>
             <View style={{}}>
-              <Text style={{...s.bold_label, marginBottom: 5}}>
+              <Text style={{ ...s.bold_label, marginBottom: 5 }}>
                 {t('ASWDP')}
                 {' \n'}
                 {editpd ? editpd.name : ''}
               </Text>
-              <Text style={{...s.normal_label}}>{t('ASWDP2')}</Text>
+              <Text style={{ ...s.normal_label }}>{t('ASWDP2')}</Text>
             </View>
             <TouchableOpacity
               onPress={() => {
@@ -1012,7 +1019,7 @@ const Product = ({navigation}) => {
                   borderRadius: 15,
                 }}>
                 <Icons name={'trash'} size={30} color={'#fff'} />
-                <Text style={{...s.bold_label, marginLeft: 5, color: 'white'}}>
+                <Text style={{ ...s.bold_label, marginLeft: 5, color: 'white' }}>
                   {t('DPAnyway')}
                 </Text>
               </View>
@@ -1030,7 +1037,7 @@ const Product = ({navigation}) => {
                   marginTop: 5,
                 }}>
                 <Icons name={'close'} size={30} color={'#fff'} />
-                <Text style={{...s.bold_label, marginLeft: 5, color: 'white'}}>
+                <Text style={{ ...s.bold_label, marginLeft: 5, color: 'white' }}>
                   {t('Cancel')}
                 </Text>
               </View>
@@ -1038,9 +1045,9 @@ const Product = ({navigation}) => {
           </View>
         </MessageModalNormal>
         <MessageModalNormal show={showed} onClose={onCloseShow}>
-          <View style={{justifyContent: 'center'}}>
-            <View style={{justifyContent: 'center', alignItems: 'center'}}>
-              <Text style={{...s.bold_label, marginBottom: 5}}>
+          <View style={{ justifyContent: 'center' }}>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ ...s.bold_label, marginBottom: 5 }}>
                 {editpd ? editpd.name : ''}
               </Text>
             </View>
@@ -1106,7 +1113,7 @@ const Product = ({navigation}) => {
                   borderRadius: 15,
                 }}>
                 <Icons name={'trash'} size={30} color={'#fff'} />
-                <Text style={{...s.bold_label, marginLeft: 5, color: 'white'}}>
+                <Text style={{ ...s.bold_label, marginLeft: 5, color: 'white' }}>
                   {t('Delete_Product')}
                 </Text>
               </View>
@@ -1137,7 +1144,7 @@ const Product = ({navigation}) => {
                     </Text>
                   </View>
                 </TouchableOpacity>
-                <Text style={{...s.bold_label, fontSize: 20}}>
+                <Text style={{ ...s.bold_label, fontSize: 20 }}>
                   {selectedItemId.length} selected
                 </Text>
                 <TouchableOpacity
@@ -1177,7 +1184,7 @@ const Product = ({navigation}) => {
                   onRefresh={GetProdcutsFromServer}
                 />
               }
-              style={{backgroundColor: C.white}}
+              style={{ backgroundColor: C.white }}
               data={sp}
               renderItem={PDITEM}
               keyExtractor={i => i.id}
@@ -1185,8 +1192,8 @@ const Product = ({navigation}) => {
           </View>
         ) : (
           <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: 'black', fontWeight: 'bold'}}>
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'black', fontWeight: 'bold' }}>
               No Products, Click + Button to add products
             </Text>
           </View>
@@ -1195,8 +1202,8 @@ const Product = ({navigation}) => {
     );
   });
 
-  const CategoryView = React.memo(({navigation}) => {
-    const PDITEM = ({item}) => {
+  const CategoryView = React.memo(({ navigation }) => {
+    const PDITEM = ({ item }) => {
       return (
         <View
           style={{
@@ -1206,7 +1213,7 @@ const Product = ({navigation}) => {
             margin: 5,
             borderRadius: 15,
           }}>
-          <Text style={{...s.bold_label}}>{item.label}</Text>
+          <Text style={{ ...s.bold_label }}>{item.label}</Text>
         </View>
       );
     };
@@ -1223,12 +1230,12 @@ const Product = ({navigation}) => {
             }
             renderItem={PDITEM}
             keyExtractor={i => i.id}
-            style={{backgroundColor: 'white'}}
+            style={{ backgroundColor: 'white' }}
           />
         ) : (
           <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: 'black', fontWeight: 'bold'}}>
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: 'black', fontWeight: 'bold' }}>
               No Category, Click + Button to add category
             </Text>
           </View>
@@ -1341,10 +1348,12 @@ const Product = ({navigation}) => {
     onOpenAndCloseAPModal();
   };
 
-  const {supplierData, loading, getSupplierData} = useSupplier();
+  const { supplierData, loading, getSupplierData } = useSupplier();
   const [showSupplier, setShowSupplier] = useState(false);
   const [selectedSupplier, setselectedSupplier] = useState('');
   const [suppcoll, setsuppcoll] = useState(true);
+
+
 
   useEffect(() => {
     getSupplierData();
@@ -1355,20 +1364,24 @@ const Product = ({navigation}) => {
     setselectedSupplier(name);
   };
 
+  const [dopen, setDopen] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [expcoll, setExpcoll] = useState(true)
+
   return (
-    <View style={{...s.Container}}>
+    <View style={{ ...s.Container }}>
       <Loading show={isUpload} infotext={'Creating Product'} />
       <Loading show={isImporting} infotext={'Importing Product from Excel'} />
       <MessageModalNormal show={filtershow} onClose={onCloseFiltershow}>
         <View>
-          <Text style={{...s.bold_label}}>Sort Product</Text>
+          <Text style={{ ...s.bold_label }}>Sort Product</Text>
           <View>
             <TouchableOpacity
               onPress={() => {
                 SortProduct('name');
               }}
-              style={{...s.blue_button, marginTop: 8, padding: 10}}>
-              <Text style={{...s.bold_label, color: 'white'}}>
+              style={{ ...s.blue_button, marginTop: 8, padding: 10 }}>
+              <Text style={{ ...s.bold_label, color: 'white' }}>
                 Sort By Name
               </Text>
             </TouchableOpacity>
@@ -1376,15 +1389,15 @@ const Product = ({navigation}) => {
               onPress={() => {
                 SortProduct('qty');
               }}
-              style={{...s.blue_button, marginTop: 8, padding: 10}}>
-              <Text style={{...s.bold_label, color: 'white'}}>Sort By Qty</Text>
+              style={{ ...s.blue_button, marginTop: 8, padding: 10 }}>
+              <Text style={{ ...s.bold_label, color: 'white' }}>Sort By Qty</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 SortProduct('price');
               }}
-              style={{...s.blue_button, marginTop: 8, padding: 10}}>
-              <Text style={{...s.bold_label, color: 'white'}}>
+              style={{ ...s.blue_button, marginTop: 8, padding: 10 }}>
+              <Text style={{ ...s.bold_label, color: 'white' }}>
                 Sort By Price
               </Text>
             </TouchableOpacity>
@@ -1434,7 +1447,7 @@ const Product = ({navigation}) => {
                 padding: 10,
                 ...s.blue_button,
               }}>
-              <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+              <Text style={{ ...s.font_bold, color: 'white', padding: 10 }}>
                 {t('Add_Category')}
               </Text>
             </View>
@@ -1449,9 +1462,9 @@ const Product = ({navigation}) => {
 
               onOpenAndCloseAPModal();
             }}>
-            <View style={{...s.flexrow_aligncenter, padding: 10}}>
+            <View style={{ ...s.flexrow_aligncenter, padding: 10 }}>
               <Icons name={'duplicate-outline'} size={30} color={'#000'} />
-              <Text style={{...s.bold_label, marginLeft: 5}}>
+              <Text style={{ ...s.bold_label, marginLeft: 5 }}>
                 {t('Add_Category')}
               </Text>
             </View>
@@ -1462,13 +1475,13 @@ const Product = ({navigation}) => {
               setImage(null);
               onOpenAndCloseAPModal();
             }}>
-            <View style={{...s.flexrow_aligncenter, padding: 10}}>
+            <View style={{ ...s.flexrow_aligncenter, padding: 10 }}>
               <MIcons
                 name={'package-variant-closed'}
                 size={30}
                 color={'#000'}
               />
-              <Text style={{...s.bold_label, marginLeft: 5}}>
+              <Text style={{ ...s.bold_label, marginLeft: 5 }}>
                 {t('Add_Product')}
               </Text>
             </View>
@@ -1477,9 +1490,9 @@ const Product = ({navigation}) => {
             onPress={() => {
               handleExcelImport();
             }}>
-            <View style={{...s.flexrow_aligncenter, padding: 10}}>
+            <View style={{ ...s.flexrow_aligncenter, padding: 10 }}>
               <MIcons name="publish" size={30} color={'#000'} />
-              <Text style={{...s.bold_label, marginLeft: 5}}>
+              <Text style={{ ...s.bold_label, marginLeft: 5 }}>
                 {t('IW_Excel')}
               </Text>
             </View>
@@ -1517,7 +1530,7 @@ const Product = ({navigation}) => {
         nobackExit={true}>
         <ScrollView style={{}}>
           {/*Edit Image Here by commething this code  */}
-       { /*  <View
+          <View
             style={{
               backgroundColor: C.bluecolor,
               alignItems: 'center',
@@ -1531,15 +1544,15 @@ const Product = ({navigation}) => {
                   ? isImage.uri
                   : 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png',
               }}
-              style={{width: '100%', height: 180, backgroundColor: 'black'}}
+              style={{ width: '100%', height: 180, backgroundColor: 'black' }}
             />
-            <View style={{...s.flexrow_aligncenter_j_between}}>
+            <View style={{ ...s.flexrow_aligncenter_j_between }}>
               <TouchableOpacity onPress={() => LaunchCamera()}>
                 <Icons
                   name={'camera'}
                   size={30}
                   color={'#fff'}
-                  style={{margin: 5}}
+                  style={{ margin: 5 }}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => launchImageLibrary()}>
@@ -1547,14 +1560,14 @@ const Product = ({navigation}) => {
                   name={'image'}
                   size={30}
                   color={'#fff'}
-                  style={{margin: 5}}
+                  style={{ margin: 5 }}
                 />
               </TouchableOpacity>
             </View>
-            </View>*/}
+          </View>
 
-          <View style={{marginTop: 10}}>
-            <Text style={{...s.bold_label}}>{t('ProductName')}</Text>
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ ...s.bold_label }}>{t('ProductName')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -1567,7 +1580,7 @@ const Product = ({navigation}) => {
               autoFocus={true}
               onChangeText={e => onHandlePdtData(e, 'name')}
             />
-            <Text style={{...s.bold_label}}>{t('BarCode')}</Text>
+            <Text style={{ ...s.bold_label }}>{t('BarCode')}</Text>
 
             <View
               style={{
@@ -1585,9 +1598,10 @@ const Product = ({navigation}) => {
                 value={scannedbarcode}
                 onChangeText={e => setScannedBarcode(e)}
                 placeholder={'Barcode ID'}
+                keyboardType='number-pad'
               />
               <TouchableOpacity
-                style={{padding: 10}}
+                style={{ padding: 10 }}
                 onPress={() => setaddBarCodeModal(true)}>
                 <Icons name={'barcode'} size={20} color={'#000'} />
               </TouchableOpacity>
@@ -1601,7 +1615,7 @@ const Product = ({navigation}) => {
                 onClose={onCloseaddBarCodeModal}
               />
             </View>
-            <Text style={{...s.bold_label}}>{t('Category')}</Text>
+            <Text style={{ ...s.bold_label }}>{t('Category')}</Text>
             <DropDownPicker
               open={open}
               value={value}
@@ -1619,7 +1633,7 @@ const Product = ({navigation}) => {
                 onHandlePdtData(item.value, 'category');
               }}
             />
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Quantity')}</Text>
+            <Text style={{ ...s.bold_label, marginTop: 5 }}>{t('Quantity')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -1634,7 +1648,7 @@ const Product = ({navigation}) => {
                 onHandlePdtData(e.replaceAllTxt(' ', ''), 'qty')
               }
             />
-            <Text style={{...s.bold_label, marginTop: 5}}>{t('Price4')}</Text>
+            <Text style={{ ...s.bold_label, marginTop: 5 }}>{t('Price4')}</Text>
             <TextInput
               style={{
                 padding: 10,
@@ -1653,20 +1667,20 @@ const Product = ({navigation}) => {
             <View>
               <TouchableOpacity
                 onPress={() => setsuppcoll(!suppcoll)}
-                style={{...s.flexrow_aligncenter, marginTop: 8}}>
-                <Text style={{...s.bold_label}}>{t('Supplier_Name')}</Text>
+                style={{ ...s.flexrow_aligncenter, marginTop: 8 }}>
+                <Text style={{ ...s.bold_label }}>{t('Supplier_Name')}</Text>
                 <Icons
                   name={
                     suppcoll ? 'checkmark-circle-outline' : 'checkmark-circle'
                   }
                   size={20}
                   color="#000"
-                  style={{marginLeft: 8}}
+                  style={{ marginLeft: 8 }}
                 />
               </TouchableOpacity>
 
               <Collapsible collapsed={suppcoll}>
-                <View style={{...inputS}}>
+                <View style={{ ...inputS }}>
                   <TextInput
                     style={{
                       height: 45,
@@ -1688,7 +1702,63 @@ const Product = ({navigation}) => {
                 </View>
               </Collapsible>
             </View>
-            <Text style={{...s.bold_label, marginTop: 5}}>
+            <TouchableOpacity
+              onPress={() => {
+                setExpcoll(!expcoll)
+                if (expcoll) {
+                  setDopen(true)
+                }
+              }}
+
+              style={{ ...s.flexrow_aligncenter, marginTop: 8 }}>
+              <Text style={{ ...s.bold_label, marginTop: 8 }}>{t('Expiry Date')}</Text>
+              <Icons
+                name={
+                  expcoll ? 'checkmark-circle-outline' : 'checkmark-circle'
+                }
+                size={20}
+                color="#000"
+                style={{ marginLeft: 8 }}
+              />
+            </TouchableOpacity>
+
+            <Collapsible collapsed={expcoll}>
+              <View
+                style={{
+                  ...inputS,
+                  ...s.flexrow_aligncenter_j_between,
+                  padding: 0,
+                  paddingLeft: 10,
+                }}>
+                <TextInput
+                  style={{
+                    ...s.bold_label,
+                    color: '#0f0f0f',
+                  }}
+                  placeholder={'Date'}
+                  value={date.toLocaleDateString()}
+                  defaultValue={date.toLocaleDateString()}
+                />
+                <TouchableOpacity onPress={() => setDopen(true)}>
+                  <Icons name={'calendar'} size={20} color={'#000'} />
+                </TouchableOpacity>
+                <DatePicker
+                  modal
+                  open={dopen}
+                  date={date}
+                  mode={'date'}
+                  onConfirm={date => {
+                    setDopen(false);
+                    setDate(date);
+                    onHandlePdtData(date, 'expiry_date')
+                  }}
+                  onCancel={() => {
+                    setDopen(false);
+                  }}
+                />
+              </View>
+            </Collapsible>
+            <Text style={{ ...s.bold_label, marginTop: 5 }}>
               {t('Description')}
             </Text>
             <TextInput
@@ -1725,7 +1795,7 @@ const Product = ({navigation}) => {
                   padding: 10,
                   ...s.blue_button,
                 }}>
-                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                <Text style={{ ...s.font_bold, color: 'white', padding: 10 }}>
                   {t('Add_Product')}
                 </Text>
               </View>
@@ -1737,7 +1807,7 @@ const Product = ({navigation}) => {
         show={changePriceShow}
         onClose={() => setChangePriceShow(false)}>
         <View>
-          <Text style={{...s.bold_label}}>Change Price (%)</Text>
+          <Text style={{ ...s.bold_label }}>Change Price (%)</Text>
           <TextInput
             style={{
               padding: 10,
@@ -1749,11 +1819,11 @@ const Product = ({navigation}) => {
             keyboardType={'number-pad'}
             onChangeText={e => setChangePrice(e.replaceAllTxt(' ', ''))}
           />
-          <View style={{...s.flexrow_aligncenter_j_center}}>
+          <View style={{ ...s.flexrow_aligncenter_j_center }}>
             <TouchableOpacity
               onPress={() => {
                 setChangePriceShow(false);
-                ChangePrice({minus_perctange: changePrice});
+                ChangePrice({ minus_perctange: changePrice });
               }}>
               <View
                 style={{
@@ -1764,7 +1834,7 @@ const Product = ({navigation}) => {
                   backgroundColor: 'red',
                 }}>
                 <Icons name="remove-circle-outline" size={30} color={'white'} />
-                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                <Text style={{ ...s.font_bold, color: 'white', padding: 10 }}>
                   Price
                 </Text>
               </View>
@@ -1772,7 +1842,7 @@ const Product = ({navigation}) => {
             <TouchableOpacity
               onPress={() => {
                 setChangePriceShow(false);
-                ChangePrice({plus_perctange: changePrice});
+                ChangePrice({ plus_perctange: changePrice });
               }}>
               <View
                 style={{
@@ -1781,7 +1851,7 @@ const Product = ({navigation}) => {
                   ...s.blue_button,
                 }}>
                 <Icons name="add-circle-outline" size={30} color={'white'} />
-                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                <Text style={{ ...s.font_bold, color: 'white', padding: 10 }}>
                   Price
                 </Text>
               </View>
@@ -1807,9 +1877,9 @@ const Product = ({navigation}) => {
           ...s.flexrow_aligncenter_j_between,
           padding: 8,
         }}>
-        <Text style={{...s.bold_label, fontSize: 23}}>{t('Products')}</Text>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{...s.bold_label}}>
+        <Text style={{ ...s.bold_label, fontSize: 23 }}>{t('Products')}</Text>
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ ...s.bold_label }}>
             {numberWithCommas(SumProductBalance(ProductData))} MMK
           </Text>
         </View>
@@ -1840,16 +1910,16 @@ const Product = ({navigation}) => {
             name={'barcode-outline'}
             size={25}
             color={'#000'}
-            style={{marginLeft: 10}}
+            style={{ marginLeft: 10 }}
           />
         </TouchableOpacity>
       </View>
-      <View style={{...s.flexrow_aligncenter_j_center}}>
+      <View style={{ ...s.flexrow_aligncenter_j_center }}>
         <TouchableOpacity onPress={() => setFilterShow(true)}>
           <Icons name={'filter'} size={25} color={'#000'} />
         </TouchableOpacity>
         <ScrollView
-          style={{flexDirection: 'row'}}
+          style={{ flexDirection: 'row' }}
           horizontal
           showsHorizontalScrollIndicator={false}>
           <TouchableOpacity
@@ -1907,13 +1977,13 @@ const Product = ({navigation}) => {
             </TouchableOpacity>*/}
         </ScrollView>
         <TouchableOpacity>
-          <Text style={{...s.bold_label, fontSize: 14, padding: 5}}>
+          <Text style={{ ...s.bold_label, fontSize: 14, padding: 5 }}>
             {ProductData.length}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name={'p'} component={ProductView} />
         <Stack.Screen name={'c'} component={CategoryView} />
       </Stack.Navigator>
@@ -1941,9 +2011,9 @@ const Product = ({navigation}) => {
   );
 };
 
-const Container = ({navigation}) => {
+const Container = ({ navigation }) => {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name={'cproduct'} component={Product} />
     </Stack.Navigator>
   );
@@ -1958,8 +2028,8 @@ const SupplierListModal = ({
 }) => {
   return (
     <MessageModalNormal show={showSupplier} onClose={onClose}>
-      <Text style={{...s.bold_label, marginBottom: 10}}>Select Supplier</Text>
-      <ScrollView style={{maxHeight: Dimensions.get('window').height - 10}}>
+      <Text style={{ ...s.bold_label, marginBottom: 10 }}>Select Supplier</Text>
+      <ScrollView style={{ maxHeight: Dimensions.get('window').height - 10 }}>
         {supplierData.map((item, index) => (
           <TouchableOpacity
             key={index}
@@ -1975,7 +2045,7 @@ const SupplierListModal = ({
               borderRadius: 5,
               marginBottom: 10,
             }}>
-            <Text style={{...s.bold_label}}>{item.name}</Text>
+            <Text style={{ ...s.bold_label }}>{item.name}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -1984,7 +2054,7 @@ const SupplierListModal = ({
 };
 export default Container;
 
-const BarcodeScanner = ({onBarcodeRead, onClose, show}) => {
+const BarcodeScanner = ({ onBarcodeRead, onClose, show }) => {
   const onBarCodeRead = e => {
     onBarcodeRead(e.data);
     // onClose();
@@ -1992,9 +2062,9 @@ const BarcodeScanner = ({onBarcodeRead, onClose, show}) => {
 
   return (
     <Modal visible={show} onRequestClose={onClose}>
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <RNCamera
-          style={{flex: 1, width: '100%', height: '100%'}}
+          style={{ flex: 1, width: '100%', height: '100%' }}
           onBarCodeRead={onBarCodeRead}
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -2015,10 +2085,10 @@ const BarcodeScanner = ({onBarcodeRead, onClose, show}) => {
         }}>
         <Image
           source={IMAGE.scan_barcode}
-          style={{width: '80%', height: 100}}
+          style={{ width: '80%', height: 100 }}
           objectFit={'contain'}
         />
-        <Text style={{color: 'white'}}>Scan BarCode from Products</Text>
+        <Text style={{ color: 'white' }}>Scan BarCode from Products</Text>
       </View>
     </Modal>
   );

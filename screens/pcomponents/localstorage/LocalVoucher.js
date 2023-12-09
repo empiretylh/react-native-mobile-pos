@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useMemo, useCallback, useLayoutEffect} from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
   Dimensions,
 } from 'react-native';
 import axios from 'axios';
-import {baseUrl, numberWithCommas} from '../../../Database';
+import { baseUrl, numberWithCommas } from '../../../Database';
 import {
   STYLE as s,
   COLOR as C,
@@ -23,10 +23,15 @@ import {
 import Icons from 'react-native-vector-icons/MaterialIcons';
 
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useTranslation} from 'react-i18next';
-import {printReceipt} from '../print/escpos';
-import {DeleteSales} from '../../../localDatabase/sales';
-import {getAllProfile} from '../../../localDatabase/profile';
+import { useTranslation } from 'react-i18next';
+import { printReceipt } from '../print/escpos';
+import { DeleteSales } from '../../../localDatabase/sales';
+import { getAllProfile } from '../../../localDatabase/profile';
+import ViewShot from 'react-native-view-shot';
+import { BluetoothEscposPrinter } from 'react-native-bluetooth-escpos-printer';
+import EncryptedStorage from 'react-native-encrypted-storage';
+
+
 // import EditVoucherList from './EditVoucherList';
 
 /*
@@ -44,7 +49,7 @@ const LocalVoucher = ({
   onClose,
   data,
   setData,
-  reload = () => {},
+  reload = () => { },
   navigation,
 }) => {
   const t = a => a;
@@ -54,16 +59,29 @@ const LocalVoucher = ({
   const [profile, setProfile] = useState([]);
   const [showEditVoucher, setShowEditVoucher] = useState(false);
 
+  const viewRef = useRef();
+
+  const captureImage = async () => {
+    const uri = await ViewShot.captureRef(viewRef, {
+      result: "base64",
+      format: "png",
+
+    });
+    return uri;
+  }
+
   const printVoucher = async () => {
-    printReceipt(data, profile, true);
-    onClose();
-    //setPrintLoading(true);
-    // const res = await axios.post(`${baseUrl}/api/voucher/print/`, data);
-    // if (res.data.status === 'success') {
-    //   setPrintLoading(false);
-    //   setPrint(true);
-    // }
-    //   navigation.navigate('netPrinter');
+    const imageUri = await captureImage();
+
+    await BluetoothEscposPrinter.printerInit();
+
+    await BluetoothEscposPrinter.printPic(imageUri, {
+
+      left: 0,
+      right: 0,
+      align: 1,
+      mode: 'NORMAL',
+    });;
   };
 
   const getProfile = async () => {
@@ -82,7 +100,7 @@ const LocalVoucher = ({
   const priceWidth = C.windowWidth * 15;
   const totalWidth = C.windowWidth * 20;
 
-  const renderItem = ({item, index}) => {
+  const renderItem = ({ item, index }) => {
     return (
       <View
         style={{
@@ -90,10 +108,10 @@ const LocalVoucher = ({
           justifyContent: 'space-between',
           marginVertical: 5,
         }}>
-        <Text style={{...s.normal_label, fontSize: 16, width: nameWidth}}>
+        <Text style={{ ...s.normal_label, fontSize: 16, width: nameWidth }}>
           {item.pdname}
         </Text>
-        <Text style={{...s.normal_label, fontSize: 16, width: qtyWidth}}>
+        <Text style={{ ...s.normal_label, fontSize: 16, width: qtyWidth }}>
           {item.qty}
         </Text>
         <Text
@@ -101,6 +119,7 @@ const LocalVoucher = ({
             ...s.normal_label,
             fontSize: 16,
             width: priceWidth,
+            textAlign: 'right',
           }}>
           {numberWithCommas(item.price)}
         </Text>
@@ -111,7 +130,7 @@ const LocalVoucher = ({
             width: totalWidth,
             textAlign: 'right',
           }}>
-          {numberWithCommas(item.qty * item.price)} Ks
+          {numberWithCommas(item.qty * item.price)}
         </Text>
       </View>
     );
@@ -127,6 +146,23 @@ const LocalVoucher = ({
   const EditVoucher = () => {
     setShowEditVoucher(true);
   };
+
+  const [footerText, setFooterText] = useState('Thanks for your shopping');
+
+  //getfooter text from stoarge
+  const getFooterText = async () => {
+    const footerText = await EncryptedStorage.getItem('footerText');
+    if(footerText != null){
+      setFooterText(footerText);
+    }else{
+      setFooterText('Thanks for your shopping');
+    }
+    return footerText;
+  };
+
+  React.useEffect(() => {
+   getFooterText();
+  }, []);
 
   return (
     <Modal
@@ -159,8 +195,8 @@ const LocalVoucher = ({
             padding: 10,
             elevation: 5,
           }}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <View style={{flexDirection: 'row'}}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row' }}>
               <Icons name="receipt" size={30} color={'#000'} />
               <Text
                 style={{
@@ -176,181 +212,192 @@ const LocalVoucher = ({
               <Icons name="close" size={30} color={C.red} />
             </TouchableOpacity>
           </View>
-          <ScrollView style={{flex: 1}}>
-            <View style={{flexDirection: 'column', alignItems: 'center'}}>
-              {/* fields = ['name', 'username', 'email', 'phoneno', 'password','address']*/}
-              <Image
-                source={
-                  profile?.profileimage
-                    ? {
-                        uri: axios.defaults.baseURL + profile.profileimage,
-                      }
-                    : I.profile
-                }
-                style={{width: 90, height: 90, alignSelf: 'center'}}
-              />
-              <Text style={{...s.bold_label}}>{profile.name}</Text>
-              <Text style={{...s.normal_label}}>{profile.email}</Text>
-              <Text style={{...s.normal_label}}>{profile.phoneno}</Text>
-              <Text style={{...s.normal_label}}>{profile.address}</Text>
-            </View>
-            <View style={sepeator} />
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text
-                style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                {t('Receipt Number')}:{' '}
-              </Text>
-              <Text style={{...s.normal_label, fontSize: 16}}>
-                {data.voucherNumber}
-              </Text>
-            </View>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text
-                style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                {t('Customer Name')}:{' '}
-              </Text>
-              <Text style={{...s.normal_label, fontSize: 16}}>
-                {data.customerName}
-              </Text>
-            </View>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text
-                style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                {t('Date')}:{' '}
-              </Text>
-              <Text style={{...s.normal_label, fontSize: 16}}>
-                {new Date(data.date).toLocaleDateString()}
-              </Text>
-            </View>
-            <View style={sepeator} />
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginVertical: 5,
-              }}>
-              <Text
-                style={{
-                  ...s.normal_label,
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  width: nameWidth,
-                }}>
-                {t('Product Name')}
-              </Text>
-              <Text
-                style={{
-                  ...s.normal_label,
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  width: qtyWidth,
-                }}>
-                {t('Qty')}
-              </Text>
-              <Text
-                style={{
-                  ...s.normal_label,
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  width: priceWidth,
-                }}>
-                {t('Price')}
-              </Text>
-              <Text
-                style={{
-                  ...s.normal_label,
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  width: totalWidth,
-                  textAlign: 'right',
-                }}>
-                {t('Total')}
-              </Text>
-            </View>
-            <FlatList
-              data={data.products}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => index.toString()}
-            />
-            <View style={sepeator} />
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text
-                style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                {t('Total Amount')}:{' '}
-              </Text>
-              <Text style={{...s.normal_label, fontSize: 16}}>
-                {numberWithCommas(data.totalAmount)} Ks
-              </Text>
-            </View>
-            {data.tax === '0' ? null : (
-              <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text
-                  style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                  {t('Tax')}:{' '}
-                </Text>
-                <Text style={{...s.normal_label, fontSize: 16}}>
-                  {numberWithCommas(data.tax)} %
-                </Text>
-              </View>
-            )}
-            {data.deliveryCharges === null ? null : (
-              <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text
-                  style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                  {t('Delivery Charges')}:{' '}
-                </Text>
-                <Text style={{...s.normal_label, fontSize: 16}}>
-                  {numberWithCommas(data.deliveryCharges)} Ks
-                </Text>
-              </View>
-            )}
-            <View style={sepeator} />
-            {data.discount === '0' ? null : (
-              <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text
-                  style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                  {t('Discount')}:{' '}
-                </Text>
-                <Text style={{...s.normal_label, fontSize: 16}}>
-                  {data.discount} %
-                </Text>
-              </View>
-            )}
-            <View style={sepeator} />
+          <ScrollView style={{ flex: 1 }}>
+            <ViewShot ref={viewRef}>
+              <View style={{ backgroundColor: 'white' }}>
 
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text
-                style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                {t('Grand Total')}:{' '}
-              </Text>
-              <Text style={{...s.normal_label, ...s.font_bold, fontSize: 16}}>
-                {numberWithCommas(data.grandtotal)} Ks
-              </Text>
-            </View>
-            <View style={sepeator} />
+                <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                  {/* fields = ['name', 'username', 'email', 'phoneno', 'password','address']*/}
+                  <Image
+                    source={
+                      profile?.profileimage
+                        ? {
+                          uri: axios.defaults.baseURL + profile.profileimage,
+                        }
+                        : I.profile
+                    }
+                    style={{ width: 90, height: 90, alignSelf: 'center' }}
+                  />
+                  <Text style={{ ...s.bold_label }}>{profile.name}</Text>
+                  <Text style={{ ...s.normal_label }}>{profile.email}</Text>
+                  <Text style={{ ...s.normal_label }}>{profile.phoneno}</Text>
+                  <Text style={{ ...s.normal_label }}>{profile.address}</Text>
+                </View>
+                <View style={sepeator} />
+                <View
+                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text
+                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                    {t('Receipt Number')}:{' '}
+                  </Text>
+                  <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                    {data.voucherNumber}
+                  </Text>
+                </View>
+                <View
+                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text
+                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                    {t('Customer Name')}:{' '}
+                  </Text>
+                  <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                    {data.customerName}
+                  </Text>
+                </View>
+                <View
+                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text
+                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                    {t('Date')}:{' '}
+                  </Text>
+                  <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                    {new Date(data.date).toLocaleDateString()}
+                  </Text>
+                </View>
+                <View style={sepeator} />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginVertical: 5,
+                  }}>
+                  <Text
+                    style={{
+                      ...s.normal_label,
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      width: nameWidth,
+                    }}>
+                    {t('Product Name')}
+                  </Text>
+                  <Text
+                    style={{
+                      ...s.normal_label,
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      width: qtyWidth,
+                    }}>
+                    {t('Qty')}
+                  </Text>
+                  <Text
+                    style={{
+                      ...s.normal_label,
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      width: priceWidth,
+                    }}>
+                    {t('Price')}
+                  </Text>
+                  <Text
+                    style={{
+                      ...s.normal_label,
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      width: totalWidth,
+                      textAlign: 'right',
+                    }}>
+                    {t('Total')}
+                  </Text>
+                </View>
+                <FlatList
+                  data={data.products}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => index.toString()}
+                />
+             <View style={sepeator} />
+                <View
+                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text
+                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                    {t('Total Amount')}:{' '}
+                  </Text>
+                  <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                    {numberWithCommas(data.totalAmount)} Ks
+                  </Text>
+                </View>
+                {data.tax == '0' ? null : (
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text
+                      style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                      {t('Tax')}:{' '}
+                    </Text>
+                    <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                      {numberWithCommas(data.tax)} %
+                    </Text>
+                  </View>
+                )}
+                {data.deliveryCharges == null ||
+                  data.deliveryCharges == '0' ? null : (
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text
+                      style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                      {t('Delivery Charges')}:{' '}
+                    </Text>
+                    <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                      {numberWithCommas(data.deliveryCharges)} Ks
+                    </Text>
+                  </View>
+                )}
+                {data.discount == '0' ? null : (
+                  <>
+                    <View style={sepeator} />
+                    <View
+                      style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text
+                        style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                        {t('Discount')}:{' '}
+                      </Text>
+                      <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                        {data.discount} %
+                      </Text>
+                    </View>
+                  </>
+                )}
+                <View style={sepeator} />
 
-            {data.description === '' ? null : (
-              <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text
-                  style={{...s.normal_label, fontSize: 16, fontWeight: 'bold'}}>
-                  {t('Description')}:{' '}
-                </Text>
-                <Text style={{...s.normal_label, fontSize: 16}}>
-                  {data.description}
-                </Text>
+                <View
+                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text
+                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                    {t('Grand Total')}:{' '}
+                  </Text>
+                  <Text style={{ ...s.normal_label, ...s.font_bold, fontSize: 16 }}>
+                    {numberWithCommas(parseInt(data.grandtotal, 10))} Ks
+                  </Text>
+                </View>
+
+                {data?.description == '' ||
+                  data?.description == '#cashier' ? null : (
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text
+                      style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                      {t('Description')}:{' '}
+                    </Text>
+                    <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                      {data.description}
+                    </Text>
+                  </View>
+                )}
+
+                <Text style={{ ...s.normal_label, textAlign: 'center', marginTop: 10 }}>{footerText}</Text>
+
               </View>
-            )}
+            </ViewShot>
           </ScrollView>
-          <View style={{flexDirection: 'column'}}>
+          <View style={{ flexDirection: 'column' }}>
             <TouchableOpacity
               style={[s.blue_button, s.flexrow_aligncenter_j_center]}
               onPress={() => printVoucher()}>
@@ -360,25 +407,25 @@ const LocalVoucher = ({
                 <>
                   <Icons name="print" size={25} color={'white'} />
                   <Text
-                    style={{...s.bold_label, color: 'white', marginLeft: 5}}>
+                    style={{ ...s.bold_label, color: 'white', marginLeft: 5 }}>
                     {t('Print Voucher')}
                   </Text>
                 </>
               )}
             </TouchableOpacity>
-            <View style={{...s.flexrow_aligncenter_j_center}}>
+            <View style={{ ...s.flexrow_aligncenter_j_center }}>
               <TouchableOpacity
                 style={[
                   s.blue_button,
                   s.flexrow_aligncenter_j_center,
-                  {flex: 1, backgroundColor: 'red'},
+                  { flex: 1, backgroundColor: 'red' },
                 ]}
                 onPress={() => {
                   A.aswantodelete(DeleteVoucher, data.id);
                 }}>
                 <Icons name="remove" size={20} color={'white'} />
                 <Text
-                  style={{...s.normal_label, color: 'white', marginLeft: 5}}>
+                  style={{ ...s.normal_label, color: 'white', marginLeft: 5 }}>
                   {t('Delete Voucher')}
                 </Text>
               </TouchableOpacity>
@@ -387,11 +434,11 @@ const LocalVoucher = ({
               style={[
                 s.blue_button,
                 s.flexrow_aligncenter_j_center,
-                {backgroundColor: 'red'},
+                { backgroundColor: 'red' },
               ]}
               onPress={() => onClose()}>
               <Icons name="close" size={25} color={'white'} />
-              <Text style={{...s.bold_label, color: 'white'}}>
+              <Text style={{ ...s.bold_label, color: 'white' }}>
                 {t('Close')}
               </Text>
             </TouchableOpacity>

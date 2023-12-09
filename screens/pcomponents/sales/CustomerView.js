@@ -137,7 +137,7 @@ const CustomerView = ({route, navigation}) => {
             padding: 10,
             elevation: 1,
           }}>
-          <View>
+          <View style={{width:'78%'}}>
             <Text style={{...s.bold_label}}>
               {item.name == '' ? 'Unknown' : item.name}
             </Text>
@@ -148,7 +148,7 @@ const CustomerView = ({route, navigation}) => {
               {t('TRemaing')} : {numberWithCommas(computesales())} Ks
             </Text>
           </View>
-          <View>
+          <View style={{flex:1}}>
             <Text style={{...s.normal_label}}>{item.sales.length} Voucher</Text>
            
           </View>
