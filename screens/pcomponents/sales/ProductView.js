@@ -203,6 +203,7 @@ const ProductView = React.memo(({navigation}) => {
       discount: discountcoll ? 0 : discount,
       delivery: delicoll ? 0 : delivery,
       date: new Date(),
+      description: desccoll ? '' : description,
     };
     setVoucherData(data);
     setSuccess(true);

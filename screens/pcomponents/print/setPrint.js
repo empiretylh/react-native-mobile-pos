@@ -2,7 +2,7 @@
  * Created by januslo on 2018/12/27.
  */
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -29,7 +29,7 @@ import EscPos from './escpos';
 import Icon from 'react-native-vector-icons/Ionicons';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
-var {height, width} = Dimensions.get('window');
+var { height, width } = Dimensions.get('window');
 export default class Home extends Component {
   _listeners = [];
 
@@ -44,11 +44,13 @@ export default class Home extends Component {
       loading: true,
       boundAddress: '',
       debugMsg: '',
+      footerText: '',
     };
   }
 
   componentDidMount() {
     //alert(BluetoothManager)
+    console.log("Component Did Mount")
     BluetoothManager.isBluetoothEnabled().then(
       enabled => {
         this.setState({
@@ -60,6 +62,35 @@ export default class Home extends Component {
         err;
       },
     );
+
+    BluetoothManager.enableBluetooth().then(
+      r => {
+        var paired = [];
+        if (r && r.length > 0) {
+          for (var i = 0; i < r.length; i++) {
+            try {
+              paired.push(JSON.parse(r[i]));
+            } catch (e) {
+              //ignore
+            }
+          }
+        }
+        this.setState({
+          bleOpend: true,
+          loading: false,
+          pairedDs: paired,
+        });
+      },
+      err => {
+        this.setState({
+          loading: false,
+        });
+        alert(err);
+      },
+    );
+
+    this._getFooterTextFromStorage();
+
 
     if (Platform.OS === 'ios') {
       let bluetoothManagerEmitter = new NativeEventEmitter(BluetoothManager);
@@ -138,6 +169,21 @@ export default class Home extends Component {
     //}
   }
 
+  _getFooterTextFromStorage = async () => {
+    const footerText = await EncryptedStorage.getItem('footerText');
+    if(footerText != null){
+
+      this.setState({ footerText: footerText });
+    }else{
+      this.setState({ footerText: 'Thanks for your shopping' });
+    }
+  }
+
+  _setFooterTextToStorage = async (text) => {
+    this.setState({ footerText: text })
+    await EncryptedStorage.setItem('footerText', this.state.footerText);
+  }
+
   _deviceAlreadPaired(rsp) {
     var ds = null;
     if (typeof rsp.devices == 'object') {
@@ -145,7 +191,7 @@ export default class Home extends Component {
     } else {
       try {
         ds = JSON.parse(rsp.devices);
-      } catch (e) {}
+      } catch (e) { }
     }
     if (ds && ds.length) {
       let pared = this.state.pairedDs;
@@ -235,68 +281,13 @@ export default class Home extends Component {
   render() {
     return (
       <ScrollView style={styles.container}>
-        <Modal visible={this.state.show_connect_custom_modal}>
-          <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{fontSize: 20, fontWeight: 'bold'}}>
-              Connect Custom
-            </Text>
-            <TextInput
-              placeholder="Enter Printer Name"
-              onChangeText={text => {
-                this.setState({
-                  name: text,
-                });
-              }}
-            />
-            <TextInput
-              placeholder="Enter Bound Address"
-              onChangeText={text => {
-                this.setState({
-                  boundAddress: text,
-                });
-              }}
-            />
-
-            <Button
-              title="Connect"
-              onPress={() => {
-                EncryptedStorage.setItem(
-                  'printer',
-                  JSON.stringify({
-                    boundAddress: this.state.boundAddress,
-                    name: this.state.name,
-                  }),
-                );
-                this.setState({
-                  show_connect_custom_modal: false,
-                });
-                BluetoothManager.connect(this.state.boundAddress).then(
-                  s => {
-                    this.setState({
-                      loading: false,
-                      boundAddress: this.state.boundAddress,
-                      name: this.state.name || 'UNKNOWN',
-                    });
-                  },
-                  e => {
-                    this.setState({
-                      loading: false,
-                    });
-                    alert(e);
-                  },
-                );
-              }}
-            />
-          </View>
-        </Modal>
 
         <View>
-          <View style={{...styles.wtf, padding: 10}}>
+          <View style={{ ...styles.wtf, padding: 10 }}>
             <View>
               <Icon name="bluetooth" size={30} color="black" />
             </View>
-            <Text style={{color: 'black'}}>Bluetooth</Text>
+            <Text style={{ color: 'black' }}>Bluetooth</Text>
             <Switch
               value={this.state.bleOpend}
               onValueChange={v => {
@@ -347,36 +338,30 @@ export default class Home extends Component {
               }}
             />
           </View>
-          <Button
-            disabled={this.state.loading || !this.state.bleOpend}
-            onPress={() => {
-              this.setState({
-                show_connect_custom_modal: true,
-              });
-            }}
-            title="Connect Custom"
-          />
-          <Button
-            disabled={this.state.loading || !this.state.bleOpend}
-            onPress={() => {}}
-            title="Scan"
-          />
         </View>
         <Text style={styles.title}>
           Connected:
-          <Text style={{color: 'blue'}}>
+          <Text style={{ color: 'blue' }}>
             {!this.state.name ? 'No Devices' : this.state.name}
           </Text>
         </Text>
-        <Text style={styles.title}>Found(tap to connect):</Text>
-        {this.state.loading ? <ActivityIndicator animating={true} /> : null}
-        <View style={{flex: 1, flexDirection: 'column'}}>
-          {this._renderRow(this.state.foundDs)}
-        </View>
         <Text style={styles.title}>Paired:</Text>
         {this.state.loading ? <ActivityIndicator animating={true} /> : null}
-        <View style={{flex: 1, flexDirection: 'column'}}>
+        <View style={{ flex: 1, flexDirection: 'column' }}>
           {this._renderRow(this.state.pairedDs)}
+        </View>
+
+
+        <View style={{ marginTop: 10 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'black' }}>Footer Text</Text>
+          <TextInput
+            multiline
+            style={{ padding: 4, borderColor: 'gray', borderWidth: 1 }}
+            onChangeText={(text) => {
+              this._setFooterTextToStorage(text);
+            }}
+            value={this.state.footerText}
+          />
         </View>
       </ScrollView>
     );
@@ -388,7 +373,7 @@ export default class Home extends Component {
         loading: true,
       },
       () => {
-        BluetoothEscposPrinter.selfTest(() => {});
+        BluetoothEscposPrinter.selfTest(() => { });
 
         this.setState({
           loading: false,

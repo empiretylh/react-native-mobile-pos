@@ -408,11 +408,18 @@ const Profile = ({navigation, route}) => {
   const [settings, setSettings] = useState({
     language: 'en',
     datascope: 'year',
+    expirescope:7,
     lessthan: 10,
   });
   const [fbshow, setFbshow] = useState(false);
   const [feedback, setFeedback] = useState();
   const [showthura, setShowThura] = useState(false);
+
+
+  const [expireshow,setexpireshow] =  useState(false);
+  const [expiredate,setexpiredate] = useState('7');
+
+  
 
   const SaveSettings = async setting => {
     await EncryptedStorage.setItem('setting_data', JSON.stringify(setting));
@@ -630,9 +637,33 @@ const Profile = ({navigation, route}) => {
             HandleSettings(lessthan, 'lessthan');
             setLessthanShow(false);
           }}>
-          <Text style={{...s.normal_label}}>Set</Text>
+          <Text style={{...s.normal_label, color:'white'}}>Set</Text>
         </TouchableOpacity>
       </MessageModalNormal>
+
+      <MessageModalNormal
+        show={expireshow}
+        onClose={() => setexpireshow(false)}>
+        <View>
+          <Text style={{...s.bold_label}}>Expire Products Show</Text>
+          <TextInput
+            style={{...inputS, color: '#0f0f0f'}}
+            placeholder="days"
+            defaultValue={settings?.expirescope}
+            keyboardType="number-pad"
+            onChangeText={e => setexpiredate(e)}
+          />
+        </View>
+        <TouchableOpacity
+          style={{...s.blue_button}}
+          onPress={() => {
+            HandleSettings(expiredate, 'expirescope');
+            setexpireshow(false);
+          }}>
+          <Text style={{...s.normal_label, color:'white'}}>Set Day</Text>
+        </TouchableOpacity>
+      </MessageModalNormal>
+      
       <MessageModalNormal
         show={showthura}
         onClose={onCloseShowThura}
@@ -875,6 +906,21 @@ const Profile = ({navigation, route}) => {
                 <Text
                   style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
                   Less Than {settings.lessthan ? settings.lessthan : 10}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              // console.log(pdata.is_superuser);
+              setexpireshow(true);
+            }}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'calendar'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                 Expire products show inside {settings.expirescope ? settings.expirescope : 7} days
                 </Text>
               </View>
             </View>

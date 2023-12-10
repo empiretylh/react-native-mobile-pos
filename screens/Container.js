@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Vibration,
   View,
+  ToastAndroid,
   ActivityIndicator,
 } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
@@ -41,6 +42,14 @@ import CustomerReceiptView from './pcomponents/sales/CustomerReceiptView';
 import {useTranslation} from 'react-i18next';
 import {CustomerDataProvider} from './pcomponents/extra/CustomerDataProvider';
 import {SupplierDataProvider} from './pcomponents/extra/SupplierDataProvider';
+import {
+  BluetoothEscposPrinter,
+  BluetoothManager,
+  BluetoothTscPrinter,
+} from 'react-native-bluetooth-escpos-printer';
+
+
+
 const Stack = createNativeStackNavigator();
 const SContainer = () => {
   axios.defaults.baseURL = baseUrl;
@@ -106,6 +115,29 @@ const SContainer = () => {
   }, []);
 
   const userTokenValue = useMemo(() => ({userToken, setToken}), [userToken]);
+
+    //Connect Printer
+    useEffect(() => {
+      EncryptedStorage.getItem('printer').then(res => {
+        if(res != null){
+          let printer = JSON.parse(res);
+          BluetoothManager.connect(printer.boundAddress).then(
+            async (s) => {
+              console.log('connect success');
+              await BluetoothEscposPrinter.printerInit();
+              ToastAndroid.show('Printer Connected', ToastAndroid.SHORT);
+            },
+            (e) => {
+              console.log('connect failed');
+              console.log(e);
+              ToastAndroid.show('Printer Not Connected', ToastAndroid.SHORT);
+            },
+          );
+        }
+      })
+    
+    }, [])
+  
 
   if (!isloading || userToken) {
     SplashScreen.hide();

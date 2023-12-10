@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -20,33 +20,34 @@ import {
   TextInput,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
-import {IMAGE, STYLE as s, COLOR as C, isArrayhasData} from '../../Database';
+import { IMAGE, STYLE as s, COLOR as C, isArrayhasData } from '../../Database';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
 import Icons2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
-import {numberWithCommas} from '../../Database';
-import {LineChart, PieChart} from 'react-native-chart-kit';
-import {Table, Row, Rows} from 'react-native-table-component';
-import {useTranslation} from 'react-i18next';
+import { numberWithCommas } from '../../Database';
+import { LineChart, PieChart } from 'react-native-chart-kit';
+import { Table, Row, Rows } from 'react-native-table-component';
+import { useTranslation } from 'react-i18next';
 import '../../assets/i18n/i18n';
-import {MessageModalNormal} from '../MessageModal';
+import { MessageModalNormal } from '../MessageModal';
 import Pricing from './pricing';
-import {useNetInfo} from '@react-native-community/netinfo';
-import {DeleteAllProfile, insertProfile} from '../../localDatabase/profile';
-import {computeCustomerRemaingAmount,getCustomerSales, useCustomer} from './extra/CustomerDataProvider';
-import {computeSupplierRemainingAmount, useSupplier} from './extra/SupplierDataProvider';
+import { useNetInfo } from '@react-native-community/netinfo';
+import { DeleteAllProfile, insertProfile } from '../../localDatabase/profile';
+import { computeCustomerRemaingAmount, getCustomerSales, useCustomer } from './extra/CustomerDataProvider';
+import { computeSupplierRemainingAmount, useSupplier } from './extra/SupplierDataProvider';
 Date.prototype.addDays = function (days) {
   var date = new Date(this.valueOf());
   date.setDate(date.getDate() + days);
   return date;
 };
-const HomeScreen = ({navigation, route}) => {
-  const {token} = route.params;
+const HomeScreen = ({ navigation, route }) => {
+  const { token } = route.params;
 
   const [settings, setSettings] = useState({
     datascope: 'year',
     language: 'en',
+    expirescope: 7,
     lessthan: 10,
   });
   const RemoveToken = () => {
@@ -68,17 +69,29 @@ const HomeScreen = ({navigation, route}) => {
       .then(res => {
         console.log('get Settings', res);
         if (res !== null) {
-          setSettings(JSON.parse(res));
+
+          let settings = JSON.parse(res);
+
+          if (settings.expirescope) {
+
+            setSettings(JSON.parse(res));
+          } else {
+            console.log("Expire scope", settings.expirescope)
+            EncryptedStorage.setItem('setting_data', JSON.stringify({ ...settings, ['expirescope']: 7 }));
+            setSettings({ ...settings, ['expirescope']: 7 });
+          }
+
+
         } else {
-          setSettings({datascope: 'year', language: 'en', lessthan: 10});
+          setSettings({ datascope: 'year', language: 'en', lessthan: 10, expirescope: 7 });
         }
         Load();
       })
       .catch(err => console.log(err));
   };
 
-  const {t, i18n} = useTranslation();
-  const {isConnected, connectionType} = useNetInfo();
+  const { t, i18n } = useTranslation();
+  const { isConnected, connectionType } = useNetInfo();
 
   const [Sales_Data, setSales_Data] = useState([]);
   const [salesData, setSalesData] = useState([]);
@@ -92,8 +105,8 @@ const HomeScreen = ({navigation, route}) => {
 
   const [topProduct, setTopProduct] = useState(null);
 
-  const {getCustomerData} = useCustomer();
-  const {getSupplierData} = useSupplier();
+  const { getCustomerData } = useCustomer();
+  const { getSupplierData } = useSupplier();
   const Load = () => {
     // if (!isConnected) return;
 
@@ -223,16 +236,55 @@ const HomeScreen = ({navigation, route}) => {
       .catch(err => setRefresh(false));
   };
 
+  const getBeforeExpireProduct = useMemo(() => {
+    //filter expire date before by day eg. 7 days
+    const today = new Date();
+    const temp = productData.filter(item => {
+      if (item.expiry_date) {
+        const end_date = new Date(item.expiry_date);
+        console.log(end_date)
+
+        const Difference_In_Time = end_date - today;
+        const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+
+        console.log(settings?.expirescope, Difference_In_Days, "d , d")
+        return Difference_In_Days <= settings.expirescope;
+      }
+    })
+    console.log("Temp : ", temp)
+    return temp;
+
+  }, [productData])
+
+  const getExpiredProduct = useMemo(() => {
+    //filter expired products
+    const today = new Date();
+    const temp = productData.filter(item => {
+      if (item.expiry_date) {
+        const end_date = new Date(item.expiry_date);
+        const Difference_In_Time = end_date - today;
+        const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+        return Difference_In_Days <= 0;
+      }
+
+    });
+
+    return temp;
+
+  }, [productData])
+
+
+
   const getExpenseFromServer = () => {
     axios
-      .get('/api/expenses/', {params: {time: settings.datascope}})
+      .get('/api/expenses/', { params: { time: settings.datascope } })
       .then(res => setExpenseData(res.data.DATA))
       .catch(err => setRefresh(false));
   };
 
   const getOtherIncomeFromServer = () => {
     axios
-      .get('/api/otherincome/', {params: {time: settings.datascope}})
+      .get('/api/otherincome/', { params: { time: settings.datascope } })
       .then(res => {
         setOtherincomeData(res.data.DATA);
         setRefresh(false);
@@ -492,7 +544,10 @@ const HomeScreen = ({navigation, route}) => {
   const [showLS, setshowLS] = useState(false);
   const [editpd, setEditPD] = useState();
 
-  const PDITEM = ({item}) => {
+
+  const [showExpire, setShowExpire] = useState(false);
+
+  const PDITEM = ({ item }) => {
     return (
       <View
         key={item.id}
@@ -511,15 +566,18 @@ const HomeScreen = ({navigation, route}) => {
                 ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
                 : axios.defaults.baseURL + item.pic,
           }}
-          style={{width: 100, height: 100}}
+          style={{ width: 100, height: 100 }}
         />
-        <View style={{marginLeft: 10}}>
-          <Text style={{...s.bold_label, fontSize: 18}}>{item.name}</Text>
-          <Text style={{...s.bold_label, fontSize: 15, marginTop: 5}}>
+        <View style={{ marginLeft: 10 }}>
+          <Text style={{ ...s.bold_label, fontSize: 18 }}>{item.name}</Text>
+          <Text style={{ ...s.bold_label, fontSize: 15, marginTop: 5 }}>
             {numberWithCommas(item.price)} MMK
           </Text>
+          {item.expiry_date && <Text style={{ ...s.bold_label, fontSize: 15, marginTop: 5 }}>
+        Expire Date :     {new Date(item.expiry_date).toLocaleDateString()}
+          </Text>}
         </View>
-        <View style={{position: 'absolute', right: 5, top: 8}}>
+        <View style={{ position: 'absolute', right: 5, top: 8 }}>
           <TouchableOpacity
             onPress={() => {
               setCmodal(true);
@@ -557,7 +615,7 @@ const HomeScreen = ({navigation, route}) => {
 
   const EditQty = () => {
     const onHandleEPdtData = (e, name) => {
-      const temp = {...editpd, [name]: e};
+      const temp = { ...editpd, [name]: e };
       setEditPD(temp);
       console.log(temp);
     };
@@ -566,7 +624,7 @@ const HomeScreen = ({navigation, route}) => {
       return (
         <MessageModalNormal show={cmodal} onClose={onClosecmodal}>
           <View>
-            <Text style={{color: 'black'}}>{editpd.name}</Text>
+            <Text style={{ color: 'black' }}>{editpd.name}</Text>
             <View
               style={{
                 ...s.flexrow_aligncenter_j_between,
@@ -604,7 +662,7 @@ const HomeScreen = ({navigation, route}) => {
                   padding: 10,
                   ...s.blue_button,
                 }}>
-                <Text style={{...s.font_bold, color: 'white', padding: 10}}>
+                <Text style={{ ...s.font_bold, color: 'white', padding: 10 }}>
                   {t('Add_Quantity')}
                 </Text>
               </View>
@@ -652,7 +710,7 @@ const HomeScreen = ({navigation, route}) => {
   if (price_modal) {
     return (
       <Modal show={price_modal}>
-        <Pricing route={{params: route.params}} navigation={navigation} />
+        <Pricing route={{ params: route.params }} navigation={navigation} />
       </Modal>
     );
   }
@@ -665,8 +723,8 @@ const HomeScreen = ({navigation, route}) => {
       {/* appbar */}
 
       <MessageModalNormal show={showSO} onClose={onCloseSO} width={'100%'}>
-        <View style={{alignItems: 'center'}}>
-          <Text style={{...s.font_bold, color: 'black', padding: 5}}>
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ ...s.font_bold, color: 'black', padding: 5 }}>
             {showLS
               ? 'Less Than ' + settings?.lessthan + ' Qty Product'
               : 'Stock Out Products'}
@@ -676,35 +734,50 @@ const HomeScreen = ({navigation, route}) => {
           data={SOData}
           renderItem={PDITEM}
           keyExtractor={item => item.id.toString()}
-          style={{backgroundColor: 'white'}}
+          style={{ backgroundColor: 'white' }}
         />
       </MessageModalNormal>
+
+      <MessageModalNormal show={showExpire} onClose={() => setShowExpire(false)} width={'100%'}>
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ ...s.font_bold, color: 'black', padding: 5 }}>
+            {'Expire Products within ' + settings?.expirescope + ' days'}
+          </Text>
+        </View>
+        <FlatList
+          data={getBeforeExpireProduct}
+          renderItem={PDITEM}
+          keyExtractor={item => item.id.toString()}
+          style={{ backgroundColor: 'white' }}
+        />
+      </MessageModalNormal>
+
       <MessageModalNormal
         show={d_w_modal}
         onClose={() => {
           setD_w_modal(false);
         }}>
-        <View style={{alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={{color: 'black', fontWeight: 'bold'}}>Date Warning</Text>
-          <Text style={{color: 'black', fontSize: 20, fontWeight: 'bold'}}>
+        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: 'black', fontWeight: 'bold' }}>Date Warning</Text>
+          <Text style={{ color: 'black', fontSize: 20, fontWeight: 'bold' }}>
             {d_w_day} Days Left
           </Text>
-          <Text style={{color: 'black'}}>
+          <Text style={{ color: 'black' }}>
             Only {d_w_day} days left for the plan to expire
           </Text>
         </View>
         <TouchableOpacity
-          style={{...s.blue_button, padding: 8}}
+          style={{ ...s.blue_button, padding: 8 }}
           onPress={() =>
-            navigation.navigate({name: 'pricing', params: route.params})
+            navigation.navigate({ name: 'pricing', params: route.params })
           }>
-          <Text style={{color: 'white'}}>See Plan</Text>
+          <Text style={{ color: 'white' }}>See Plan</Text>
         </TouchableOpacity>
-        {}
+        { }
         <TouchableOpacity
-          style={{...s.blue_button, padding: 8}}
+          style={{ ...s.blue_button, padding: 8 }}
           onPress={() => setD_w_modal(false)}>
-          <Text style={{color: 'white'}}>Close</Text>
+          <Text style={{ color: 'white' }}>Close</Text>
         </TouchableOpacity>
       </MessageModalNormal>
 
@@ -714,13 +787,13 @@ const HomeScreen = ({navigation, route}) => {
           ...s.flexrow_aligncenter_j_between,
           padding: 8,
         }}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
             source={IMAGE.app_logo}
-            style={{width: 30, height: 30, borderRadius: 30}}
+            style={{ width: 30, height: 30, borderRadius: 30 }}
             resizeMode={'cover'}
           />
-          <Text style={{...s.bold_label, fontSize: 23, marginLeft: 5}}>
+          <Text style={{ ...s.bold_label, fontSize: 23, marginLeft: 5 }}>
             Dashboard
           </Text>
           <View
@@ -734,7 +807,7 @@ const HomeScreen = ({navigation, route}) => {
           />
           {isConnected ? null : (
             <TouchableOpacity
-              style={{marginLeft: 5}}
+              style={{ marginLeft: 5 }}
               onPress={() => navigation.navigate('localreport')}>
               <MIcons name="storage" size={25} color={'#000'} />
             </TouchableOpacity>
@@ -742,30 +815,30 @@ const HomeScreen = ({navigation, route}) => {
         </View>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate({name: 'profile', params: route.params})
+            navigation.navigate({ name: 'profile', params: route.params })
           }>
           {pdata === null ? (
             <Image
               source={IMAGE.profile}
-              style={{width: 40, height: 40, borderRadius: 30}}
+              style={{ width: 40, height: 40, borderRadius: 30 }}
             />
           ) : (
             <Image
               source={
                 pdata.profileimage
                   ? {
-                      uri: axios.defaults.baseURL + pdata.profileimage,
-                    }
+                    uri: axios.defaults.baseURL + pdata.profileimage,
+                  }
                   : IMAGE.profile
               }
-              style={{width: 40, height: 40, borderRadius: 30}}
+              style={{ width: 40, height: 40, borderRadius: 30 }}
             />
           )}
         </TouchableOpacity>
       </View>
 
       {/* view */}
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <TouchableHighlight
           underlayColor={'white'}
           onPress={() => navigation.navigate('sales')}>
@@ -775,16 +848,16 @@ const HomeScreen = ({navigation, route}) => {
               width: '100%',
               marginTop: 8,
             }}
-            imageStyle={{borderRadius: 15}}
+            imageStyle={{ borderRadius: 15 }}
             resizeMode={'cover'}>
-            <View style={{padding: 5, ...s.flexrow_aligncenter}}>
+            <View style={{ padding: 5, ...s.flexrow_aligncenter }}>
               <Icons name={'wallet-sharp'} size={100} color={'#fff'} />
               <View
                 style={{
                   flexDirection: 'column',
                   flex: 1,
                 }}>
-                <Text style={{...s.bold_label, color: 'white', fontSize: 25}}>
+                <Text style={{ ...s.bold_label, color: 'white', fontSize: 25 }}>
                   {t('Sales')}
                 </Text>
 
@@ -800,7 +873,7 @@ const HomeScreen = ({navigation, route}) => {
               </View>
               <TouchableOpacity
                 underlayColor={'white'}
-                style={{position: 'absolute', bottom: 5, right: 5}}>
+                style={{ position: 'absolute', bottom: 5, right: 5 }}>
                 <Icons
                   name={'arrow-forward-circle-outline'}
                   size={50}
@@ -819,16 +892,16 @@ const HomeScreen = ({navigation, route}) => {
               width: '100%',
               marginTop: 8,
             }}
-            imageStyle={{borderRadius: 15}}
+            imageStyle={{ borderRadius: 15 }}
             resizeMode={'cover'}>
-            <View style={{padding: 5, ...s.flexrow_aligncenter}}>
+            <View style={{ padding: 5, ...s.flexrow_aligncenter }}>
               <Icons name={'albums-outline'} size={100} color={'#fff'} />
               <View
                 style={{
                   flexDirection: 'column',
                   flex: 1,
                 }}>
-                <Text style={{...s.bold_label, color: 'white', fontSize: 25}}>
+                <Text style={{ ...s.bold_label, color: 'white', fontSize: 25 }}>
                   {t('Expense')}
                 </Text>
 
@@ -844,7 +917,7 @@ const HomeScreen = ({navigation, route}) => {
               </View>
               <TouchableOpacity
                 underlayColor={'white'}
-                style={{position: 'absolute', bottom: 5, right: 5}}>
+                style={{ position: 'absolute', bottom: 5, right: 5 }}>
                 <Icons
                   name={'arrow-forward-circle-outline'}
                   size={50}
@@ -856,23 +929,23 @@ const HomeScreen = ({navigation, route}) => {
         </TouchableHighlight>
         <TouchableHighlight
           underlayColor={'white'}
-          onPress={() => navigation.navigate('product', {screen: 'cpurchase'})}>
+          onPress={() => navigation.navigate('product', { screen: 'cpurchase' })}>
           <ImageBackground
             source={IMAGE.d3}
             style={{
               width: '100%',
               marginTop: 8,
             }}
-            imageStyle={{borderRadius: 15}}
+            imageStyle={{ borderRadius: 15 }}
             resizeMode={'cover'}>
-            <View style={{padding: 5, ...s.flexrow_aligncenter}}>
+            <View style={{ padding: 5, ...s.flexrow_aligncenter }}>
               <Icons name={'cash'} size={100} color={'#fff'} />
               <View
                 style={{
                   flexDirection: 'column',
                   flex: 1,
                 }}>
-                <Text style={{...s.bold_label, color: 'white', fontSize: 25}}>
+                <Text style={{ ...s.bold_label, color: 'white', fontSize: 25 }}>
                   {t('Purchase')}
                 </Text>
 
@@ -888,7 +961,7 @@ const HomeScreen = ({navigation, route}) => {
               </View>
               <TouchableOpacity
                 underlayColor={'white'}
-                style={{position: 'absolute', bottom: 5, right: 5}}>
+                style={{ position: 'absolute', bottom: 5, right: 5 }}>
                 <Icons
                   name={'arrow-forward-circle-outline'}
                   size={50}
@@ -900,23 +973,23 @@ const HomeScreen = ({navigation, route}) => {
         </TouchableHighlight>
         <TouchableHighlight
           underlayColor={'white'}
-          onPress={() => navigation.navigate('product', {screen: 'cproduct'})}>
+          onPress={() => navigation.navigate('product', { screen: 'cproduct' })}>
           <ImageBackground
             source={IMAGE.d4}
             style={{
               width: '100%',
               marginTop: 8,
             }}
-            imageStyle={{borderRadius: 15}}
+            imageStyle={{ borderRadius: 15 }}
             resizeMode={'cover'}>
-            <View style={{padding: 5, ...s.flexrow_aligncenter}}>
+            <View style={{ padding: 5, ...s.flexrow_aligncenter }}>
               <MIcons name={'local-mall'} size={100} color={'#fff'} />
               <View
                 style={{
                   flexDirection: 'column',
                   flex: 1,
                 }}>
-                <Text style={{...s.bold_label, color: 'white', fontSize: 20}}>
+                <Text style={{ ...s.bold_label, color: 'white', fontSize: 20 }}>
                   {t('pd_balance_amount')}
                 </Text>
 
@@ -932,7 +1005,7 @@ const HomeScreen = ({navigation, route}) => {
               </View>
               <TouchableOpacity
                 underlayColor={'white'}
-                style={{position: 'absolute', bottom: 5, right: 5}}>
+                style={{ position: 'absolute', bottom: 5, right: 5 }}>
                 <Icons
                   name={'arrow-forward-circle-outline'}
                   size={50}
@@ -943,36 +1016,36 @@ const HomeScreen = ({navigation, route}) => {
           </ImageBackground>
         </TouchableHighlight>
 
-          <View style={{maxHeight:100,flexDirection:'row', marginTop:5}}>
-    <TouchableOpacity style={{backgroundColor:C.bluecolor, borderRadius:15, padding:15, flex:1}} underlayColor="white" onPress={()=>navigation.navigate('customer')}>
-    <View style={{flexDirection:'row', alignItems:'center'}}>
-    <Icons name='people' size={30} color={'#fff'}/>
-   <Text style={{...s.bold_label, color:'white', marginLeft:2}}>Customer</Text>
-    
-    </View>
-    <Text style={{...s.bold_label, color:'white'}}>
-    {numberWithCommas(computeCustomerRemaingAmount())} MMK
-    </Text>
-     </TouchableOpacity>
-    <TouchableOpacity onPress={()=> navigation.navigate('supplier')} style={{backgroundColor:C.bluecolor, borderRadius:15, padding:15, flex:1, marginLeft:4}} underlayColor="white" >
-   <View style={{flexDirection:'row', alignItems:'center'}}>
-    <Icons2 name='package-down' size={30} color={'#fff'}/>
-   <Text style={{...s.bold_label, color:'white', marginLeft:2}}>Supplier</Text>
-    
-    </View>
-      <Text style={{...s.bold_label, color:'white'}}>  {numberWithCommas(computeSupplierRemainingAmount())} MMK
-  </Text>
-    </TouchableOpacity>
+        <View style={{ maxHeight: 100, flexDirection: 'row', marginTop: 5 }}>
+          <TouchableOpacity style={{ backgroundColor: C.bluecolor, borderRadius: 15, padding: 15, flex: 1 }} underlayColor="white" onPress={() => navigation.navigate('customer')}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Icons name='people' size={30} color={'#fff'} />
+              <Text style={{ ...s.bold_label, color: 'white', marginLeft: 2 }}>Customer</Text>
+
+            </View>
+            <Text style={{ ...s.bold_label, color: 'white' }}>
+              {numberWithCommas(computeCustomerRemaingAmount())} MMK
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('supplier')} style={{ backgroundColor: C.bluecolor, borderRadius: 15, padding: 15, flex: 1, marginLeft: 4 }} underlayColor="white" >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Icons2 name='package-down' size={30} color={'#fff'} />
+              <Text style={{ ...s.bold_label, color: 'white', marginLeft: 2 }}>Supplier</Text>
+
+            </View>
+            <Text style={{ ...s.bold_label, color: 'white' }}>  {numberWithCommas(computeSupplierRemainingAmount())} MMK
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      </View>
-
-    
 
 
-      <View style={{...s.flexrow_aligncenter_j_between, marginTop: 8}}/>
+
+
+      <View style={{ ...s.flexrow_aligncenter_j_between, marginTop: 8 }} />
       <View>
         {productData ? (
-          <View style={{flexDirection: 'column'}}>
+          <View style={{ flexDirection: 'column' }}>
             {productData.filter(item => item.qty <= 0).length <= 0 ? null : (
               <TouchableOpacity
                 style={{
@@ -990,7 +1063,7 @@ const HomeScreen = ({navigation, route}) => {
                   size={25}
                   color={'white'}
                 />
-                <Text style={{...s.bold_label, color: 'white'}}>
+                <Text style={{ ...s.bold_label, color: 'white' }}>
                   {productData.filter(item => item.qty <= 0).length} {t('POOS')}
                 </Text>
               </TouchableOpacity>
@@ -1014,7 +1087,7 @@ const HomeScreen = ({navigation, route}) => {
                   size={25}
                   color={'white'}
                 />
-                <Text style={{...s.bold_label, color: 'white'}}>
+                <Text style={{ ...s.bold_label, color: 'white' }}>
                   {
                     productData.filter(item => item.qty <= settings?.lessthan)
                       .length
@@ -1026,12 +1099,38 @@ const HomeScreen = ({navigation, route}) => {
           </View>
         ) : null}
 
+        {getBeforeExpireProduct.length > 0 ? (
+          <TouchableOpacity
+            style={{
+              padding: 10,
+              backgroundColor: '#d65420',
+              borderRadius: 15,
+              ...s.flexrow_aligncenter,
+              marginTop: 5,
+            }}
+            onPress={() => {
+             setShowExpire(true);
+            }}>
+            <Icons2
+              name={'package-variant-closed'}
+              size={25}
+              color={'white'}
+            />
+            <Text style={{ ...s.bold_label, color: 'white' }}>
+              {getBeforeExpireProduct.length
+              }{' '}
+              Products are expire within {settings?.expirescope} days
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+
+
         {isArrayhasData(topProduct) ? (
           <>
-            <View style={{marginTop: 8}}>
-              <Text style={{...s.font_bold, color: 'black'}}>{t('TFSP')}</Text>
+            <View style={{ marginTop: 8 }}>
+              <Text style={{ ...s.font_bold, color: 'black' }}>{t('TFSP')}</Text>
               {topProduct ? (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{flex:1}}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
                   <PieChart
                     data={
                       topProduct.length >= 4
@@ -1057,14 +1156,14 @@ const HomeScreen = ({navigation, route}) => {
                     hasLegend={false}
                   />
                   {/*Custom Legend*/}
-                  <View style={{flex:1, position:'absolute', right:-15, marginTop:15, width:120}}>
+                  <View style={{ flex: 1, position: 'absolute', right: -15, marginTop: 15, width: 120 }}>
                     {(topProduct.length >= 4
-                      ? topproduct.slice(0, 4).sort((a,b)=> a.freq - b.freq).reverse()
-                      : topproduct.sort((a,b)=> a.freq-b.freq).reverse()).map((item) => {
-                        return(
-                          <View style={{flexDirection:'row', alignItems:'center', margin:8,}}>
-                            <View style={{backgroundColor:item.color, width:10, height:10, borderRadius:50, marginRight:5}}/>
-                            <Text style={{color:'black', fontSize:15, fontWeight:'bold'}}>{item.name}</Text>
+                      ? topproduct.slice(0, 4).sort((a, b) => a.freq - b.freq).reverse()
+                      : topproduct.sort((a, b) => a.freq - b.freq).reverse()).map((item) => {
+                        return (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', margin: 8, }}>
+                            <View style={{ backgroundColor: item.color, width: 10, height: 10, borderRadius: 50, marginRight: 5 }} />
+                            <Text style={{ color: 'black', fontSize: 15, fontWeight: 'bold' }}>{item.name}</Text>
                           </View>
                         )
                       })
@@ -1074,33 +1173,33 @@ const HomeScreen = ({navigation, route}) => {
               ) : null}
             </View>
 
-            <View style={{marginTop: 8}}>
-              <Text style={{...s.font_bold, color: 'black'}}>{t('TMP')}</Text>
+            <View style={{ marginTop: 8 }}>
+              <Text style={{ ...s.font_bold, color: 'black' }}>{t('TMP')}</Text>
               {topProduct ? (
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   nestedScrollEnabled={true}
-                  style={{height: 200}}>
-                  <View style={{flexDirection: 'column'}}>
+                  style={{ height: 200 }}>
+                  <View style={{ flexDirection: 'column' }}>
                     <View
                       style={{
                         height: 40,
                         flexDirection: 'row',
                         backgroundColor: 'red',
                       }}>
-                      <View style={{...headerstyle, width: tablearr[0]}}>
-                        <Text style={{color: 'white', textAlign: 'center'}}>
+                      <View style={{ ...headerstyle, width: tablearr[0] }}>
+                        <Text style={{ color: 'white', textAlign: 'center' }}>
                           {t('No')}
                         </Text>
                       </View>
-                      <View style={{...headerstyle, width: tablearr[1]}}>
-                        <Text style={{color: 'white', textAlign: 'center'}}>
+                      <View style={{ ...headerstyle, width: tablearr[1] }}>
+                        <Text style={{ color: 'white', textAlign: 'center' }}>
                           {t('ProductName')}
                         </Text>
                       </View>
-                      <View style={{...headerstyle, width: tablearr[2]}}>
-                        <Text style={{color: 'white', textAlign: 'center'}}>
+                      <View style={{ ...headerstyle, width: tablearr[2] }}>
+                        <Text style={{ color: 'white', textAlign: 'center' }}>
                           {t('Price2')}
                         </Text>
                       </View>
@@ -1114,25 +1213,25 @@ const HomeScreen = ({navigation, route}) => {
                         )
                         .map((item, index) => (
                           <View>
-                            <View style={{flex: 1, flexDirection: 'row'}}>
+                            <View style={{ flex: 1, flexDirection: 'row' }}>
                               <View
-                                style={{...styles.cell, width: tablearr[0]}}>
+                                style={{ ...styles.cell, width: tablearr[0] }}>
                                 <Text
-                                  style={{color: 'black', textAlign: 'center'}}>
+                                  style={{ color: 'black', textAlign: 'center' }}>
                                   {index + 1}
                                 </Text>
                               </View>
                               <View
-                                style={{...styles.cell, width: tablearr[1]}}>
+                                style={{ ...styles.cell, width: tablearr[1] }}>
                                 <Text
-                                  style={{color: 'black', textAlign: 'center'}}>
+                                  style={{ color: 'black', textAlign: 'center' }}>
                                   {item.name}
                                 </Text>
                               </View>
                               <View
-                                style={{...styles.cell, width: tablearr[2]}}>
+                                style={{ ...styles.cell, width: tablearr[2] }}>
                                 <Text
-                                  style={{color: 'black', textAlign: 'right'}}>
+                                  style={{ color: 'black', textAlign: 'right' }}>
                                   {numberWithCommas(item.price) + ' MMK'}
                                 </Text>
                               </View>
@@ -1147,11 +1246,11 @@ const HomeScreen = ({navigation, route}) => {
           </>
         ) : null}
 
-        <Text style={{color: 'black', fontWeight: 'bold'}}>
+        <Text style={{ color: 'black', fontWeight: 'bold' }}>
           {t('Sales_Chart')}
         </Text>
         <ScrollView
-          style={{flexDirection: 'row'}}
+          style={{ flexDirection: 'row' }}
           horizontal
           showsHorizontalScrollIndicator={false}>
           <TouchableOpacity
@@ -1164,7 +1263,7 @@ const HomeScreen = ({navigation, route}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>{t('Today')}</Text>
+              <Text style={{ color: 'white', padding: 10 }}>{t('Today')}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -1177,7 +1276,7 @@ const HomeScreen = ({navigation, route}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>
+              <Text style={{ color: 'white', padding: 10 }}>
                 {t('Days_View')}
               </Text>
             </View>
@@ -1192,7 +1291,7 @@ const HomeScreen = ({navigation, route}) => {
                 margin: 5,
                 borderRadius: 15,
               }}>
-              <Text style={{color: 'white', padding: 10}}>
+              <Text style={{ color: 'white', padding: 10 }}>
                 {t('Months_View')}
               </Text>
             </View>
@@ -1220,20 +1319,20 @@ const HomeScreen = ({navigation, route}) => {
             borderRadius: 16,
           }}
         />
-        <Text style={{color: 'black', fontWeight: 'bold'}}>
+        <Text style={{ color: 'black', fontWeight: 'bold' }}>
           {t('Sales_Table')}
         </Text>
 
-        <Table borderStyle={{borderWidth: 2, borderColor: '#000'}}>
+        <Table borderStyle={{ borderWidth: 2, borderColor: '#000' }}>
           <Row
             data={[t('Date&Time'), t('Amount')]}
             style={{
               backgroundColor: '#f1f8ff',
               height: 40,
             }}
-            textStyle={{color: 'black', textAlign: 'center'}}
+            textStyle={{ color: 'black', textAlign: 'center' }}
           />
-          <Rows data={salesTable} textStyle={{margin: 6, color: 'black'}} />
+          <Rows data={salesTable} textStyle={{ margin: 6, color: 'black' }} />
         </Table>
         <View
           style={{
@@ -1241,10 +1340,10 @@ const HomeScreen = ({navigation, route}) => {
             margin: 10,
             padding: 5,
           }}>
-          <Text style={{...s.font_bold, color: 'black'}}>
+          <Text style={{ ...s.font_bold, color: 'black' }}>
             {t('Total_Amount')}
           </Text>
-          <Text style={{...s.font_bold, color: 'black'}}>
+          <Text style={{ ...s.font_bold, color: 'black' }}>
             {numberWithCommas(tabletotalprice) + ' MMK'}
           </Text>
         </View>
@@ -1277,7 +1376,7 @@ const chartConfig = {
   decimalPlaces: 0, // optional, defaults to 2dp
   color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
   labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-  propsForVerticalLabels: {translateY: 15},
+  propsForVerticalLabels: { translateY: 15 },
   style: {
     borderRadius: 0,
   },
