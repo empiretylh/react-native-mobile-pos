@@ -1664,7 +1664,6 @@ const Product = ({ navigation }) => {
               placeholder={t('ProductName')}
               autoFocus={true}
               onChangeText={e => onHandlePdtData(e, 'name')}
-              keyboardType='number-pad'
             />
             <Text style={{ ...s.bold_label }}>{t('BarCode')}</Text>
 
@@ -1684,6 +1683,8 @@ const Product = ({ navigation }) => {
                 value={scannedbarcode}
                 onChangeText={e => setScannedBarcode(e)}
                 placeholder={'Barcode ID'}
+                keyboardType='number-pad'
+
               />
               <TouchableOpacity
                 style={{ padding: 10 }}
