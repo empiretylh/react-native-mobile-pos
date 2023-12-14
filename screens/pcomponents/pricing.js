@@ -223,17 +223,7 @@ const Pricing = ({navigation, route}) => {
             </>
           )}
         </TouchableOpacity>
-        {request ? (
-          <TouchableOpacity
-            style={{...s.blue_button}}
-            onPress={() =>
-              Linking.openURL(axios.defaults.baseURL + '/howtopaymoney/')
-            }>
-            <Text style={{color: 'white', fontWeight: 'bold'}}>
-              How to pay money
-            </Text>
-          </TouchableOpacity>
-        ) : null}
+     
       </View>
     );
   };
