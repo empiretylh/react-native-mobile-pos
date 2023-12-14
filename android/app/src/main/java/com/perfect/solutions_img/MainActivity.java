@@ -1,4 +1,4 @@
-package com.perfect.solutions;
+package com.perfect.solutions_img;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

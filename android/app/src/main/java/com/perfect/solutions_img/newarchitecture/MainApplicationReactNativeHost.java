@@ -1,4 +1,4 @@
-package com.perfect.solutions.newarchitecture;
+package com.perfect.solutions_img.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.perfect.solutions.BuildConfig;
-import com.perfect.solutions.newarchitecture.components.MainComponentsRegistry;
-import com.perfect.solutions.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.perfect.solutions_img.BuildConfig;
+import com.perfect.solutions_img.newarchitecture.components.MainComponentsRegistry;
+import com.perfect.solutions_img.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
