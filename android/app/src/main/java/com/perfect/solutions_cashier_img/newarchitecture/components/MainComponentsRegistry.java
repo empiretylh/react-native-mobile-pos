@@ -1,4 +1,4 @@
-package com.perfect.solutions_cashier.newarchitecture.components;
+package com.perfect.solutions_cashier_img.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
