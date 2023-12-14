@@ -10,6 +10,7 @@ import {
   Text,
   View,
   Button,
+  PermissionsAndroid,
   ScrollView,
   DeviceEventEmitter,
   NativeEventEmitter,
@@ -48,9 +49,56 @@ export default class Home extends Component {
     };
   }
 
+
+   requestBluetoothConnectPermissions (){
+    const granted = PermissionsAndroid.requestMultiple([PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT, PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE ])
+   
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('You can use the Bluetooth');
+    } else {
+      console.log('Bluetooth permission denied');
+    }
+  }
+
+
+
+   requestBluetoothScanPermissions (){
+
+
+    const granted = PermissionsAndroid.request(PermissionsAndroid.BLUETOOTH_SCAN,{
+       title: 'Bluetooth Permission',
+        message: 'App needs Bluetooth permission for printer connection.',
+        buttonPositive: 'OK',
+        buttonNegative: 'Cancel',
+    })
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('You can use the Bluetooth');
+    } else {
+      console.log('Bluetooth permission denied');
+    }
+  }
+
+   requestBluetoothAdvertisePermissions (){
+    const granted = PermissionsAndroid.request(PermissionsAndroid.BLUETOOTH_ADVERTISE,{
+       title: 'Bluetooth Permission',
+        message: 'App needs Bluetooth permission for printer connection.',
+        buttonPositive: 'OK',
+        buttonNegative: 'Cancel',
+    })
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('You can use the Bluetooth');
+    } else {
+      console.log('Bluetooth permission denied');
+    }
+  }
+
   componentDidMount() {
     //alert(BluetoothManager)
     console.log("Component Did Mount")
+    this.requestBluetoothConnectPermissions();
+    // this.requestBluetoothScanPermissions();
+    // this.requestBluetoothAdvertisePermissions();
+
     BluetoothManager.isBluetoothEnabled().then(
       enabled => {
         this.setState({
@@ -63,31 +111,9 @@ export default class Home extends Component {
       },
     );
 
-    BluetoothManager.enableBluetooth().then(
-      r => {
-        var paired = [];
-        if (r && r.length > 0) {
-          for (var i = 0; i < r.length; i++) {
-            try {
-              paired.push(JSON.parse(r[i]));
-            } catch (e) {
-              //ignore
-            }
-          }
-        }
-        this.setState({
-          bleOpend: true,
-          loading: false,
-          pairedDs: paired,
-        });
-      },
-      err => {
-        this.setState({
-          loading: false,
-        });
-        alert(err);
-      },
-    );
+
+
+   
 
     this._getFooterTextFromStorage();
 
@@ -168,6 +194,42 @@ export default class Home extends Component {
     //    this._listeners[ls].remove();
     //}
   }
+
+    componentDidUpdate(prevProps, prevState) {
+    // This block of code will run after the component updates
+    // You can compare current props and state with previous props and state
+
+    // Example: Check if a specific prop has changed
+    if (this.state.bleOpend !== prevState.bleOpend) {
+      console.log('searching..')
+       BluetoothManager.enableBluetooth().then(
+      r => {
+        var paired = [];
+        if (r && r.length > 0) {
+          for (var i = 0; i < r.length; i++) {
+            try {
+              paired.push(JSON.parse(r[i]));
+            } catch (e) {
+              //ignore
+            }
+          }
+        }
+        this.setState({
+          bleOpend: true,
+          loading: false,
+          pairedDs: paired,
+        });
+      },
+      err => {
+        this.setState({
+          loading: false,
+        });
+        alert(err);
+      },
+    );
+    }
+  }
+
 
   _getFooterTextFromStorage = async () => {
     const footerText = await EncryptedStorage.getItem('footerText');
@@ -438,9 +500,11 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     textAlign: 'left',
+    color:'black',
   },
   address: {
     flex: 1,
     textAlign: 'right',
+    color:'black'
   },
 });

@@ -114,6 +114,7 @@ const LoginScreen = ({navigation, route}) => {
             ...STYLE.defaultTextInput,
             borderBottomColor: isfocus.username ? 'blue' : 'black',
             marginTop: 10,
+            
           }}
           placeholder={'Username'}
           value={data ? (data.username ? data.username : '') : null}
