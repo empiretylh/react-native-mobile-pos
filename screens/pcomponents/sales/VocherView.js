@@ -72,8 +72,14 @@ const VoucherDetails = ({
 
     await BluetoothEscposPrinter.printerInit();
 
-    await BluetoothEscposPrinter.printPic(imageUri, {
+    //get paper width from storage
+    let paperWidth = await EncryptedStorage.getItem('paperWidth');
+    if (paperWidth == null) {
+      paperWidth = 800;
+    }
 
+    await BluetoothEscposPrinter.printPic(imageUri, {
+      width: parseInt(paperWidth),
       left: 0,
       right: 0,
       align: 1,
@@ -100,16 +106,16 @@ const VoucherDetails = ({
   //getfooter text from stoarge
   const getFooterText = async () => {
     const footerText = await EncryptedStorage.getItem('footerText');
-    if(footerText != null){
+    if (footerText != null) {
       setFooterText(footerText);
-    }else{
+    } else {
       setFooterText('Thanks for your shopping');
     }
     return footerText;
   };
 
   React.useEffect(() => {
-   getFooterText();
+    getFooterText();
   }, []);
 
   const nameWidth = C.windowWidth * 35;
@@ -136,7 +142,7 @@ const VoucherDetails = ({
             ...s.normal_label,
             fontSize: 16,
             width: priceWidth,
-            textAlign:'right'
+            textAlign: 'right'
           }}>
           {numberWithCommas(item.price)}
         </Text>
@@ -306,6 +312,7 @@ const VoucherDetails = ({
                       fontSize: 16,
                       fontWeight: 'bold',
                       width: priceWidth,
+                      textAlign: 'right'
                     }}>
                     {t('Price')}
                   </Text>
@@ -454,7 +461,7 @@ const VoucherDetails = ({
                   </>
 
                 )}
-              <Text style={{ ...s.normal_label, textAlign:'center', marginTop:10 }}>{footerText}</Text>
+                <Text style={{ ...s.normal_label, textAlign: 'center', marginTop: 10 }}>{footerText}</Text>
               </View>
 
             </ViewShot>
