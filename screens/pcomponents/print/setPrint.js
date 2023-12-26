@@ -46,13 +46,14 @@ export default class Home extends Component {
       boundAddress: '',
       debugMsg: '',
       footerText: '',
+      paperWidth: '',
     };
   }
 
 
-   requestBluetoothConnectPermissions (){
-    const granted = PermissionsAndroid.requestMultiple([PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT, PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE ])
-   
+  requestBluetoothConnectPermissions() {
+    const granted = PermissionsAndroid.requestMultiple([PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT, PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN, PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE])
+
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log('You can use the Bluetooth');
     } else {
@@ -62,14 +63,14 @@ export default class Home extends Component {
 
 
 
-   requestBluetoothScanPermissions (){
+  requestBluetoothScanPermissions() {
 
 
-    const granted = PermissionsAndroid.request(PermissionsAndroid.BLUETOOTH_SCAN,{
-       title: 'Bluetooth Permission',
-        message: 'App needs Bluetooth permission for printer connection.',
-        buttonPositive: 'OK',
-        buttonNegative: 'Cancel',
+    const granted = PermissionsAndroid.request(PermissionsAndroid.BLUETOOTH_SCAN, {
+      title: 'Bluetooth Permission',
+      message: 'App needs Bluetooth permission for printer connection.',
+      buttonPositive: 'OK',
+      buttonNegative: 'Cancel',
     })
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log('You can use the Bluetooth');
@@ -78,12 +79,12 @@ export default class Home extends Component {
     }
   }
 
-   requestBluetoothAdvertisePermissions (){
-    const granted = PermissionsAndroid.request(PermissionsAndroid.BLUETOOTH_ADVERTISE,{
-       title: 'Bluetooth Permission',
-        message: 'App needs Bluetooth permission for printer connection.',
-        buttonPositive: 'OK',
-        buttonNegative: 'Cancel',
+  requestBluetoothAdvertisePermissions() {
+    const granted = PermissionsAndroid.request(PermissionsAndroid.BLUETOOTH_ADVERTISE, {
+      title: 'Bluetooth Permission',
+      message: 'App needs Bluetooth permission for printer connection.',
+      buttonPositive: 'OK',
+      buttonNegative: 'Cancel',
     })
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       console.log('You can use the Bluetooth');
@@ -113,9 +114,10 @@ export default class Home extends Component {
 
 
 
-   
+
 
     this._getFooterTextFromStorage();
+    this._getPaperWidthFromStorage();
 
 
     if (Platform.OS === 'ios') {
@@ -195,55 +197,69 @@ export default class Home extends Component {
     //}
   }
 
-    componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     // This block of code will run after the component updates
     // You can compare current props and state with previous props and state
 
     // Example: Check if a specific prop has changed
     if (this.state.bleOpend !== prevState.bleOpend) {
       console.log('searching..')
-       BluetoothManager.enableBluetooth().then(
-      r => {
-        var paired = [];
-        if (r && r.length > 0) {
-          for (var i = 0; i < r.length; i++) {
-            try {
-              paired.push(JSON.parse(r[i]));
-            } catch (e) {
-              //ignore
+      BluetoothManager.enableBluetooth().then(
+        r => {
+          var paired = [];
+          if (r && r.length > 0) {
+            for (var i = 0; i < r.length; i++) {
+              try {
+                paired.push(JSON.parse(r[i]));
+              } catch (e) {
+                //ignore
+              }
             }
           }
-        }
-        this.setState({
-          bleOpend: true,
-          loading: false,
-          pairedDs: paired,
-        });
-      },
-      err => {
-        this.setState({
-          loading: false,
-        });
-        alert(err);
-      },
-    );
+          this.setState({
+            bleOpend: true,
+            loading: false,
+            pairedDs: paired,
+          });
+        },
+        err => {
+          this.setState({
+            loading: false,
+          });
+          alert(err);
+        },
+      );
     }
   }
 
 
   _getFooterTextFromStorage = async () => {
     const footerText = await EncryptedStorage.getItem('footerText');
-    if(footerText != null){
+    if (footerText != null) {
 
       this.setState({ footerText: footerText });
-    }else{
+    } else {
       this.setState({ footerText: 'Thanks for your shopping' });
     }
   }
 
   _setFooterTextToStorage = async (text) => {
     this.setState({ footerText: text })
-    await EncryptedStorage.setItem('footerText', this.state.footerText);
+    await EncryptedStorage.setItem('footerText', text);
+  }
+
+  _getPaperWidthFromStorage = async () => {
+    const paperWidth = await EncryptedStorage.getItem('paperWidth');
+
+    if (paperWidth != null) {
+      this.setState({ paperWidth: paperWidth });
+    } else {
+      this.setState({ paperWidth: '800' });
+    }
+  }
+  _setPaperWidthToStorage = async (width) => {
+    this.setState({ paperWidth: width })
+    await EncryptedStorage.setItem('paperWidth', width);
   }
 
   _deviceAlreadPaired(rsp) {
@@ -414,7 +430,20 @@ export default class Home extends Component {
         </View>
 
 
+
+
         <View style={{ marginTop: 10 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'black' }}>Paper Width (px)</Text>
+          <TextInput
+            multiline
+            keyboardType="number-pad"
+            style={{ padding: 4, borderColor: 'gray', borderWidth: 1 }}
+            selectTextOnFocus={true}
+            onChangeText={(text) => {
+              this._setPaperWidthToStorage(text);
+            }}
+            value={this.state.paperWidth}
+          />
           <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'black' }}>Footer Text</Text>
           <TextInput
             multiline
@@ -500,11 +529,11 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     textAlign: 'left',
-    color:'black',
+    color: 'black',
   },
   address: {
     flex: 1,
     textAlign: 'right',
-    color:'black'
+    color: 'black'
   },
 });

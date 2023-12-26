@@ -70,15 +70,21 @@ const VoucherDetails = ({
   const printVoucher = async () => {
     const imageUri = await captureImage();
 
+    
     await BluetoothEscposPrinter.printerInit();
+    //get paper width from storage
+    let paperWidth = await EncryptedStorage.getItem('paperWidth');
+    if (paperWidth == null) {
+      paperWidth = 800;
+    }
 
     await BluetoothEscposPrinter.printPic(imageUri, {
-
+      width: parseInt(paperWidth),
       left: 0,
       right: 0,
       align: 1,
       mode: 'NORMAL',
-    });;
+    });
   };
 
   React.useEffect(() => {
