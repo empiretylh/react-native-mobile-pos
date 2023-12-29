@@ -11,13 +11,14 @@ export const insertSale = async (
 
   date,
   description,
+  isDiscountAmount = 0,
 ) => {
   // return promise saleid after insert
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       let d = new Date().getTime();
       tx.executeSql(
-        'INSERT INTO sales (voucher_number, customer_name, total_amount, total_profit, tax, discount, grandtotal, delivery_charges, user_id, date, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO sales (voucher_number, customer_name, total_amount, total_profit, tax, discount, grandtotal, delivery_charges, user_id, date, description, isDiscountAmount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           d,
           customerName,
@@ -30,6 +31,7 @@ export const insertSale = async (
           1,
           date,
           description,
+          isDiscountAmount,
         ],
         (tx, results) => {
           console.log('Results', results.rowsAffected);
@@ -109,6 +111,7 @@ export const getAllSales = () => {
                 grandtotal: row.grandtotal,
                 deliveryCharges: row.delivery_charges,
                 description: row.description,
+                isDiscountAmount: row.isDiscountAmount,
                 products: [
                   {
                     name: row.product_id,
@@ -178,6 +181,8 @@ export const CreateReceiptLocal = (
   discount,
   delivery,
   description,
+  isDiscountAmount
+
 ) => {
   return new Promise((resolve, reject) => {
     console.log(
@@ -189,6 +194,7 @@ export const CreateReceiptLocal = (
       discount,
       delivery,
       description,
+      isDiscountAmount
     );
     let date = new Date().toISOString().slice(0, 10);
     insertSale(
@@ -201,6 +207,7 @@ export const CreateReceiptLocal = (
       delivery,
       date,
       description,
+      isDiscountAmount
     )
       .then(saleId => {
         // Insert sold products into sold_products table

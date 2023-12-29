@@ -365,7 +365,7 @@ const LocalVoucher = ({
                         {t('Discount')}:{' '}
                       </Text>
                       <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                        {data.discount} %
+                        {data.discount} {data.isDiscountAmount ? 'Ks' : '%'}
                       </Text>
                     </View>
                   </>
