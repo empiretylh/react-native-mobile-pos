@@ -419,6 +419,21 @@ const Profile = ({navigation, route}) => {
   const [expireshow,setexpireshow] =  useState(false);
   const [expiredate,setexpiredate] = useState('7');
 
+  const [discount_type, setDiscountType] = useState('percentage');
+
+  useEffect(() => {
+    EncryptedStorage.getItem('discount_type')
+      .then(res => {
+        if (res !== null) {
+          setDiscountType(res);
+        } else {
+          setDiscountType('percentage');
+        }
+      })
+      .catch(err => console.log(err))
+  }, [])
+
+  
   
 
   const SaveSettings = async setting => {
@@ -842,6 +857,55 @@ const Profile = ({navigation, route}) => {
               </View>
             </View>
           </View>
+          <View style={styles.FirstButtonStyle}>
+            <Text style={{ color: 'black', fontWeight: 'bold' }}>
+              Discount
+            </Text>
+            <View style={{ ...s.flexrow_aligncenter }}>
+              <Icons name={'arrow-down-outline'} size={30} color={'#000'} />
+              <View style={{ ...s.flexrow_aligncenter }}>
+                <TouchableOpacity
+                  onPress={() =>{
+                    setDiscountType('percentage');
+                    EncryptedStorage.setItem('discount_type', 'percentage')}
+                  }>
+                  <View style={{ ...s.flexrow_aligncenter, margin: 5 }}>
+                    <CheckBox
+                      value={discount_type === 'percentage'}
+                      onValueChange={e => {
+                        setDiscountType(e === true ? 'amount' : 'percentage')
+                        EncryptedStorage.setItem('discount_type', e === true ? 'percentage' : 'amount')
+                      }}
+                    />
+                    <Text style={{ fontSize: 15, color: 'black', margin: 5 }}>
+                      Percentage
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>{
+                    setDiscountType('amount');
+
+                    EncryptedStorage.setItem('discount_type', 'amount')}
+                  }>
+                  <View style={{ ...s.flexrow_aligncenter, margin: 5 }}>
+                    <CheckBox
+                      value={discount_type === 'amount'}
+                      onValueChange={e => {
+                        setDiscountType(e === true ? 'amount' : 'percentage')
+                        EncryptedStorage.setItem('discount_type', e === true ? 'amount' : 'percentage')
+                      }
+                      }
+                    />
+                    <Text style={{ fontSize: 15, color: 'black', margin: 5 }}>
+                      Amount
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
 
           <TouchableOpacity>
             <View style={styles.buttonColor}>

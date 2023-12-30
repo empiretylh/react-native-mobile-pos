@@ -31,6 +31,7 @@
     "Add_Products": "ကုန်ပစ္စည်းရွေးချယ်မည်",
     "Sub_Total": "စုစုပေါင်း",
     "Tax_(MMK)": "အခွန် (%)",
+    "Discount_(AMOUNT)": "လျှော့စျေး (Amount)",
     "Discount": "လျှော့စျေး %",
     "Create_Receipt": "ပြေစာဖန်တီးမည်",
 
@@ -121,5 +122,5 @@
     "savecustomer":"အမည်ဖြင့်သိမ်းထားမည်",
     "Customer_Payment":"ရငွေ/ ပေးသည့်ငွေ",
     "Supplier_Name":"Supplier အမည်"
-  }
+   }
 }

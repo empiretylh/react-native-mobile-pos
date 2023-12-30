@@ -161,12 +161,12 @@ const ProductField = ({
       const data = ProductData.filter(e => {
         var b = e?.name.replaceAllTxt(' ', '').toLowerCase();
         var c = searchtext.replaceAllTxt(' ', '').toLowerCase();
-        var id = e.barcode.toString();
+        var id = e?.barcode?.toString();
 
         console.log(id);
 
         return (
-          id.includes(c) ||
+          id?.includes(c) ||
           ((categoryId === 'All' ? true : e.category === categoryId) &&
             b.includes(c))
         );

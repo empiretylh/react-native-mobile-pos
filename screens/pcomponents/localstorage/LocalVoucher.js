@@ -86,7 +86,7 @@ const LocalVoucher = ({
       right: 0,
       align: 1,
       mode: 'NORMAL',
-    });
+    });;
   };
 
   const getProfile = async () => {
@@ -236,7 +236,7 @@ const LocalVoucher = ({
                   <Text style={{ ...s.bold_label }}>{profile.name}</Text>
                   <Text style={{ ...s.normal_label }}>{profile.email}</Text>
                   <Text style={{ ...s.normal_label }}>{profile.phoneno}</Text>
-                  <Text style={{ ...s.normal_label }}>{profile.address}</Text>
+                  <Text style={{ ...s.normal_label, textAlign:'center' }}>{profile.address}</Text>
                 </View>
                 <View style={sepeator} />
                 <View
@@ -365,7 +365,7 @@ const LocalVoucher = ({
                         {t('Discount')}:{' '}
                       </Text>
                       <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                        {data.discount} %
+                      {data.discount} {data.isDiscountAmount ? 'Ks' : '%'}
                       </Text>
                     </View>
                   </>
