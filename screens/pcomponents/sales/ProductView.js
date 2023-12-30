@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useMemo} from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,25 +19,25 @@ import {
   numberWithCommas,
 } from '../../../Database';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {TextInput} from 'react-native-gesture-handler';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {MessageModalNormal} from '../../MessageModal';
+import { TextInput } from 'react-native-gesture-handler';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { MessageModalNormal } from '../../MessageModal';
 import Collapsible from 'react-native-collapsible';
 import DatePicker from 'react-native-date-picker';
 import Loading from '../../Loading';
 import axios from 'axios';
 import ProductField from '../extra/productfield';
 
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import '../../../assets/i18n/i18n';
 import VoucherDetails from './VocherView';
-import {CartContext} from '../context/CartContext';
-import {CreateReceiptLocal} from '../../../localDatabase/sales';
-import {useNetInfo} from '@react-native-community/netinfo';
+import { CartContext } from '../context/CartContext';
+import { CreateReceiptLocal } from '../../../localDatabase/sales';
+import { useNetInfo } from '@react-native-community/netinfo';
 import LocalVoucher from '../localstorage/LocalVoucher';
-
-const ProductView = React.memo(({navigation}) => {
-  const {t} = useTranslation();
+import EncryptedStorage from 'react-native-encrypted-storage';
+const ProductView = React.memo(({ navigation }) => {
+  const { t } = useTranslation();
   const [isCreate, setCreate] = useState(false);
   const [isSucces, setSuccess] = useState(false);
 
@@ -45,11 +45,14 @@ const ProductView = React.memo(({navigation}) => {
   const [CartData, setCartData] = useState([]);
 
   const data_bridge = useMemo(
-    () => ({CartData, setCartData}),
+    () => ({ CartData, setCartData }),
     [CartData, setCartData],
   );
 
   const DiscountCalculator = (price, discount) => {
+    if (discount_type == 'amount') {
+      return price - discount;
+    }
     let dis_price = price - (price / 100) * discount;
     return dis_price;
   };
@@ -75,6 +78,23 @@ const ProductView = React.memo(({navigation}) => {
   const [showCustomer, setShowCustomer] = useState(false);
   const [ISsaveCustomer, setISsaveCustomer] = useState(false);
   const [CustomerPayment, setCustomerPayment] = useState('');
+
+
+  const [discount_type, setDiscountType] = useState('percentage');
+
+  useEffect(() => {
+    EncryptedStorage.getItem('discount_type')
+      .then(res => {
+        if (res !== null) {
+          setDiscountType(res);
+        } else {
+          setDiscountType('percentage');
+        }
+      })
+      .catch(err => console.log(err))
+  }, [])
+
+
   const loaddata = () => {
     axios
       .get('/api/customer/')
@@ -104,7 +124,7 @@ const ProductView = React.memo(({navigation}) => {
     }
   }, [customerData, customername]);
 
-  const {isConnected} = useNetInfo();
+  const { isConnected } = useNetInfo();
 
   const CreateReceipt = async (
     c = '',
@@ -133,7 +153,12 @@ const ProductView = React.memo(({navigation}) => {
         CustomerPayment == '' ? 0 : CustomerPayment,
       );
     }
+
+    if (discount_type == 'amount') {
+      fdata.append('isDiscountAmount', true)
+    }
     setCreate(true);
+
     if (isConnected) {
       axios
         .post('/api/sales/', fdata, {
@@ -192,6 +217,7 @@ const ProductView = React.memo(({navigation}) => {
       discountcoll ? 0 : discount,
       delicoll ? 0 : delivery,
       desccoll ? '' : description,
+      discount_type == 'amount' ? 'true' : 'false',
     );
     const data = {
       id: saleid,
@@ -204,7 +230,11 @@ const ProductView = React.memo(({navigation}) => {
       delivery: delicoll ? 0 : delivery,
       date: new Date(),
       description: desccoll ? '' : description,
+
     };
+
+
+
     setVoucherData(data);
     setSuccess(true);
     setCreate(false);
@@ -274,7 +304,7 @@ const ProductView = React.memo(({navigation}) => {
           setData={setVoucherData}
         />
       )}
-      <ScrollView style={{flex: 1, backgroundColor: 'white', padding: 8}}>
+      <ScrollView style={{ flex: 1, backgroundColor: 'white', padding: 8 }}>
         <CustomerList
           showCustomer={showCustomer}
           onClose={() => setShowCustomer(false)}
@@ -292,7 +322,7 @@ const ProductView = React.memo(({navigation}) => {
             setSuccess(false);
             navigation.navigate('s');
           }}>
-          <Text style={{...s.bold_label}}>{t('RSC')}</Text>
+          <Text style={{ ...s.bold_label }}>{t('RSC')}</Text>
 
           <TouchableOpacity
             onPress={() => {
@@ -306,7 +336,7 @@ const ProductView = React.memo(({navigation}) => {
               padding: 10,
               backgroundColor: 'green',
             }}>
-            <Text style={{...s.bold_label, color: 'white'}}>Show Voucher</Text>
+            <Text style={{ ...s.bold_label, color: 'white' }}>Show Voucher</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
@@ -320,14 +350,14 @@ const ProductView = React.memo(({navigation}) => {
               padding: 10,
               ...s.blue_button,
             }}>
-            <Text style={{...s.bold_label, color: 'white'}}>{t('OK')}</Text>
+            <Text style={{ ...s.bold_label, color: 'white' }}>{t('OK')}</Text>
           </TouchableOpacity>
         </MessageModalNormal>
-        <View style={{padding: 5}}>
-          <Text style={{...s.bold_label}}>{t('Customer_Name')}</Text>
-          <View style={{...inputS}}>
+        <View style={{ padding: 5 }}>
+          <Text style={{ ...s.bold_label }}>{t('Customer_Name')}</Text>
+          <View style={{ ...inputS }}>
             <TextInput
-              style={{height: 45, ...s.bold_label, color: '#0f0f0f', flex: 1}}
+              style={{ height: 45, ...s.bold_label, color: '#0f0f0f', flex: 1 }}
               placeholder={t('Customer_Name')}
               value={customername}
               onChangeText={e => setcustomername(e)}
@@ -355,23 +385,23 @@ const ProductView = React.memo(({navigation}) => {
                 }
                 size={25}
                 color="#000"
-                style={{marginRight: 8}}
+                style={{ marginRight: 8 }}
               />
-              <Text style={{...s.bold_label, fontSize: 15}}>
+              <Text style={{ ...s.bold_label, fontSize: 15 }}>
                 {t('savecustomer')}
               </Text>
             </TouchableOpacity>
           ) : null}
-          <Text style={{...s.bold_label, marginTop: -3}}>{t('Products')}</Text>
+          <Text style={{ ...s.bold_label, marginTop: -3 }}>{t('Products')}</Text>
           <ProductField
-            ContainerProps={{style: {...inputS, padding: 5}}}
+            ContainerProps={{ style: { ...inputS, padding: 5 } }}
             setTotalAmount={setTotalAmount}
             setData={setCartData}
             data={CartData}
           />
-          <Text style={{...s.bold_label, marginTop: 8}}>{t('Sub_Total')}</Text>
+          <Text style={{ ...s.bold_label, marginTop: 8 }}>{t('Sub_Total')}</Text>
           <TextInput
-            style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
+            style={{ ...inputS, ...s.bold_label, color: '#0f0f0f' }}
             value={numberWithCommas(totalAmount) + ' MMK'}
             placeholder={t('Sub_Total')}
           />
@@ -379,22 +409,22 @@ const ProductView = React.memo(({navigation}) => {
           <View>
             <TouchableOpacity
               onPress={() => setTaxcoll(!taxcoll)}
-              style={{...s.flexrow_aligncenter, marginTop: 8}}>
-              <Text style={{...s.bold_label, marginTop: 8}}>
+              style={{ ...s.flexrow_aligncenter, marginTop: 8 }}>
+              <Text style={{ ...s.bold_label, marginTop: 8 }}>
                 {t('Tax_(MMK)')}
               </Text>
               <Icons
                 name={taxcoll ? 'checkmark-circle-outline' : 'checkmark-circle'}
                 size={20}
                 color="#000"
-                style={{marginLeft: 8}}
+                style={{ marginLeft: 8 }}
               />
             </TouchableOpacity>
 
             <Collapsible collapsed={taxcoll}>
               <View>
                 <TextInput
-                  style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
+                  style={{ ...inputS, ...s.bold_label, color: '#0f0f0f' }}
                   placeholder={t('Tax')}
                   keyboardType={'number-pad'}
                   value={tax + ''}
@@ -413,8 +443,9 @@ const ProductView = React.memo(({navigation}) => {
                 ...s.flexrow_aligncenter,
                 marginTop: 8,
               }}>
-              <Text style={{...s.bold_label, marginTop: 8}}>
-                {t('Discount')}
+              <Text style={{ ...s.bold_label, marginTop: 8 }}>
+                {discount_type === 'percentage' ? t('Discount') : t('Discount_(AMOUNT)')}
+
               </Text>
               <Icons
                 name={
@@ -422,24 +453,31 @@ const ProductView = React.memo(({navigation}) => {
                 }
                 size={20}
                 color="#000"
-                style={{marginLeft: 8}}
+                style={{ marginLeft: 8 }}
               />
             </TouchableOpacity>
 
             <Collapsible collapsed={discountcoll}>
               <View>
                 <TextInput
-                  style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-                  placeholder={t('Discount')}
+                  style={{ ...inputS, ...s.bold_label, color: '#0f0f0f' }}
+                  placeholder={discount_type === 'percentage' ? t('Discount') : t('Discount_(AMOUNT)')}
+
                   keyboardType={'number-pad'}
                   value={discount}
                   defaultValue={discount}
-                  onChangeText={e =>
-                    e === ''
-                      ? setDiscount(0)
-                      : setDiscount(e) || parseInt(e) > 100
-                      ? setDiscount(100)
-                      : setDiscount(e)
+                  onChangeText={e => {
+                    if (discount_type == 'amount') {
+                      return e === '' ? setDiscount(0) : setDiscount(e)
+                    } else {
+                      return e === ''
+                        ? setDiscount(0)
+                        : setDiscount(e) || parseInt(e) > 100
+                          ? setDiscount(100)
+                          : setDiscount(e)
+                    }
+                  }
+
                   }
                   selectTextOnFocus={true}
                 />
@@ -450,8 +488,8 @@ const ProductView = React.memo(({navigation}) => {
           <View>
             <TouchableOpacity
               onPress={() => setDelicoll(!delicoll)}
-              style={{...s.flexrow_aligncenter, marginTop: 8}}>
-              <Text style={{...s.bold_label, marginTop: 8}}>
+              style={{ ...s.flexrow_aligncenter, marginTop: 8 }}>
+              <Text style={{ ...s.bold_label, marginTop: 8 }}>
                 {t('Delivery_Charges')}
               </Text>
               <Icons
@@ -460,14 +498,14 @@ const ProductView = React.memo(({navigation}) => {
                 }
                 size={20}
                 color="#000"
-                style={{marginLeft: 8}}
+                style={{ marginLeft: 8 }}
               />
             </TouchableOpacity>
 
             <Collapsible collapsed={delicoll}>
               <View>
                 <TextInput
-                  style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
+                  style={{ ...inputS, ...s.bold_label, color: '#0f0f0f' }}
                   placeholder={t('Delivery_Charges')}
                   keyboardType={'number-pad'}
                   value={deli + ''}
@@ -479,44 +517,44 @@ const ProductView = React.memo(({navigation}) => {
             </Collapsible>
           </View>
 
-         {ISsaveCustomer ? <View>
-         
-                     <TouchableOpacity style={{...s.flexrow_aligncenter, marginTop: 8}}>
-                       <Text style={{...s.bold_label, marginTop: 8}}>
-                         {t('Customer_Payment')}
-                       </Text>
-                       <Icons
-                         name={
-                           !ISsaveCustomer
-                             ? 'checkmark-circle-outline'
-                             : 'checkmark-circle'
-                         }
-                         size={20}
-                         color="#000"
-                         style={{marginLeft: 8}}
-                       />
-                     </TouchableOpacity>
-         
-                     <Collapsible collapsed={!ISsaveCustomer}>
-                       <View>
-                         <TextInput
-                           style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
-                           placeholder={t('Customer_Payment')}
-                           keyboardType={'number-pad'}
-                           value={CustomerPayment + ''}
-                           defaultValue={CustomerPayment + ''}
-                           onChangeText={e => setCustomerPayment(e)}
-                           selectTextOnFocus={true}
-                         />
-                       </View>
-                     </Collapsible>
-                   </View>:null}
-        
+          {ISsaveCustomer ? <View>
+
+            <TouchableOpacity style={{ ...s.flexrow_aligncenter, marginTop: 8 }}>
+              <Text style={{ ...s.bold_label, marginTop: 8 }}>
+                {t('Customer_Payment')}
+              </Text>
+              <Icons
+                name={
+                  !ISsaveCustomer
+                    ? 'checkmark-circle-outline'
+                    : 'checkmark-circle'
+                }
+                size={20}
+                color="#000"
+                style={{ marginLeft: 8 }}
+              />
+            </TouchableOpacity>
+
+            <Collapsible collapsed={!ISsaveCustomer}>
+              <View>
+                <TextInput
+                  style={{ ...inputS, ...s.bold_label, color: '#0f0f0f' }}
+                  placeholder={t('Customer_Payment')}
+                  keyboardType={'number-pad'}
+                  value={CustomerPayment + ''}
+                  defaultValue={CustomerPayment + ''}
+                  onChangeText={e => setCustomerPayment(e)}
+                  selectTextOnFocus={true}
+                />
+              </View>
+            </Collapsible>
+          </View> : null}
+
           <View>
             <TouchableOpacity
               onPress={() => setDesccoll(!desccoll)}
-              style={{...s.flexrow_aligncenter, marginTop: 8}}>
-              <Text style={{...s.bold_label, marginTop: 8}}>
+              style={{ ...s.flexrow_aligncenter, marginTop: 8 }}>
+              <Text style={{ ...s.bold_label, marginTop: 8 }}>
                 {t('Description')}
               </Text>
               <Icons
@@ -525,14 +563,14 @@ const ProductView = React.memo(({navigation}) => {
                 }
                 size={20}
                 color="#000"
-                style={{marginLeft: 8}}
+                style={{ marginLeft: 8 }}
               />
             </TouchableOpacity>
 
             <Collapsible collapsed={desccoll}>
               <View>
                 <TextInput
-                  style={{...inputS, ...s.bold_label, color: '#0f0f0f'}}
+                  style={{ ...inputS, ...s.bold_label, color: '#0f0f0f' }}
                   placeholder={t('Description')}
                   keyboardType={'text'}
                   value={desc + ''}
@@ -549,8 +587,8 @@ const ProductView = React.memo(({navigation}) => {
               backgroundColor: 'yellow',
               marginTop: 8,
             }}>
-            <Text style={{...s.bold_label}}>{t('Total_Amount')}</Text>
-            <Text style={{...s.bold_label}}>
+            <Text style={{ ...s.bold_label }}>{t('Total_Amount')}</Text>
+            <Text style={{ ...s.bold_label }}>
               {numberWithCommas(sumGrandTotal)} MMK
             </Text>
           </View>
@@ -571,8 +609,8 @@ const ProductView = React.memo(({navigation}) => {
                 a.rqf();
               }
             }}
-            style={{...s.blue_button, padding: 10}}>
-            <Text style={{...s.bold_label, color: 'white'}}>
+            style={{ ...s.blue_button, padding: 10 }}>
+            <Text style={{ ...s.bold_label, color: 'white' }}>
               {t('Create_Receipt')}
             </Text>
           </TouchableOpacity>
@@ -592,8 +630,8 @@ const CustomerList = ({
 }) => {
   return (
     <MessageModalNormal show={showCustomer} onClose={onClose}>
-      <Text style={{...s.bold_label, marginBottom: 10}}>Select Customer</Text>
-      <ScrollView style={{maxHeight:Dimensions.get('window').height - 10}}>
+      <Text style={{ ...s.bold_label, marginBottom: 10 }}>Select Customer</Text>
+      <ScrollView style={{ maxHeight: Dimensions.get('window').height - 10 }}>
         {customerData.map((item, index) => (
           <TouchableOpacity
             key={index}
@@ -606,11 +644,11 @@ const CustomerList = ({
               padding: 10,
               borderColor: item.name == customername ? C.bluecolor : 'black',
               borderWidth: 1,
-               borderWidth: 1,
-              borderRadius:5,
-              marginBottom:10,
+              borderWidth: 1,
+              borderRadius: 5,
+              marginBottom: 10,
             }}>
-            <Text style={{...s.bold_label}}>{item.name}</Text>
+            <Text style={{ ...s.bold_label }}>{item.name}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>

@@ -2,7 +2,7 @@ import SQLite from 'react-native-sqlite-storage';
 
 const db = SQLite.openDatabase(
   {
-    name: 'mobilepos.db',
+    name: 'pefectsolution.db',
     location: 'default',
   },
   () => {},
@@ -20,7 +20,7 @@ const createTables = () => {
       'CREATE TABLE IF NOT EXISTS products (id INTEGER, name TEXT NOT NULL, price TEXT NOT NULL, cost TEXT NOT NULL DEFAULT 0, qty TEXT NOT NULL, date TEXT NOT NULL, description TEXT, category_id INTEGER NOT NULL, pic TEXT, user_id INTEGER NOT NULL, barcode TEXT)',
     );
     tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS sales (id INTEGER, receipt_number INTEGER PRIMARY KEY AUTOINCREMENT, voucher_number TEXT NOT NULL DEFAULT 0, customer_name TEXT NOT NULL, total_amount TEXT NOT NULL, total_profit TEXT NOT NULL DEFAULT 0, tax TEXT NOT NULL, discount TEXT NOT NULL, grandtotal TEXT NOT NULL, delivery_charges TEXT, user_id INTEGER NOT NULL, date TEXT NOT NULL, description TEXT)',
+      'CREATE TABLE IF NOT EXISTS sales (id INTEGER, receipt_number INTEGER PRIMARY KEY AUTOINCREMENT, voucher_number TEXT NOT NULL DEFAULT 0, customer_name TEXT NOT NULL, total_amount TEXT NOT NULL, total_profit TEXT NOT NULL DEFAULT 0, tax TEXT NOT NULL, discount TEXT NOT NULL, grandtotal TEXT NOT NULL, delivery_charges TEXT, isDiscountAmount TEXT, user_id INTEGER NOT NULL, date TEXT NOT NULL, description TEXT)',
     );
     tx.executeSql(
       'CREATE TABLE IF NOT EXISTS sold_products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, price TEXT NOT NULL, profit TEXT NOT NULL DEFAULT 0, qty TEXT NOT NULL, date TEXT NOT NULL, sales_id INTEGER NOT NULL, user_id INTEGER NOT NULL, product_id TEXT NOT NULL, cost TEXT DEFAULT 0)',
