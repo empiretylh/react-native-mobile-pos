@@ -70,8 +70,8 @@ const VoucherDetails = ({
   const printVoucher = async () => {
     const imageUri = await captureImage();
 
-    
     await BluetoothEscposPrinter.printerInit();
+
     //get paper width from storage
     let paperWidth = await EncryptedStorage.getItem('paperWidth');
     if (paperWidth == null) {
@@ -84,7 +84,7 @@ const VoucherDetails = ({
       right: 0,
       align: 1,
       mode: 'NORMAL',
-    });
+    });;
   };
 
   React.useEffect(() => {
@@ -106,16 +106,16 @@ const VoucherDetails = ({
   //getfooter text from stoarge
   const getFooterText = async () => {
     const footerText = await EncryptedStorage.getItem('footerText');
-    if(footerText != null){
+    if (footerText != null) {
       setFooterText(footerText);
-    }else{
+    } else {
       setFooterText('Thanks for your shopping');
     }
     return footerText;
   };
 
   React.useEffect(() => {
-   getFooterText();
+    getFooterText();
   }, []);
 
   const nameWidth = C.windowWidth * 35;
@@ -142,7 +142,7 @@ const VoucherDetails = ({
             ...s.normal_label,
             fontSize: 16,
             width: priceWidth,
-            textAlign:'right'
+            textAlign: 'right'
           }}>
           {numberWithCommas(item.price)}
         </Text>
@@ -247,8 +247,8 @@ const VoucherDetails = ({
                   />
                   <Text style={{ ...s.bold_label }}>{profile.name}</Text>
                   <Text style={{ ...s.normal_label }}>{profile.email}</Text>
-                  <Text style={{ ...s.normal_label }}>{profile.phoneno}</Text>
-                  <Text style={{ ...s.normal_label }}>{profile.address}</Text>
+                  <Text style={{ ...s.normal_label, textAlign:'center' }}>{profile.phoneno}</Text>
+                  <Text style={{ ...s.normal_label , textAlign:'center'}}>{profile.address}</Text>
                 </View>
                 <View style={sepeator} />
                 <View
@@ -312,6 +312,7 @@ const VoucherDetails = ({
                       fontSize: 16,
                       fontWeight: 'bold',
                       width: priceWidth,
+                      textAlign: 'right'
                     }}>
                     {t('Price')}
                   </Text>
@@ -377,7 +378,7 @@ const VoucherDetails = ({
                         {t('Discount')}:{' '}
                       </Text>
                       <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                        {data.discount} %
+                      {data.discount} {data.isDiscountAmount ? 'Ks' : '%'}
                       </Text>
                     </View>
                   </>
@@ -460,7 +461,7 @@ const VoucherDetails = ({
                   </>
 
                 )}
-              <Text style={{ ...s.normal_label, textAlign:'center', marginTop:10 }}>{footerText}</Text>
+                <Text style={{ ...s.normal_label, textAlign: 'center', marginTop: 10 }}>{footerText}</Text>
               </View>
 
             </ViewShot>

@@ -73,7 +73,6 @@ const LocalVoucher = ({
   const printVoucher = async () => {
     const imageUri = await captureImage();
 
-   
     await BluetoothEscposPrinter.printerInit();
     //get paper width from storage
     let paperWidth = await EncryptedStorage.getItem('paperWidth');
@@ -87,7 +86,7 @@ const LocalVoucher = ({
       right: 0,
       align: 1,
       mode: 'NORMAL',
-    });
+    });;
   };
 
   const getProfile = async () => {
@@ -366,7 +365,7 @@ const LocalVoucher = ({
                         {t('Discount')}:{' '}
                       </Text>
                       <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                        {data.discount} %
+                        {data.discount} {data.isDiscountAmount ? 'Ks' : '%'}
                       </Text>
                     </View>
                   </>

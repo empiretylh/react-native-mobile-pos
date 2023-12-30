@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useMemo, useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -25,21 +25,21 @@ import {
   ALERT as a,
   appversion,
 } from '../../Database';
-import {MessageModalNormal} from '../MessageModal';
+import { MessageModalNormal } from '../MessageModal';
 
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import '../../assets/i18n/i18n';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import Container from '../Container';
 import CheckBox from '@react-native-community/checkbox';
-import {TextInput} from 'react-native-gesture-handler';
+import { TextInput } from 'react-native-gesture-handler';
 import Loading from '../pcomponents/extra/Loading';
-import {DeleteAllProfile, insertProfile} from '../../localDatabase/profile';
+import { DeleteAllProfile, insertProfile } from '../../localDatabase/profile';
 import DeviceInfo from 'react-native-device-info';
 
 const Icon = props => <Icons {...props} color={'#000'} />;
 
-const Profile = ({navigation, route}) => {
+const Profile = ({ navigation, route }) => {
   const [pdata, setPddata] = useState(null);
   const [showmodal, setShowModal] = useState(false);
   const [showeditmodal, setShowEditModal] = useState(false);
@@ -51,7 +51,7 @@ const Profile = ({navigation, route}) => {
   const [clickcount, setClickCount] = useState(0);
 
   const [isLoad, setIsLoad] = useState(false);
-  const {token} = route.params;
+  const { token } = route.params;
   const [editshow, seteditshow] = useState(false);
   const [editype, seteditype] = useState('');
   const [lessthanshow, setLessthanShow] = useState(false);
@@ -78,7 +78,7 @@ const Profile = ({navigation, route}) => {
     getSettings();
   }, []);
 
-  const {t, i18n} = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const LoadProfile = () => {
     setIsLoad(true);
@@ -339,11 +339,11 @@ const Profile = ({navigation, route}) => {
               borderRadius: 15,
               padding: 10,
               shadowColor: 'black',
-              shadowOffset: {width: 2, height: 3},
+              shadowOffset: { width: 2, height: 3 },
               shadowRadius: 5,
               shadowOpacity: 0.4,
             }}>
-            <Text style={{fontSize: 20, fontWeight: '600', padding: 10}}>
+            <Text style={{ fontSize: 20, fontWeight: '600', padding: 10 }}>
               {title}
             </Text>
             <View>
@@ -361,11 +361,11 @@ const Profile = ({navigation, route}) => {
                 onChangeText={text => setText(text)}
               />
             </View>
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
               <TouchableOpacity
                 style={styles.chooseimagebutton_cancel}
                 onPress={() => closeEditShow()}>
-                <Text style={{fontSize: 18, padding: 10, fontWeight: '500'}}>
+                <Text style={{ fontSize: 18, padding: 10, fontWeight: '500' }}>
                   Cancel
                 </Text>
               </TouchableOpacity>
@@ -394,7 +394,7 @@ const Profile = ({navigation, route}) => {
 
                   closeEditShow();
                 }}>
-                <Text style={{fontSize: 18, padding: 10, fontWeight: '500'}}>
+                <Text style={{ fontSize: 18, padding: 10, fontWeight: '500' }}>
                   Apply
                 </Text>
               </TouchableOpacity>
@@ -421,7 +421,7 @@ const Profile = ({navigation, route}) => {
 
   const getSettings = () => {
     // Set language from i18n
-    setSettings({...settings, ['language']: i18n.language});
+    setSettings({ ...settings, ['language']: i18n.language });
 
     EncryptedStorage.getItem('setting_data')
       .then(res => {
@@ -432,6 +432,20 @@ const Profile = ({navigation, route}) => {
       })
       .catch(err => console.log(err));
   };
+
+  const [discount_type, setDiscountType] = useState('percentage');
+
+  useEffect(() => {
+    EncryptedStorage.getItem('discount_type')
+      .then(res => {
+        if (res !== null) {
+          setDiscountType(res);
+        } else {
+          setDiscountType('percentage');
+        }
+      })
+      .catch(err => console.log(err))
+  }, [])
 
   let rdco;
 
@@ -473,7 +487,7 @@ const Profile = ({navigation, route}) => {
   }
 
   const HandleSettings = (value, name) => {
-    const setting_temp = {...settings, [name]: value};
+    const setting_temp = { ...settings, [name]: value };
     setSettings(setting_temp);
     console.log('Handle Setting,', settings);
     if (name === 'language') {
@@ -487,12 +501,12 @@ const Profile = ({navigation, route}) => {
 
   const FeedbackModal = () => (
     <View>
-      <Text style={{fontSize: 18, color: 'black'}}>Feedback</Text>
-      <Text style={{color: 'black'}}>Type your Feedback</Text>
+      <Text style={{ fontSize: 18, color: 'black' }}>Feedback</Text>
+      <Text style={{ color: 'black' }}>Type your Feedback</Text>
       <TextInput
         multiline
         placeholder="Type your feedback here"
-        style={{...inputS, color: '#0f0f0f'}}
+        style={{ ...inputS, color: '#0f0f0f' }}
         onChangeText={e => setFeedback(e)}
       />
       <TouchableOpacity
@@ -503,8 +517,8 @@ const Profile = ({navigation, route}) => {
             a.rqf();
           }
         }}
-        style={{...s.blue_button, marginTop: 8, padding: 10}}>
-        <Text style={{...s.bold_label, color: 'white'}}>
+        style={{ ...s.blue_button, marginTop: 8, padding: 10 }}>
+        <Text style={{ ...s.bold_label, color: 'white' }}>
           {t('Send FeedBack')}
         </Text>
       </TouchableOpacity>
@@ -521,48 +535,48 @@ const Profile = ({navigation, route}) => {
       }}>
       <Image
         source={I.thura}
-        style={{width: 150, height: 150}}
+        style={{ width: 150, height: 150 }}
         resizeMode={'contain'}
       />
-      <Text style={{color: 'white', fontSize: 15, fontWeight: 'bold'}}>
+      <Text style={{ color: 'white', fontSize: 15, fontWeight: 'bold' }}>
         Developed By Thura Lin Htut
       </Text>
-      <View style={{flexDirection: 'row', marginTop: 8}}>
+      <View style={{ flexDirection: 'row', marginTop: 8 }}>
         <TouchableOpacity
-          style={{margin: 5}}
+          style={{ margin: 5 }}
           onPress={() =>
             Linking.openURL('https://facebook.com/thuralinhtut.developer')
           }>
           <MIcons name={'facebook'} color={'#fff'} size={30} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={{margin: 5}}
+          style={{ margin: 5 }}
           onPress={() =>
             Linking.openURL('https://instagram.com/thuralinhtut__')
           }>
           <MIcons name={'instagram'} color={'#fff'} size={30} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={{margin: 5}}
+          style={{ margin: 5 }}
           onPress={() =>
             Linking.openURL('https://github.com/thuralinhtutxero')
           }>
           <MIcons name={'github'} color={'#fff'} size={30} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={{margin: 5}}
+          style={{ margin: 5 }}
           onPress={() => Linking.openURL('mailto:thuradevloper@gmail.com')}>
           <MIcons name={'gmail'} color={'#fff'} size={30} />
         </TouchableOpacity>
       </View>
       <TextInput
-        style={{color: 'white'}}
+        style={{ color: 'white' }}
         onChangeText={e => {
           axios.defaults.baseURL = e;
         }}
       />
       <Text
-        style={{color: 'white', fontSize: 15, position: 'absolute', bottom: 1}}>
+        style={{ color: 'white', fontSize: 15, position: 'absolute', bottom: 1 }}>
         Copyright Ⓒ 2022
       </Text>
     </View>
@@ -571,7 +585,7 @@ const Profile = ({navigation, route}) => {
   const OnCloseFbShow = () => setFbshow(!fbshow);
   const PostFeedBack = message => {
     axios
-      .post('/api/feedback/', {message: message})
+      .post('/api/feedback/', { message: message })
       .then(res => {
         console.log(res);
         OnCloseFbShow();
@@ -615,9 +629,9 @@ const Profile = ({navigation, route}) => {
         show={lessthanshow}
         onClose={() => setLessthanShow(false)}>
         <View>
-          <Text style={{...s.bold_label}}>Less than show qty </Text>
+          <Text style={{ ...s.bold_label }}>Less than show qty </Text>
           <TextInput
-            style={{...inputS, color: '#0f0f0f'}}
+            style={{ ...inputS, color: '#0f0f0f' }}
             placeholder="Less Than Qty"
             defaultValue={settings?.lessthanx}
             keyboardType="number-pad"
@@ -625,12 +639,12 @@ const Profile = ({navigation, route}) => {
           />
         </View>
         <TouchableOpacity
-          style={{...s.blue_button}}
+          style={{ ...s.blue_button }}
           onPress={() => {
             HandleSettings(lessthan, 'lessthan');
             setLessthanShow(false);
           }}>
-          <Text style={{...s.normal_label}}>Set</Text>
+          <Text style={{ ...s.normal_label }}>Set</Text>
         </TouchableOpacity>
       </MessageModalNormal>
       <MessageModalNormal
@@ -657,8 +671,8 @@ const Profile = ({navigation, route}) => {
                 source={
                   pdata.profileimage
                     ? {
-                        uri: axios.defaults.baseURL + pdata.profileimage,
-                      }
+                      uri: axios.defaults.baseURL + pdata.profileimage,
+                    }
                     : I.profile
                 }
                 style={{
@@ -670,7 +684,7 @@ const Profile = ({navigation, route}) => {
                 }}
                 resizeMode="cover"
               />
-             {/* <TouchableOpacity onPress={() => setShowModal(true)}>
+              {/* <TouchableOpacity onPress={() => setShowModal(true)}>
                 <Icon
                   name="camera"
                   style={{
@@ -696,8 +710,8 @@ const Profile = ({navigation, route}) => {
             <Text>{pdata.username}</Text>
           </View>
         </View>
-        <View style={{margin: 20, marginBottom: 2}}>
-          <Text style={{color: 'black', fontSize: 16}}>{t('Profile')}</Text>
+        <View style={{ margin: 20, marginBottom: 2 }}>
+          <Text style={{ color: 'black', fontSize: 16 }}>{t('Profile')}</Text>
         </View>
         <View
           style={{
@@ -710,7 +724,7 @@ const Profile = ({navigation, route}) => {
           }}>
           <TouchableOpacity>
             <View style={styles.FirstButtonStyle}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>
+              <Text style={{ color: 'black', fontWeight: 'bold' }}>
                 {t('Name')}
               </Text>
               <Text style={styles.buttonFont}>{pdata.name}</Text>
@@ -718,7 +732,7 @@ const Profile = ({navigation, route}) => {
           </TouchableOpacity>
           <TouchableOpacity>
             <View style={styles.buttonColor}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>
+              <Text style={{ color: 'black', fontWeight: 'bold' }}>
                 {t('Username')}
               </Text>
               <Text style={styles.buttonFont}>{pdata.username}</Text>
@@ -726,7 +740,7 @@ const Profile = ({navigation, route}) => {
           </TouchableOpacity>
           <TouchableOpacity >
             <View style={styles.buttonColor}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>
+              <Text style={{ color: 'black', fontWeight: 'bold' }}>
                 {t('Phone_Number')}
               </Text>
               <Text style={styles.buttonFont}>{pdata.phoneno}</Text>
@@ -734,7 +748,7 @@ const Profile = ({navigation, route}) => {
           </TouchableOpacity>
           <TouchableOpacity >
             <View style={styles.buttonColor}>
-              <Text style={{color: 'black', fontWeight: 'bold'}}>
+              <Text style={{ color: 'black', fontWeight: 'bold' }}>
                 {t('Address')}
               </Text>
               <Text style={styles.buttonFont}>
@@ -742,7 +756,7 @@ const Profile = ({navigation, route}) => {
               </Text>
             </View>
           </TouchableOpacity>
-         {/* <TouchableOpacity onPress={() => openEditShow('email')}>
+          {/* <TouchableOpacity onPress={() => openEditShow('email')}>
             <View style={styles.LastButtonStyle}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('Email')}
@@ -750,10 +764,10 @@ const Profile = ({navigation, route}) => {
               <Text style={styles.buttonFont}>{pdata.email}</Text>
             </View>
         </TouchableOpacity>*/
-      }
+          }
         </View>
-        <View style={{margin: 20, marginBottom: 2}}>
-          <Text style={{color: 'black', fontSize: 16}}>{t('Settings')}</Text>
+        <View style={{ margin: 20, marginBottom: 2 }}>
+          <Text style={{ color: 'black', fontSize: 16 }}>{t('Settings')}</Text>
         </View>
         <View
           style={{
@@ -765,12 +779,12 @@ const Profile = ({navigation, route}) => {
             backgroundColor: '#f0f0f0',
           }}>
           <View style={styles.FirstButtonStyle}>
-            <Text style={{color: 'black', fontWeight: 'bold'}}>
+            <Text style={{ color: 'black', fontWeight: 'bold' }}>
               {t('Language')}
             </Text>
-            <View style={{...s.flexrow_aligncenter}}>
+            <View style={{ ...s.flexrow_aligncenter }}>
               <Icons name={'language-outline'} size={30} color={'#000'} />
-              <View style={{...s.flexrow_aligncenter}}>
+              <View style={{ ...s.flexrow_aligncenter }}>
                 <TouchableOpacity
                   onPress={() =>
                     HandleSettings(
@@ -778,14 +792,14 @@ const Profile = ({navigation, route}) => {
                       'language',
                     )
                   }>
-                  <View style={{...s.flexrow_aligncenter, margin: 5}}>
+                  <View style={{ ...s.flexrow_aligncenter, margin: 5 }}>
                     <CheckBox
                       value={settings.language === 'en'}
                       onValueChange={e =>
                         HandleSettings(e === true ? 'en' : 'mm', 'language')
                       }
                     />
-                    <Text style={{fontSize: 15, color: 'black', margin: 5}}>
+                    <Text style={{ fontSize: 15, color: 'black', margin: 5 }}>
                       English
                     </Text>
                   </View>
@@ -797,14 +811,14 @@ const Profile = ({navigation, route}) => {
                       'language',
                     )
                   }>
-                  <View style={{...s.flexrow_aligncenter, margin: 5}}>
+                  <View style={{ ...s.flexrow_aligncenter, margin: 5 }}>
                     <CheckBox
                       value={settings.language === 'mm'}
                       onValueChange={e =>
                         HandleSettings(e === true ? 'mm' : 'en', 'language')
                       }
                     />
-                    <Text style={{fontSize: 15, color: 'black', margin: 5}}>
+                    <Text style={{ fontSize: 15, color: 'black', margin: 5 }}>
                       Myanmar
                     </Text>
                   </View>
@@ -812,8 +826,56 @@ const Profile = ({navigation, route}) => {
               </View>
             </View>
           </View>
+          <View style={styles.FirstButtonStyle}>
+            <Text style={{ color: 'black', fontWeight: 'bold' }}>
+              Discount
+            </Text>
+            <View style={{ ...s.flexrow_aligncenter }}>
+              <Icons name={'arrow-down-outline'} size={30} color={'#000'} />
+              <View style={{ ...s.flexrow_aligncenter }}>
+                <TouchableOpacity
+                  onPress={() =>{
+                    setDiscountType('percentage');
+                    EncryptedStorage.setItem('discount_type', 'percentage')}
+                  }>
+                  <View style={{ ...s.flexrow_aligncenter, margin: 5 }}>
+                    <CheckBox
+                      value={discount_type === 'percentage'}
+                      onValueChange={e => {
+                        setDiscountType(e === true ? 'amount' : 'percentage')
+                        EncryptedStorage.setItem('discount_type', e === true ? 'percentage' : 'amount')
+                      }}
+                    />
+                    <Text style={{ fontSize: 15, color: 'black', margin: 5 }}>
+                      Percentage
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>{
+                    setDiscountType('amount');
 
-       {/*   <TouchableOpacity>
+                    EncryptedStorage.setItem('discount_type', 'amount')}
+                  }>
+                  <View style={{ ...s.flexrow_aligncenter, margin: 5 }}>
+                    <CheckBox
+                      value={discount_type === 'amount'}
+                      onValueChange={e => {
+                        setDiscountType(e === true ? 'amount' : 'percentage')
+                        EncryptedStorage.setItem('discount_type', e === true ? 'amount' : 'percentage')
+                      }
+                      }
+                    />
+                    <Text style={{ fontSize: 15, color: 'black', margin: 5 }}>
+                      Amount
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
+          {/*   <TouchableOpacity>
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
                 {t('RTS')}
@@ -888,18 +950,18 @@ const Profile = ({navigation, route}) => {
                 name: 'localreport',
               });
             }}>
-            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
-              <View style={{...s.flexrow_aligncenter}}>
+            <View style={{ ...styles.buttonColor, borderBottomWidth: 1 }}>
+              <View style={{ ...s.flexrow_aligncenter }}>
                 <Icon2 name={'storage'} size={30} color={'#000'} />
                 <Text
-                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  style={{ color: 'black', fontWeight: 'bold', marginLeft: 5 }}>
                   Local Storage
                 </Text>
               </View>
             </View>
           </TouchableOpacity>
 
-    {/*      <TouchableOpacity
+          {/*      <TouchableOpacity
             onPress={() => {
               // console.log(pdata.is_superuser);
               navigation.navigate({
@@ -932,18 +994,18 @@ const Profile = ({navigation, route}) => {
                 params: route.params,
               });
             }}>
-            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
-              <View style={{...s.flexrow_aligncenter}}>
+            <View style={{ ...styles.buttonColor, borderBottomWidth: 1 }}>
+              <View style={{ ...s.flexrow_aligncenter }}>
                 <Icons name={'print'} size={30} color={'#000'} />
                 <Text
-                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  style={{ color: 'black', fontWeight: 'bold', marginLeft: 5 }}>
                   Printers
                 </Text>
               </View>
             </View>
           </TouchableOpacity>
 
-        { /* <TouchableOpacity
+          { /* <TouchableOpacity
             onPress={() => {
               console.log(pdata.is_superuser);
               navigation.navigate({
@@ -962,8 +1024,8 @@ const Profile = ({navigation, route}) => {
             </View>
           </TouchableOpacity>*/}
           <TouchableOpacity onPress={() => setFbshow(true)}>
-            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
-              <View style={{...s.flexrow_aligncenter}}>
+            <View style={{ ...styles.buttonColor, borderBottomWidth: 1 }}>
+              <View style={{ ...s.flexrow_aligncenter }}>
                 <Icons name={'mail-open-outline'} size={30} color={'#000'} />
                 <Text
                   style={{
@@ -977,15 +1039,15 @@ const Profile = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => HandleVersionCount()}>
-            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
-              <View style={{...s.flexrow_aligncenter}}>
+            <View style={{ ...styles.buttonColor, borderBottomWidth: 1 }}>
+              <View style={{ ...s.flexrow_aligncenter }}>
                 <Image
                   source={I.app_logo}
-                  style={{width: 30, height: 30}}
+                  style={{ width: 30, height: 30 }}
                   resizeMode={'contain'}
                 />
                 <Text
-                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  style={{ color: 'black', fontWeight: 'bold', marginLeft: 5 }}>
                   {t('App Version') + ' ' + appversion}
                 </Text>
               </View>
@@ -993,10 +1055,10 @@ const Profile = ({navigation, route}) => {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => a.aslogout(onLogout)}>
             <View style={styles.LastButtonStyle}>
-              <View style={{...s.flexrow_aligncenter}}>
+              <View style={{ ...s.flexrow_aligncenter }}>
                 <Icons name={'log-out-outline'} size={30} color={'#000'} />
                 <Text
-                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  style={{ color: 'black', fontWeight: 'bold', marginLeft: 5 }}>
                   {t('Logout')}
                 </Text>
               </View>
