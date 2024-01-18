@@ -31,6 +31,7 @@ import ViewShot from 'react-native-view-shot';
 import { BluetoothEscposPrinter } from 'react-native-bluetooth-escpos-printer';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
+import { BLEPrinter } from 'react-native-thermal-receipt-printer-image-qr';
 
 // import EditVoucherList from './EditVoucherList';
 
@@ -71,22 +72,30 @@ const LocalVoucher = ({
   }
 
   const printVoucher = async () => {
-    const imageUri = await captureImage();
-
-    await BluetoothEscposPrinter.printerInit();
-    //get paper width from storage
-    let paperWidth = await EncryptedStorage.getItem('paperWidth');
-    if (paperWidth == null) {
-      paperWidth = 800;
-    }
-
-    await BluetoothEscposPrinter.printPic(imageUri, {
-      width: parseInt(paperWidth),
-      left: 0,
-      right: 0,
-      align: 1,
-      mode: 'NORMAL',
-    });;
+    const printVoucher = async () => {
+      const imageUri = await captureImage();
+  
+      let printer = await EncryptedStorage.getItem('printer');
+      printer = JSON.parse(printer);
+      console.log("Printer : ", printer.boundAddress)
+  
+      //get paper width from storage
+      let paperWidth = await EncryptedStorage.getItem('paperWidth');
+      if (paperWidth == null) {
+        paperWidth = 574;
+      }
+  
+  
+      // let r = await BLEPrinter.getDeviceList();
+      // console.log("Device List : ", r);
+      BLEPrinter.init();
+      BLEPrinter.connectPrinter(printer.boundAddress);
+      BLEPrinter.printImageBase64(imageUri, {
+        imageWidth: parseInt(paperWidth),
+      });
+  
+    };
+  
   };
 
   const getProfile = async () => {

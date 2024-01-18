@@ -120,23 +120,23 @@ const SContainer = () => {
 
   //Connect Printer
   useEffect(() => {
-    EncryptedStorage.getItem('printer').then(res => {
-      if(res != null){
-        let printer = JSON.parse(res);
-        BluetoothManager.connect(printer.boundAddress).then(
-          async (s) => {
-            console.log('connect success');
-            await BluetoothEscposPrinter.printerInit();
-            ToastAndroid.show('Printer Connected', ToastAndroid.SHORT);
-          },
-          (e) => {
-            console.log('connect failed');
-            console.log(e);
-            ToastAndroid.show('Printer Not Connected', ToastAndroid.SHORT);
-          },
-        );
-      }
-    })
+    // EncryptedStorage.getItem('printer').then(res => {
+    //   if(res != null){
+    //     let printer = JSON.parse(res);
+    //     BluetoothManager.connect(printer.boundAddress).then(
+    //       async (s) => {
+    //         console.log('connect success');
+    //         await BluetoothEscposPrinter.printerInit();
+    //         ToastAndroid.show('Printer Connected', ToastAndroid.SHORT);
+    //       },
+    //       (e) => {
+    //         console.log('connect failed');
+    //         console.log(e);
+    //         ToastAndroid.show('Printer Not Connected', ToastAndroid.SHORT);
+    //       },
+    //     );
+    //   }
+    // })
   
   }, [])
 

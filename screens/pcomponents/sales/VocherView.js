@@ -27,9 +27,8 @@ import { useTranslation } from 'react-i18next';
 import { printReceipt } from '../print/escpos';
 import EditVoucherList from './EditVoucherList';
 import ViewShot from "react-native-view-shot";
-import { BluetoothEscposPrinter } from 'react-native-bluetooth-escpos-printer';
 import EncryptedStorage from 'react-native-encrypted-storage';
-
+import { BLEPrinter } from 'react-native-thermal-receipt-printer-image-qr';
 /*
   
 */
@@ -60,6 +59,7 @@ const VoucherDetails = ({
 
   const captureImage = async () => {
     const uri = await ViewShot.captureRef(viewRef, {
+
       result: "base64",
       format: "png",
 
@@ -70,21 +70,25 @@ const VoucherDetails = ({
   const printVoucher = async () => {
     const imageUri = await captureImage();
 
-    await BluetoothEscposPrinter.printerInit();
+    let printer = await EncryptedStorage.getItem('printer');
+    printer = JSON.parse(printer);
+    console.log("Printer : ", printer.boundAddress)
 
     //get paper width from storage
     let paperWidth = await EncryptedStorage.getItem('paperWidth');
     if (paperWidth == null) {
-      paperWidth = 800;
+      paperWidth = 574;
     }
 
-    await BluetoothEscposPrinter.printPic(imageUri, {
-      width: parseInt(paperWidth),
-      left: 0,
-      right: 0,
-      align: 1,
-      mode: 'NORMAL',
-    });;
+
+    // let r = await BLEPrinter.getDeviceList();
+    // console.log("Device List : ", r);
+    BLEPrinter.init();
+    BLEPrinter.connectPrinter(printer.boundAddress);
+    BLEPrinter.printImageBase64(imageUri, {
+      imageWidth: parseInt(paperWidth),
+    });
+
   };
 
   React.useEffect(() => {
@@ -247,8 +251,8 @@ const VoucherDetails = ({
                   />
                   <Text style={{ ...s.bold_label }}>{profile.name}</Text>
                   <Text style={{ ...s.normal_label }}>{profile.email}</Text>
-                  <Text style={{ ...s.normal_label, textAlign:'center' }}>{profile.phoneno}</Text>
-                  <Text style={{ ...s.normal_label , textAlign:'center'}}>{profile.address}</Text>
+                  <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.phoneno}</Text>
+                  <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.address}</Text>
                 </View>
                 <View style={sepeator} />
                 <View
@@ -378,7 +382,7 @@ const VoucherDetails = ({
                         {t('Discount')}:{' '}
                       </Text>
                       <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                      {data.discount} {data.isDiscountAmount ? 'Ks' : '%'}
+                        {data.discount} {data.isDiscountAmount ? 'Ks' : '%'}
                       </Text>
                     </View>
                   </>
