@@ -71,32 +71,31 @@ const LocalVoucher = ({
     return uri;
   }
 
+
   const printVoucher = async () => {
-    const printVoucher = async () => {
-      const imageUri = await captureImage();
-  
-      let printer = await EncryptedStorage.getItem('printer');
-      printer = JSON.parse(printer);
-      console.log("Printer : ", printer.boundAddress)
-  
-      //get paper width from storage
-      let paperWidth = await EncryptedStorage.getItem('paperWidth');
-      if (paperWidth == null) {
-        paperWidth = 574;
-      }
-  
-  
-      // let r = await BLEPrinter.getDeviceList();
-      // console.log("Device List : ", r);
-      BLEPrinter.init();
-      BLEPrinter.connectPrinter(printer.boundAddress);
-      BLEPrinter.printImageBase64(imageUri, {
-        imageWidth: parseInt(paperWidth),
-      });
-  
-    };
-  
+    const imageUri = await captureImage();
+
+    let printer = await EncryptedStorage.getItem('printer');
+    printer = JSON.parse(printer);
+    console.log("Printer : ", printer.boundAddress)
+
+    //get paper width from storage
+    let paperWidth = await EncryptedStorage.getItem('paperWidth');
+    if (paperWidth == null) {
+      paperWidth = 574;
+    }
+
+
+    // let r = await BLEPrinter.getDeviceList();
+    // console.log("Device List : ", r);
+    BLEPrinter.init();
+    BLEPrinter.connectPrinter(printer.boundAddress);
+    BLEPrinter.printImageBase64(imageUri, {
+      imageWidth: parseInt(paperWidth),
+    });
+
   };
+
 
   const getProfile = async () => {
     const result = await getAllProfile();
@@ -166,16 +165,16 @@ const LocalVoucher = ({
   //getfooter text from stoarge
   const getFooterText = async () => {
     const footerText = await EncryptedStorage.getItem('footerText');
-    if(footerText != null){
+    if (footerText != null) {
       setFooterText(footerText);
-    }else{
+    } else {
       setFooterText('Thanks for your shopping');
     }
     return footerText;
   };
 
   React.useEffect(() => {
-   getFooterText();
+    getFooterText();
   }, []);
 
   return (
@@ -328,7 +327,7 @@ const LocalVoucher = ({
                   renderItem={renderItem}
                   keyExtractor={(item, index) => index.toString()}
                 />
-             <View style={sepeator} />
+                <View style={sepeator} />
                 <View
                   style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text
