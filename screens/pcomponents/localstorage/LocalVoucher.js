@@ -69,24 +69,28 @@ const LocalVoucher = ({
     });
     return uri;
   }
-
   const printVoucher = async () => {
     const imageUri = await captureImage();
 
-    await BluetoothEscposPrinter.printerInit();
+    let printer = await EncryptedStorage.getItem('printer');
+    printer = JSON.parse(printer);
+    console.log("Printer : ", printer.boundAddress)
+
     //get paper width from storage
     let paperWidth = await EncryptedStorage.getItem('paperWidth');
     if (paperWidth == null) {
-      paperWidth = 800;
+      paperWidth = 574;
     }
 
-    await BluetoothEscposPrinter.printPic(imageUri, {
-      width: parseInt(paperWidth),
-      left: 0,
-      right: 0,
-      align: 1,
-      mode: 'NORMAL',
-    });;
+
+    // let r = await BLEPrinter.getDeviceList();
+    // console.log("Device List : ", r);
+    BLEPrinter.init();
+    BLEPrinter.connectPrinter(printer.boundAddress);
+    BLEPrinter.printImageBase64(imageUri, {
+      imageWidth: parseInt(paperWidth),
+    });
+
   };
 
   const getProfile = async () => {
