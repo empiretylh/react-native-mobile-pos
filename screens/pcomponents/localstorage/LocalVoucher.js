@@ -28,7 +28,7 @@ import { printReceipt } from '../print/escpos';
 import { DeleteSales } from '../../../localDatabase/sales';
 import { getAllProfile } from '../../../localDatabase/profile';
 import ViewShot from 'react-native-view-shot';
-import { BluetoothEscposPrinter } from 'react-native-bluetooth-escpos-printer';
+import { BLEPrinter } from 'react-native-thermal-receipt-printer-image-qr';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
 
