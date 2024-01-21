@@ -69,6 +69,9 @@ const VoucherDetails = ({
 
   const printVoucher = async () => {
     const imageUri = await captureImage();
+    // setImageUri(imgUri);
+    // console.log(imgUri)
+    // const imageUri = await capturePrint();
 
     let printer = await EncryptedStorage.getItem('printer');
     printer = JSON.parse(printer);
@@ -80,14 +83,34 @@ const VoucherDetails = ({
       paperWidth = 574;
     }
 
+    paperWidth =  parseInt(paperWidth);
 
-    // let r = await BLEPrinter.getDeviceList();
-    // console.log("Device List : ", r);
-    BLEPrinter.init();
-    BLEPrinter.connectPrinter(printer.boundAddress);
-    BLEPrinter.printImageBase64(imageUri, {
-      imageWidth: parseInt(paperWidth),
+    Image.getSize(`data:image/png;base64,${imageUri}`, (width, height) => {
+      console.log(width, height);
+      const printerAspectRatio = paperWidth / height;
+
+      const imageAspectRatio = width / height;
+      let newWidth, newHeight;
+
+      if(imageAspectRatio > printerAspectRatio){
+        newWidth = paperWidth;
+        newHeight = paperWidth / imageAspectRatio;
+      }else{
+        newHeight = height;
+        newWidth = height * imageAspectRatio;
+      }
+
+
+      BLEPrinter.init();
+      BLEPrinter.connectPrinter(printer.boundAddress);
+      BLEPrinter.printImageBase64(imageUri, {
+        imageWidth: newWidth,
+        imageHeight: newHeight,
+      });
     });
+
+
+  
 
   };
 
@@ -234,240 +257,246 @@ const VoucherDetails = ({
             </TouchableOpacity>
           </View>
           <ScrollView style={{ flex: 1 }}>
-
-            <ViewShot ref={viewRef} >
-              <View style={{ backgroundColor: 'white' }}>
-                <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                  {/* fields = ['name', 'username', 'email', 'phoneno', 'password','address']*/}
-                  <Image
-                    source={
-                      profile.profileimage
-                        ? {
-                          uri: axios.defaults.baseURL + profile.profileimage,
-                        }
-                        : I.profile
-                    }
-                    style={{ width: 90, height: 90, alignSelf: 'center' }}
+            {true ?
+              <ViewShot ref={viewRef} >
+                <View style={{ backgroundColor: 'white' }}>
+                  <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                    {/* fields = ['name', 'username', 'email', 'phoneno', 'password','address']*/}
+                    <Image
+                      source={
+                        profile.profileimage
+                          ? {
+                            uri: axios.defaults.baseURL + profile.profileimage,
+                          }
+                          : I.profile
+                      }
+                      style={{ width: 90, height: 90, alignSelf: 'center' }}
+                    />
+                    <Text style={{ ...s.bold_label }}>{profile.name}</Text>
+                    <Text style={{ ...s.normal_label }}>{profile.email}</Text>
+                    <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.phoneno}</Text>
+                    <Text style={{ ...s.normal_label, textalign: 'center' }}>{profile.address}</Text>
+                  </View>
+                  <View style={sepeator} />
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text
+                      style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                      {t('Receipt Number')}:{' '}
+                    </Text>
+                    <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                      {data.voucherNumber}
+                    </Text>
+                  </View>
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text
+                      style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                      {t('Customer Name')}:{' '}
+                    </Text>
+                    <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                      {data.customerName}
+                    </Text>
+                  </View>
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text
+                      style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                      {t('Date')}:{' '}
+                    </Text>
+                    <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                      {new Date(data.date).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  <View style={sepeator} />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginVertical: 5,
+                    }}>
+                    <Text
+                      style={{
+                        ...s.normal_label,
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        width: nameWidth,
+                      }}>
+                      {t('Product Name')}
+                    </Text>
+                    <Text
+                      style={{
+                        ...s.normal_label,
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        width: qtyWidth,
+                      }}>
+                      {t('Qty')}
+                    </Text>
+                    <Text
+                      style={{
+                        ...s.normal_label,
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        width: priceWidth,
+                      }}>
+                      {t('Price')}
+                    </Text>
+                    <Text
+                      style={{
+                        ...s.normal_label,
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        width: totalWidth,
+                        textAlign: 'right',
+                      }}>
+                      {t('Total')}
+                    </Text>
+                  </View>
+                  <FlatList
+                    data={data.sproduct}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => index.toString()}
                   />
-                  <Text style={{ ...s.bold_label }}>{profile.name}</Text>
-                  <Text style={{ ...s.normal_label }}>{profile.email}</Text>
-                  <Text style={{ ...s.normal_label, textAlign:'center' }}>{profile.phoneno}</Text>
-                  <Text style={{ ...s.normal_label , textalign:'center'}}>{profile.address}</Text>
-                </View>
-                <View style={sepeator} />
-                <View
-                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text
-                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                    {t('Receipt Number')}:{' '}
-                  </Text>
-                  <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                    {data.voucherNumber}
-                  </Text>
-                </View>
-                <View
-                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text
-                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                    {t('Customer Name')}:{' '}
-                  </Text>
-                  <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                    {data.customerName}
-                  </Text>
-                </View>
-                <View
-                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text
-                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                    {t('Date')}:{' '}
-                  </Text>
-                  <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                    {new Date(data.date).toLocaleDateString()}
-                  </Text>
-                </View>
-                <View style={sepeator} />
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginVertical: 5,
-                  }}>
-                  <Text
-                    style={{
-                      ...s.normal_label,
-                      fontSize: 16,
-                      fontWeight: 'bold',
-                      width: nameWidth,
-                    }}>
-                    {t('Product Name')}
-                  </Text>
-                  <Text
-                    style={{
-                      ...s.normal_label,
-                      fontSize: 16,
-                      fontWeight: 'bold',
-                      width: qtyWidth,
-                    }}>
-                    {t('Qty')}
-                  </Text>
-                  <Text
-                    style={{
-                      ...s.normal_label,
-                      fontSize: 16,
-                      fontWeight: 'bold',
-                      width: priceWidth,
-                    }}>
-                    {t('Price')}
-                  </Text>
-                  <Text
-                    style={{
-                      ...s.normal_label,
-                      fontSize: 16,
-                      fontWeight: 'bold',
-                      width: totalWidth,
-                      textAlign: 'right',
-                    }}>
-                    {t('Total')}
-                  </Text>
-                </View>
-                <FlatList
-                  data={data.sproduct}
-                  renderItem={renderItem}
-                  keyExtractor={(item, index) => index.toString()}
-                />
-                <View style={sepeator} />
-                <View
-                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text
-                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                    {t('Total Amount')}:{' '}
-                  </Text>
-                  <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                    {numberWithCommas(data.totalAmount)} Ks
-                  </Text>
-                </View>
-                {data.tax == '0' ? null : (
+                  <View style={sepeator} />
                   <View
                     style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text
                       style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                      {t('Tax')}:{' '}
+                      {t('Total Amount')}:{' '}
                     </Text>
                     <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                      {numberWithCommas(data.tax)} %
+                      {numberWithCommas(data.totalAmount)} Ks
                     </Text>
                   </View>
-                )}
-                {data.deliveryCharges == null ||
-                  data.deliveryCharges == '0' ? null : (
+                  {data.tax == '0' ? null : (
+                    <View
+                      style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text
+                        style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                        {t('Tax')}:{' '}
+                      </Text>
+                      <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                        {numberWithCommas(data.tax)} %
+                      </Text>
+                    </View>
+                  )}
+                  {data.deliveryCharges == null ||
+                    data.deliveryCharges == '0' ? null : (
+                    <View
+                      style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text
+                        style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                        {t('Delivery Charges')}:{' '}
+                      </Text>
+                      <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                        {numberWithCommas(data.deliveryCharges)} Ks
+                      </Text>
+                    </View>
+                  )}
+                  {data.discount == '0' ? null : (
+                    <>
+                      <View style={sepeator} />
+                      <View
+                        style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text
+                          style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                          {t('Discount')}:{' '}
+                        </Text>
+                        <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                          {data.discount} {data.isDiscountAmount ? 'Ks' : '%'}
+                        </Text>
+                      </View>
+                    </>
+                  )}
+                  <View style={sepeator} />
+
                   <View
                     style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text
                       style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                      {t('Delivery Charges')}:{' '}
+                      {t('Grand Total')}:{' '}
                     </Text>
-                    <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                      {numberWithCommas(data.deliveryCharges)} Ks
+                    <Text style={{ ...s.normal_label, ...s.font_bold, fontSize: 16 }}>
+                      {numberWithCommas(parseInt(data.grandtotal, 10))} Ks
                     </Text>
                   </View>
-                )}
-                {data.discount == '0' ? null : (
-                  <>
-                    <View style={sepeator} />
-                    <View
-                      style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text
-                        style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                        {t('Discount')}:{' '}
-                      </Text>
-                      <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                      {data.discount} {data.isDiscountAmount ? 'Ks' : '%'}
-                      </Text>
-                    </View>
-                  </>
-                )}
-                <View style={sepeator} />
 
-                <View
-                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text
-                    style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                    {t('Grand Total')}:{' '}
-                  </Text>
-                  <Text style={{ ...s.normal_label, ...s.font_bold, fontSize: 16 }}>
-                    {numberWithCommas(parseInt(data.grandtotal, 10))} Ks
-                  </Text>
+                  {parseInt(data.customer_payment, 10) ==
+                    parseInt(data.grandtotal, 10) ? null : (
+                    <>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                        }}>
+                        <Text
+                          style={{
+                            ...s.normal_label,
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                          }}>
+                          Payment Amount:{' '}
+                        </Text>
+                        <Text
+                          style={{ ...s.normal_label, ...s.font_bold, fontSize: 16 }}>
+                          {numberWithCommas(data.customer_payment)} Ks
+                        </Text>
+                      </View>
+                      <View style={sepeator} />
+
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                        }}>
+                        <Text
+                          style={{
+                            ...s.normal_label,
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                          }}>
+                          Remaining Amount:{' '}
+                        </Text>
+                        <Text
+                          style={{ ...s.normal_label, ...s.font_bold, fontSize: 16 }}>
+                          {numberWithCommas(
+                            parseInt(data.grandtotal, 10) -
+                            parseInt(data.customer_payment, 10),
+                          )}{' '}
+                          Ks
+                        </Text>
+
+                      </View>
+                    </>
+                  )}
+                  {data.description == '' ||
+                    data.description == '#cashier' ? null : (
+                    <>
+                      <View style={sepeator} />
+                      <View
+                        style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text
+                          style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
+                          {t('Description')}:{' '}
+                        </Text>
+                        <Text style={{ ...s.normal_label, fontSize: 16 }}>
+                          {data?.description?.replace('#cashier', '')}
+                        </Text>
+                      </View>
+                    </>
+
+                  )}
+                  <Text style={{ ...s.normal_label, textAlign: 'center', marginTop: 10 }}>{footerText}</Text>
                 </View>
 
-                {parseInt(data.customer_payment, 10) ==
-                  parseInt(data.grandtotal, 10) ? null : (
-                  <>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                      }}>
-                      <Text
-                        style={{
-                          ...s.normal_label,
-                          fontSize: 16,
-                          fontWeight: 'bold',
-                        }}>
-                        Payment Amount:{' '}
-                      </Text>
-                      <Text
-                        style={{ ...s.normal_label, ...s.font_bold, fontSize: 16 }}>
-                        {numberWithCommas(data.customer_payment)} Ks
-                      </Text>
-                    </View>
-                    <View style={sepeator} />
+              </ViewShot>
+              :
+              <ViewShot ref={printRef} style={{ backgroundColor: 'red' }} >
+                {/* <Image source={{ uri: `data:image/png;base64,${imageUri}` }} style={{ flex:1, width: 150, aspectRatio: 1, backgroundColor:'black' }} resizeMode='cover'/> */}
+              </ViewShot>
 
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                      }}>
-                      <Text
-                        style={{
-                          ...s.normal_label,
-                          fontSize: 16,
-                          fontWeight: 'bold',
-                        }}>
-                        Remaining Amount:{' '}
-                      </Text>
-                      <Text
-                        style={{ ...s.normal_label, ...s.font_bold, fontSize: 16 }}>
-                        {numberWithCommas(
-                          parseInt(data.grandtotal, 10) -
-                          parseInt(data.customer_payment, 10),
-                        )}{' '}
-                        Ks
-                      </Text>
-
-                    </View>
-                  </>
-                )}
-                {data.description == '' ||
-                  data.description == '#cashier' ? null : (
-                  <>
-                    <View style={sepeator} />
-                    <View
-                      style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text
-                        style={{ ...s.normal_label, fontSize: 16, fontWeight: 'bold' }}>
-                        {t('Description')}:{' '}
-                      </Text>
-                      <Text style={{ ...s.normal_label, fontSize: 16 }}>
-                        {data?.description?.replace('#cashier', '')}
-                      </Text>
-                    </View>
-                  </>
-
-                )}
-                <Text style={{ ...s.normal_label, textAlign: 'center', marginTop: 10 }}>{footerText}</Text>
-              </View>
-
-            </ViewShot>
+            }
 
           </ScrollView>
           <View style={{ flexDirection: 'column' }}>
@@ -527,6 +556,7 @@ const VoucherDetails = ({
           </View>
         </View>
       </View>
+
     </Modal>
   );
 };
