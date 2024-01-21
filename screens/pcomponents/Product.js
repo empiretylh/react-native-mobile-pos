@@ -475,9 +475,6 @@ const Product = ({ navigation }) => {
 
     const [isImage, setImage] = useState(null);
 
-    const [editbarcodemodal, seteditBarCodeModal] = useState(false);
-
-    const onCloseeditBarCodeModal = () => seteditBarCodeModal(false);
 
     const [date, setDate] = useState(new Date());
     const [expcoll, setExpcoll] = useState(false);
@@ -790,7 +787,11 @@ const Product = ({ navigation }) => {
       const [d, setd] = useState(_date)
       const [dop, setdop] = useState(false)
       const [editpd, seteditpd] = useState(epd)
+      const [editbarcodemodal, seteditBarCodeModal] = useState(false);
 
+
+
+      const onCloseeditBarCodeModal = () => seteditBarCodeModal(false);
 
 
       const onHandleEPdtData = (e, name) => {
@@ -800,9 +801,10 @@ const Product = ({ navigation }) => {
         seteditpd(temp);
       };
 
+     
       return (
-        (
-          <MessageModalNormal
+        <>
+         <MessageModalNormal
             show={editpdshow}
             onClose={onCloseeditpdshow}
             width={'100%'}
@@ -885,15 +887,7 @@ const Product = ({ navigation }) => {
                     onPress={() => seteditBarCodeModal(true)}>
                     <Icons name={'barcode'} size={20} color={'#000'} />
                   </TouchableOpacity>
-                  <BarcodeScanner
-                    onBarcodeRead={barcodeData => {
-                      onHandleEPdtData(barcodeData, 'barcode');
-                      Vibration.vibrate(100);
-                      onCloseeditBarCodeModal();
-                    }}
-                    show={editbarcodemodal}
-                    onClose={onCloseeditBarCodeModal}
-                  />
+
                 </View>
                 <Text style={{ ...s.bold_label }}>{t('Category')}</Text>
                 <DropDownPicker
@@ -1071,14 +1065,26 @@ const Product = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </ScrollView>
+
           </MessageModalNormal>
-        )
+          <BarcodeScanner
+            onBarcodeRead={barcodeData => {
+              onHandleEPdtData(barcodeData, 'barcode');
+              Vibration.vibrate(100);
+              onCloseeditBarCodeModal();
+            }}
+            show={editbarcodemodal}
+            onClose={onCloseeditBarCodeModal}
+            style={{
+              zIndex: 999999
+            }}
+          /></>
       )
     }
 
     return (
       <View style={{ flex: 1 }}>
-        {editpd ? <EditModal epd={editpd} editpdshow={editpdshow} onCloseeditpdshow={onCloseeditpdshow} expcol={expcoll} _date={date} /> : null}
+
 
         <MessageModalNormal
           show={depdshow}
@@ -1284,6 +1290,8 @@ const Product = ({ navigation }) => {
             </Text>
           </View>
         )}
+        {editpd ? <EditModal epd={editpd} editpdshow={editpdshow} onCloseeditpdshow={onCloseeditpdshow} expcol={expcoll} _date={date} /> : null}
+
       </View>
     );
   });
@@ -1291,54 +1299,54 @@ const Product = ({ navigation }) => {
   const CategoryView = React.memo(({ navigation }) => {
 
     const [showmodal, setShowModal] = useState(false);
-    const [editCategory, seteditCategory] =  useState();
+    const [editCategory, seteditCategory] = useState();
     const [refreshing, setRefreshing] = useState(false);
 
-    const [title, setTitle] = useState(''); 
+    const [title, setTitle] = useState('');
 
 
-    const DeleteFromServer =  (id)=>{
+    const DeleteFromServer = (id) => {
       setRefreshing(true)
-      axios.delete('/api/categorys/?id='+id).then((res)=>{
+      axios.delete('/api/categorys/?id=' + id).then((res) => {
         console.log(res)
         setRefreshing(false);
         GetCategoryFromServer();
         GetProdcutsFromServer();
-      }).catch(res=>{
+      }).catch(res => {
         setRefreshing(false);
       })
     }
 
-    const UpdateCategoryToServer = (data)=>{
+    const UpdateCategoryToServer = (data) => {
       setRefreshing(true);
-      axios.put('/api/categorys/', data).then(res=>{
+      axios.put('/api/categorys/', data).then(res => {
         setRefreshing(false);
-         GetCategoryFromServer();
+        GetCategoryFromServer();
 
-      }).catch(err=>{
+      }).catch(err => {
         setRefreshing(false);
       })
 
     }
 
 
-    const DeleteCategory =(id)=>{
-      Alert.alert('Delete',"Are you sure you want to delete this category? If you delete a category, its associated items will also be deleted", [
+    const DeleteCategory = (id) => {
+      Alert.alert('Delete', "Are you sure you want to delete this category? If you delete a category, its associated items will also be deleted", [
         {
-        text:'Yes',
-        onPress:()=>{
-          DeleteFromServer(id)
-        }
-      },
-      {
-        text:'No',
-        onPress:()=>{
+          text: 'Yes',
+          onPress: () => {
+            DeleteFromServer(id)
+          }
+        },
+        {
+          text: 'No',
+          onPress: () => {
 
+          }
         }
-      }
       ])
     }
-   
+
 
 
     const CATITEM = ({ item }) => {
@@ -1348,119 +1356,119 @@ const Product = ({ navigation }) => {
             flex: 1,
             backgroundColor: '#f0f0f0',
             padding: 10,
-            margin: 5,  
+            margin: 5,
             borderRadius: 15,
           }}
-          onPress={()=>{
+          onPress={() => {
             console.log(item)
             seteditCategory(item);
             setShowModal(true);
             setTitle(item.label)
           }}
-          >
+        >
           <Text style={{ ...s.bold_label }}>{item.label}</Text>
         </TouchableOpacity>
       );
     };
 
-     const PDDITEM = ({ item }) => {
+    const PDDITEM = ({ item }) => {
       return (
-         <View
-            style={{
-              flex: 1,
-              backgroundColor: '#f0f0f0',
-              padding: 10,
-              margin: 5,
-              flexDirection: 'row',
-              borderRadius: 15,
-            }}>
-            <Image
-              source={{
-                uri:
-                  item.pic === '/media/null' || item.pic === null
-                    ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
-                    : axios.defaults.baseURL + item.pic,
-              }}
-              style={{ width: 100, height: 100 }}
-            />
-            <View style={{ marginLeft: 10 }}>
-              <Text style={{ ...s.bold_label, fontSize: 18 }}>{item.name}</Text>
-        
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#f0f0f0',
+            padding: 10,
+            margin: 5,
+            flexDirection: 'row',
+            borderRadius: 15,
+          }}>
+          <Image
+            source={{
+              uri:
+                item.pic === '/media/null' || item.pic === null
+                  ? 'https://www.pngitem.com/pimgs/m/27-272007_transparent-product-icon-png-product-vector-icon-png.png'
+                  : axios.defaults.baseURL + item.pic,
+            }}
+            style={{ width: 100, height: 100 }}
+          />
+          <View style={{ marginLeft: 10 }}>
+            <Text style={{ ...s.bold_label, fontSize: 18 }}>{item.name}</Text>
 
-              <Text style={{ ...s.bold_label, fontSize: 15, marginTop: 5 }}>
-                {numberWithCommas(item.price)} MMK
-              </Text>
-              <Text style={{ ...s.normal_label, fontSize: 12, marginTop: 5 }}>
-                barcode : {item.barcode}
-              </Text>
-              {item.expiry_date && <Text style={{ ...s.bold_label, fontSize: 12, marginTop: 5 }}>
-                Expire Date :     {new Date(item.expiry_date).toLocaleDateString()}
-              </Text>}
-            </View>
-            <Text
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                ...s.normal_label,
-                backgroundColor: 'red',
-                color: 'white',
-                padding: 5,
-                borderBottomRightRadius: 15,
-                borderTopLeftRadius: 15,
-                fontWeight: 'bold',
-              }}>
-              {item.qty}
+
+            <Text style={{ ...s.bold_label, fontSize: 15, marginTop: 5 }}>
+              {numberWithCommas(item.price)} MMK
             </Text>
+            <Text style={{ ...s.normal_label, fontSize: 12, marginTop: 5 }}>
+              barcode : {item.barcode}
+            </Text>
+            {item.expiry_date && <Text style={{ ...s.bold_label, fontSize: 12, marginTop: 5 }}>
+              Expire Date :     {new Date(item.expiry_date).toLocaleDateString()}
+            </Text>}
           </View>
+          <Text
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              ...s.normal_label,
+              backgroundColor: 'red',
+              color: 'white',
+              padding: 5,
+              borderBottomRightRadius: 15,
+              borderTopLeftRadius: 15,
+              fontWeight: 'bold',
+            }}>
+            {item.qty}
+          </Text>
+        </View>
       );
     };
 
-    const RelatedProducts = React.useMemo(()=>{
+    const RelatedProducts = React.useMemo(() => {
       console.log(editCategory?.id)
-      if(ProductData && editCategory){
-        return ProductData.filter((item)=> item.category == editCategory?.id)
+      if (ProductData && editCategory) {
+        return ProductData.filter((item) => item.category == editCategory?.id)
       }
-    },[showmodal, editCategory, ProductData])
+    }, [showmodal, editCategory, ProductData])
 
-    const RelatedProductsModel = ()=>{
+    const RelatedProductsModel = () => {
       return (
-        <MessageModalNormal show={showmodal} onClose={()=> setShowModal(false)} width={'95%'} height={'96%'}>
+        <MessageModalNormal show={showmodal} onClose={() => setShowModal(false)} width={'95%'} height={'96%'}>
 
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-          <TextInput
-           style={{...s.defaultTextInput, flex:1}}
-           defaultValue={editCategory?.label}
-           onChangeText={(e)=>{
-            setTitle(e)
-           }}
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TextInput
+              style={{ ...s.defaultTextInput, flex: 1 }}
+              defaultValue={editCategory?.label}
+              onChangeText={(e) => {
+                setTitle(e)
+              }}
 
-           />
-             <TouchableOpacity
-             onPress={()=>{
-              DeleteCategory(editCategory?.id)
-             }}
-              style={{...s.blue_button, marginLeft:'auto',backgroundColor:'red', flexDirection:'row', alignItems:'center'}}>
-             <Icons name="trash-outline" color="#fff" size={20}/>
-              <Text style={{...s.bold_label, color:'white'}}>Delete</Text>
+            />
+            <TouchableOpacity
+              onPress={() => {
+                DeleteCategory(editCategory?.id)
+              }}
+              style={{ ...s.blue_button, marginLeft: 'auto', backgroundColor: 'red', flexDirection: 'row', alignItems: 'center' }}>
+              <Icons name="trash-outline" color="#fff" size={20} />
+              <Text style={{ ...s.bold_label, color: 'white' }}>Delete</Text>
             </TouchableOpacity>
 
-             <TouchableOpacity style={{...s.blue_button,flexDirection:'row', alignItems:'center'}}
-             onPress={()=>{
-              UpdateCategoryToServer({
-                id:editCategory?.id,
-                title:title,
-              })
-             }}
-             >
-             <Icons name="pencil" color="#fff" size={20}/>
+            <TouchableOpacity style={{ ...s.blue_button, flexDirection: 'row', alignItems: 'center' }}
+              onPress={() => {
+                UpdateCategoryToServer({
+                  id: editCategory?.id,
+                  title: title,
+                })
+              }}
+            >
+              <Icons name="pencil" color="#fff" size={20} />
 
-              <Text style={{...s.bold_label, color:'white'}}>Update</Text>
+              <Text style={{ ...s.bold_label, color: 'white' }}>Update</Text>
             </TouchableOpacity>
           </View>
 
-            <Text style={{marginLeft:"auto",...s.normal_label}}>{RelatedProducts?.length} items</Text>
-              <FlatList
+          <Text style={{ marginLeft: "auto", ...s.normal_label }}>{RelatedProducts?.length} items</Text>
+          <FlatList
             data={RelatedProducts}
             refreshControl={
               <RefreshControl
@@ -1472,14 +1480,14 @@ const Product = ({ navigation }) => {
             keyExtractor={i => i.id}
           />
         </MessageModalNormal>
-        )
+      )
     }
-   
+
 
     return (
       <View>
-          <Loading show={refreshing}/>
-     {RelatedProductsModel()}
+        <Loading show={refreshing} />
+        {RelatedProductsModel()}
         {isArrayhasData(categoryData) ? (
           <FlatList
             data={categoryData.reverse()}
@@ -2335,15 +2343,16 @@ const SupplierListModal = ({
 
 export default Container;
 
-const BarcodeScanner = ({ onBarcodeRead, onClose, show }) => {
+const BarcodeScanner = ({ onBarcodeRead, onClose, show, style }) => {
   const onBarCodeRead = e => {
     onBarcodeRead(e.data);
     // onClose();
   };
 
   return (
-    <Modal visible={show} onRequestClose={onClose}>
+    <Modal visible={show} onRequestClose={onClose} style={style}>
       <View style={{ flex: 1 }}>
+
         <RNCamera
           style={{ flex: 1, width: '100%', height: '100%' }}
           onBarCodeRead={onBarCodeRead}
