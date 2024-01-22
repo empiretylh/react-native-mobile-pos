@@ -69,6 +69,9 @@ const VoucherDetails = ({
 
   const printVoucher = async () => {
     const imageUri = await captureImage();
+    // setImageUri(imgUri);
+    // console.log(imgUri)
+    // const imageUri = await capturePrint();
 
     let printer = await EncryptedStorage.getItem('printer');
     printer = JSON.parse(printer);
@@ -80,16 +83,37 @@ const VoucherDetails = ({
       paperWidth = 574;
     }
 
+    paperWidth =  parseInt(paperWidth);
 
-    // let r = await BLEPrinter.getDeviceList();
-    // console.log("Device List : ", r);
-    BLEPrinter.init();
-    BLEPrinter.connectPrinter(printer.boundAddress);
-    BLEPrinter.printImageBase64(imageUri, {
-      imageWidth: parseInt(paperWidth),
+    Image.getSize(`data:image/png;base64,${imageUri}`, (width, height) => {
+      console.log(width, height);
+      const printerAspectRatio = paperWidth / height;
+
+      const imageAspectRatio = width / height;
+      let newWidth, newHeight;
+
+      if(imageAspectRatio > printerAspectRatio){
+        newWidth = paperWidth;
+        newHeight = paperWidth / imageAspectRatio;
+      }else{
+        newHeight = height;
+        newWidth = height * imageAspectRatio;
+      }
+
+
+      BLEPrinter.init();
+      BLEPrinter.connectPrinter(printer.boundAddress);
+      BLEPrinter.printImageBase64(imageUri, {
+        imageWidth: newWidth,
+        imageHeight: newHeight,
+      });
     });
 
+
+  
+
   };
+
 
   React.useEffect(() => {
     setLoading(true);
