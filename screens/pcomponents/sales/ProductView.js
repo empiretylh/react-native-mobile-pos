@@ -52,6 +52,7 @@ const ProductView = React.memo(({navigation}) => {
   // Barcode scanner keyboard input state
   const [barcodeInput, setBarcodeInput] = useState('');
   const [productData, setProductData] = useState([]);
+  const [barcodeMap, setBarcodeMap] = useState(new Map());
 
   // Load products for barcode lookup
   useEffect(() => {
@@ -59,6 +60,15 @@ const ProductView = React.memo(({navigation}) => {
       try {
         const response = await axios.get('/api/products/');
         setProductData(response.data);
+        
+        // Create a Map for O(1) barcode lookups
+        const map = new Map();
+        response.data.forEach(product => {
+          if (product.barcode) {
+            map.set(product.barcode, product);
+          }
+        });
+        setBarcodeMap(map);
       } catch (err) {
         console.log('Error loading products:', err);
       }
@@ -72,7 +82,7 @@ const ProductView = React.memo(({navigation}) => {
       return;
     }
 
-    const product = productData.find(item => item.barcode === barcode);
+    const product = barcodeMap.get(barcode);
 
     if (product) {
       Vibration.vibrate(100);
