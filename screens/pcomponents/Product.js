@@ -917,6 +917,9 @@ const Product = ({ navigation }) => {
                     value={editpd.barcode}
                     onChangeText={e => onHandleEPdtData(e, 'barcode')}
                     placeholder={'Barcode ID'}
+                    keyboardType='numeric'
+                    returnKeyType='done'
+                    autoCorrect={false}
                   />
                   <TouchableOpacity
                     style={{ padding: 10 }}
@@ -1900,8 +1903,9 @@ const Product = ({ navigation }) => {
                 value={scannedbarcode}
                 onChangeText={e => setScannedBarcode(e)}
                 placeholder={'Barcode ID'}
-                keyboardType='number-pad'
-
+                keyboardType='numeric'
+                returnKeyType='done'
+                autoCorrect={false}
               />
               <TouchableOpacity
                 style={{ padding: 10 }}

@@ -49,6 +49,64 @@ const ProductView = React.memo(({ navigation }) => {
     [CartData, setCartData],
   );
 
+  // Barcode scanner keyboard input state
+  const [barcodeInput, setBarcodeInput] = useState('');
+  const [productData, setProductData] = useState([]);
+
+  // Load products for barcode lookup
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const response = await axios.get('/api/products/');
+        setProductData(response.data);
+      } catch (err) {
+        console.log('Error loading products:', err);
+      }
+    };
+    loadProducts();
+  }, []);
+
+  // Add product to cart by barcode
+  const addProductByBarcode = (barcode) => {
+    if (!barcode) return;
+
+    const product = productData.find(item => item.barcode === barcode);
+    
+    if (product) {
+      Vibration.vibrate(100);
+      
+      // Check if product already in cart
+      const index = CartData.findIndex(e => e.name === product.id);
+      
+      if (index !== -1) {
+        // Increase quantity if already in cart
+        const updatedCartData = [...CartData];
+        updatedCartData[index].qty += 1;
+        updatedCartData[index].total = updatedCartData[index].qty * updatedCartData[index].price;
+        setCartData(updatedCartData);
+      } else {
+        // Add new item to cart
+        const newItem = {
+          name: product.id,
+          qty: 1,
+          price: product.price,
+          check: true,
+          total: product.price,
+          pdname: product.name,
+          extraprice: product.extraprice || [],
+        };
+        setCartData([...CartData, newItem]);
+      }
+      
+      // Clear the barcode input for next scan
+      setBarcodeInput('');
+    } else {
+      // Product not found
+      a.spe();
+      setBarcodeInput('');
+    }
+  };
+
   const DiscountCalculator = (price, discount) => {
     if (discount_type == 'amount') {
       return price - discount;
@@ -392,6 +450,30 @@ const ProductView = React.memo(({ navigation }) => {
               </Text>
             </TouchableOpacity>
           ) : null}
+          
+          <Text style={{ ...s.bold_label, marginTop: 8 }}>Barcode Scanner</Text>
+          <View style={{ ...inputS }}>
+            <Icons name="barcode-outline" size={20} color={'#000'} style={{ marginRight: 10 }} />
+            <TextInput
+              style={{ height: 45, ...s.bold_label, color: '#0f0f0f', flex: 1 }}
+              placeholder="Scan or enter barcode"
+              value={barcodeInput}
+              onChangeText={e => setBarcodeInput(e)}
+              keyboardType="numeric"
+              returnKeyType="done"
+              onSubmitEditing={() => addProductByBarcode(barcodeInput)}
+              autoCorrect={false}
+            />
+            {barcodeInput ? (
+              <TouchableOpacity onPress={() => setBarcodeInput('')}>
+                <Icons name="close-outline" size={20} color={'#000'} />
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity onPress={() => addProductByBarcode(barcodeInput)}>
+              <Icons name="checkmark-circle-outline" size={20} color={'green'} style={{ marginLeft: 10 }} />
+            </TouchableOpacity>
+          </View>
+
           <Text style={{ ...s.bold_label, marginTop: -3 }}>{t('Products')}</Text>
           <ProductField
             ContainerProps={{ style: { ...inputS, padding: 5 } }}
