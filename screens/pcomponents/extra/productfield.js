@@ -292,18 +292,7 @@ const ProductField = ({
       setSearchDebounceTimer(timer);
     }, [searchDebounceTimer]);
 
-    if (load) {
-      return (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <ActivityIndicator size={50} color={C.bluecolor} />
-        </View>
-      );
-    }
+
 
     return (
       <ProductsContext.Provider value={ProductDataValue}>
@@ -400,7 +389,7 @@ const ProductField = ({
               updateCellsBatchingPeriod={50}
               style={{ backgroundColor: C.white }}
               data={ProductFilter}
-              renderItem={PDITEM}
+              renderItem={({ item }) => <PDITEM item={item} />}
               keyExtractor={i => i.id}
             />
           </View>
@@ -435,7 +424,7 @@ const ProductField = ({
               contentContainerStyle={{ flexDirection: 'column-reverse' }}
               style={{ backgroundColor: C.white }}
               data={CartData}
-              renderItem={CTITEM}
+              renderItem={({ item }) => <CTITEM item={item} />}
               keyExtractor={i => i.name}
             />
             <View
@@ -504,7 +493,7 @@ const ProductField = ({
                 contentContainerStyle={{ flexDirection: 'row' }}
                 style={{ backgroundColor: C.white }}
                 data={CartData}
-                renderItem={ListItem}
+                renderItem={({ item }) => <ListItem item={item} />}
                 keyExtractor={i => i.name}
               />
             ) : (
