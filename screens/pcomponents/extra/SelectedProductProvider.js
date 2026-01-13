@@ -1,19 +1,19 @@
 import React from 'react';
 import axios from 'axios';
 
-const SelectedProductProvider = React.createContext();
+const SelectedProductContext = React.createContext();
 
 const SelectedProductProvider = ({children}) => {
   const [selectedProductData, setSelectedProductData] = React.useState([]);
 
   return (
-    <SelectedProductProvider.Provider value={{selectedProductData, setSelectedProductData}}>
+    <SelectedProductContext.Provider value={{selectedProductData, setSelectedProductData}}>
       {children}
-    </SelectedProductProvider.Provider>
+    </SelectedProductContext.Provider>
   );
 };
 
-const useSelectedProduct = () => React.useContext(SelectedProductProvider);
+const useSelectedProduct = () => React.useContext(SelectedProductContext);
 const setSProduct = (data)=>{
   const {selectedProductData, setSelectedProductData} = useSelectedProduct()
 
@@ -23,4 +23,4 @@ const setSProduct = (data)=>{
   setSelectedProductData()
 }
 
-export {SelectedProductProvider, useSelectedProduct, getSupplierProducts};
+export {SelectedProductProvider, useSelectedProduct, setSProduct};

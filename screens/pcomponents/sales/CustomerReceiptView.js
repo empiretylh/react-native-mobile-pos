@@ -21,7 +21,7 @@ import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTranslation} from 'react-i18next';
 import VoucherDetails from './VocherView';
 import CustomerVoucherView from './CustomerVoucherView';
-import {getCustomerSales} from '../extra/CustomerDataProvider';
+import {useCustomerSales} from '../extra/CustomerDataProvider';
 import {MessageModalNormal} from '../../MessageModal'
 import Loading from '../../Loading'
 /*
@@ -38,8 +38,8 @@ const CustomerReceiptView = ({route, navigation}) => {
   const {data} = route.params;
 
   const {t, i18n} = useTranslation();
-  const {salesData, loading, getCustomerData} = getCustomerSales(data.id);
-  const {salesData:allSalesData} = getCustomerSales('all');
+  const {salesData, loading, getCustomerData} = useCustomerSales(data.id);
+  const {salesData:allSalesData} = useCustomerSales('all');
 
   const [type, setType] = useState('all');
   const [time, setTime] = useState('today');
