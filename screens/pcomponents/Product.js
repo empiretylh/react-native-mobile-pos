@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import {
   ToastAndroid,
   Vibration,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import Icons from 'react-native-vector-icons/Ionicons';
 import {
@@ -114,6 +115,7 @@ const Product = ({navigation}) => {
   const [categoryData, setCategoryData] = useState([]);
   const [ProductData, setProductData] = useState([]);
   const [load, setLoad] = useState(false);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   const [isUpload, setIsUpload] = useState(false);
 
@@ -280,6 +282,7 @@ const Product = ({navigation}) => {
 
   const GetProdcutsFromServer = () => {
     setpRefreshing(true);
+    setIsLoadingProducts(true);
     axios
       .get('/api/products/', pdtData)
       .then(res => {
@@ -304,9 +307,14 @@ const Product = ({navigation}) => {
         });
 
         setpRefreshing(false);
+        setIsLoadingProducts(false);
         setSp(res.data);
       })
-      .catch(err => a.spe());
+      .catch(err => {
+        a.spe();
+        setpRefreshing(false);
+        setIsLoadingProducts(false);
+      });
   };
 
   const RequestExcelFomrat = async () => {
@@ -440,15 +448,6 @@ const Product = ({navigation}) => {
     setPdData(temp);
   };
 
-  const CategoryToText = id => {
-    if (ProductData && categoryData) {
-      const c = categoryData.filter(item => item.value == id);
-
-      return c[0] ? c[0].label : '...';
-    }
-    return '...';
-  };
-
   const SumProductBalance = pd => {
     let price = 0;
     pd.forEach(item => {
@@ -471,32 +470,52 @@ const Product = ({navigation}) => {
   const [sp, setSp] = useState(ProductData);
 
   const [selectable, setSelectable] = useState(false);
+  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
 
-  const SearchProducts = text => {
-    const data = ProductData.filter(e => {
-      console.log(e.name);
-      console.log(text);
-      console.log(e.name === text);
-      var b = e.name.replaceAllTxt(' ', '').toLowerCase();
+  const CategoryToText = useCallback(id => {
+    if (ProductData && categoryData) {
+      const c = categoryData.filter(item => item.value == id);
 
-      var f = e.description
-        ? e.description.replaceAllTxt(' ', '').toLowerCase()
-        : '';
-      var d = CategoryToText(e.category).replaceAllTxt(' ', '').toLowerCase();
-      var barcode = e.barcode;
-      var c = text.replaceAllTxt(' ', '').toLowerCase();
+      return c[0] ? c[0].label : '...';
+    }
+    return '...';
+  }, [ProductData, categoryData]);
 
-      return (
-        b.includes(c) ||
-        d.includes(c) ||
-        f.includes(c) ||
-        c.includes(e.id) ||
-        c.includes(barcode)
-      );
-    });
+  const SearchProducts = useCallback(text => {
+    // Clear previous timer
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
 
-    setSp(data);
-  };
+    // Set new timer for debounced search
+    const timer = setTimeout(() => {
+      const data = ProductData.filter(e => {
+        console.log(e.name);
+        console.log(text);
+        console.log(e.name === text);
+        var b = e.name.replaceAllTxt(' ', '').toLowerCase();
+
+        var f = e.description
+          ? e.description.replaceAllTxt(' ', '').toLowerCase()
+          : '';
+        var d = CategoryToText(e.category).replaceAllTxt(' ', '').toLowerCase();
+        var barcode = e.barcode;
+        var c = text.replaceAllTxt(' ', '').toLowerCase();
+
+        return (
+          b.includes(c) ||
+          d.includes(c) ||
+          f.includes(c) ||
+          c.includes(e.id) ||
+          c.includes(barcode)
+        );
+      });
+
+      setSp(data);
+    }, 300); // 300ms debounce delay
+
+    setSearchDebounceTimer(timer);
+  }, [ProductData, CategoryToText, searchDebounceTimer]);
 
   const [filtershow, setFilterShow] = useState(false);
 
@@ -1274,7 +1293,15 @@ const Product = ({navigation}) => {
           </View>
         </MessageModalNormal>
 
-        {isArrayhasData(sp) ? (
+        {isLoadingProducts ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <ActivityIndicator size="large" color={C.bluecolor} />
+            <Text style={{...s.bold_label, marginTop: 10}}>
+              Loading Products...
+            </Text>
+          </View>
+        ) : isArrayhasData(sp) ? (
           <View>
             {selectable ? (
               <View
@@ -1341,6 +1368,11 @@ const Product = ({navigation}) => {
               data={sp}
               renderItem={PDITEM}
               keyExtractor={i => i.id}
+              windowSize={10}
+              maxToRenderPerBatch={10}
+              updateCellsBatchingPeriod={50}
+              removeClippedSubviews={true}
+              initialNumToRender={20}
             />
           </View>
         ) : (

@@ -53,10 +53,12 @@ const ProductView = React.memo(({navigation}) => {
   const [barcodeInput, setBarcodeInput] = useState('');
   const [productData, setProductData] = useState([]);
   const [barcodeMap, setBarcodeMap] = useState(new Map());
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
-  // Load products for barcode lookup
+  // Load products for barcode lookup - only once on mount
   useEffect(() => {
     const loadProducts = async () => {
+      setIsLoadingProducts(true);
       try {
         const response = await axios.get('/api/products/');
         setProductData(response.data);
@@ -65,51 +67,55 @@ const ProductView = React.memo(({navigation}) => {
         const map = new Map();
         response.data.forEach(product => {
           if (product.barcode) {
-            map.set(product.barcode, product);
+            map.set(product.barcode.toString(), product);
           }
         });
         setBarcodeMap(map);
       } catch (err) {
         console.log('Error loading products:', err);
+      } finally {
+        setIsLoadingProducts(false);
       }
     };
     loadProducts();
   }, []);
 
   // Add product to cart by barcode
-  const addProductByBarcode = barcode => {
+  const addProductByBarcode = useCallback(barcode => {
     if (!barcode) {
       return;
     }
 
-    const product = barcodeMap.get(barcode);
+    const product = barcodeMap.get(barcode.toString());
 
     if (product) {
       Vibration.vibrate(100);
 
-      // Check if product already in cart
-      const index = CartData.findIndex(e => e.name === product.id);
+      setCartData(prevCartData => {
+        // Check if product already in cart
+        const index = prevCartData.findIndex(e => e.name === product.id);
 
-      if (index !== -1) {
-        // Increase quantity if already in cart
-        const updatedCartData = [...CartData];
-        updatedCartData[index].qty += 1;
-        updatedCartData[index].total =
-          updatedCartData[index].qty * updatedCartData[index].price;
-        setCartData(updatedCartData);
-      } else {
-        // Add new item to cart
-        const newItem = {
-          name: product.id,
-          qty: 1,
-          price: product.price,
-          check: true,
-          total: product.price,
-          pdname: product.name,
-          extraprice: product.extraprice || [],
-        };
-        setCartData([...CartData, newItem]);
-      }
+        if (index !== -1) {
+          // Increase quantity if already in cart
+          const updatedCartData = [...prevCartData];
+          updatedCartData[index].qty += 1;
+          updatedCartData[index].total =
+            updatedCartData[index].qty * updatedCartData[index].price;
+          return updatedCartData;
+        } else {
+          // Add new item to cart
+          const newItem = {
+            name: product.id,
+            qty: 1,
+            price: product.price,
+            check: true,
+            total: product.price,
+            pdname: product.name,
+            extraprice: product.extraprice || [],
+          };
+          return [...prevCartData, newItem];
+        }
+      });
 
       // Clear the barcode input for next scan
       setBarcodeInput('');
@@ -118,7 +124,7 @@ const ProductView = React.memo(({navigation}) => {
       a.spe();
       setBarcodeInput('');
     }
-  };
+  }, [barcodeMap, setCartData]);
 
   const DiscountCalculator = (price, discount) => {
     if (discount_type == 'amount') {
@@ -398,6 +404,7 @@ const ProductView = React.memo(({navigation}) => {
           }}
         />
         <Loading show={isCreate} infotext={'Creating Receipt'} />
+        <Loading show={isLoadingProducts} infotext={'Loading Products'} />
         <MessageModalNormal
           show={isSucces}
           onClose={() => {

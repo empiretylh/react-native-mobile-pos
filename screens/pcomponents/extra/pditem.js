@@ -14,7 +14,7 @@ import axios from 'axios';
 import {numberWithCommas} from '../../../Database';
 import SwitchToCart from './SwitchToCart';
 
-const PDITEM = ({item}) => {
+const PDITEM = React.memo(({item}) => {
   return (
     <View
       style={{
@@ -61,6 +61,6 @@ const PDITEM = ({item}) => {
       </View>
     </View>
   );
-};
+});
 
 export default PDITEM;

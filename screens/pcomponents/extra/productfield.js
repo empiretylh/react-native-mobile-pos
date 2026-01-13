@@ -64,10 +64,13 @@ const ProductField = ({
 
   const [ProductData, setProductData] = useState();
   const [categoryData, setCategoryData] = useState();
+  const [productsCache, setProductsCache] = useState(null);
+  const [categoriesCache, setCategoriesCache] = useState(null);
 
   const [searchtext, setSearchText] = useState('');
   const [categoryId, setCategoryId] = useState('All');
   const [editcartshow, seteditcartshow] = useState(false);
+  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
 
   const { CartData, setCartData } = useContext(CartContext);
 
@@ -75,8 +78,14 @@ const ProductField = ({
 
   const SetOpenModal = () => {
     setOpen(true);
-    GetProdcutsFromServer();
-    GetCategoryFromServer();
+    // Use cached data if available, otherwise fetch
+    if (productsCache && categoriesCache) {
+      setProductData(productsCache);
+      setCategoryData(categoriesCache);
+    } else {
+      GetProdcutsFromServer();
+      GetCategoryFromServer();
+    }
   };
 
   const GetProdcutsFromServer = async () => {
@@ -104,6 +113,7 @@ const ProductField = ({
           });
           res.data = res.data.filter(e => e.qty > 0);
           setProductData(res.data);
+          setProductsCache(res.data); // Cache the products
 
           setLoad(false);
         })
@@ -124,6 +134,7 @@ const ProductField = ({
     console.log('Product Result : ', result);
     result = result?.filter(item => item.qty > 0);
     setProductData(result);
+    setProductsCache(result); // Cache the products
   };
 
   const getCategoryFromLocal = async () => {
@@ -153,27 +164,41 @@ const ProductField = ({
       });
       console.log(a);
       setCategoryData(a);
+      setCategoriesCache(a); // Cache the categories
     });
   };
 
   const ProductFilter = useMemo(() => {
-    if (ProductData && categoryId) {
-      const data = ProductData.filter(e => {
-        var b = e?.name.replaceAllTxt(' ', '').toLowerCase();
-        var c = searchtext.replaceAllTxt(' ', '').toLowerCase();
-        var id = e?.barcode?.toString();
-
-        console.log(id);
-
-        return (
-          id?.includes(c) ||
-          ((categoryId === 'All' ? true : e.category === categoryId) &&
-            b.includes(c))
-        );
-      });
-      return data;
+    if (!ProductData) return [];
+    if (!categoryId) return ProductData;
+    
+    const searchLower = searchtext.replaceAllTxt(' ', '').toLowerCase();
+    
+    // If no search text and category is "All", return all products
+    if (!searchLower && categoryId === 'All') {
+      return ProductData;
     }
-    return ProductData;
+    
+    return ProductData.filter(e => {
+      const nameLower = e?.name?.replaceAllTxt(' ', '').toLowerCase() || '';
+      const barcode = e?.barcode?.toString() || '';
+      
+      // Check barcode match first (most specific)
+      if (barcode.includes(searchLower)) {
+        return true;
+      }
+      
+      // Check category filter
+      const matchesCategory = categoryId === 'All' || e.category === categoryId;
+      
+      // If no search text, just use category filter
+      if (!searchLower) {
+        return matchesCategory;
+      }
+      
+      // Check name match with category filter
+      return matchesCategory && nameLower.includes(searchLower);
+    });
   }, [searchtext, ProductData, categoryId]);
 
   console.log('re render Products Field');
@@ -252,15 +277,32 @@ const ProductField = ({
 
     const [openbarcode, setOpenBarcode] = useState(false);
 
+    // Debounced search handler
+    const handleSearchTextChange = useCallback((text) => {
+      // Clear previous timer
+      if (searchDebounceTimer) {
+        clearTimeout(searchDebounceTimer);
+      }
+
+      // Set new timer for debounced search
+      const timer = setTimeout(() => {
+        setSearchText(text);
+      }, 300); // 300ms debounce delay
+
+      setSearchDebounceTimer(timer);
+    }, [searchDebounceTimer]);
+
     if (load) {
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <ActivityIndicator size={50} color={C.bluecolor} />
-      </View>;
+      return (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <ActivityIndicator size={50} color={C.bluecolor} />
+        </View>
+      );
     }
 
     return (
@@ -284,7 +326,7 @@ const ProductField = ({
                   fontWeight: '900',
                 }}
                 placeholder={'Search Products'}
-                onChangeText={e => setSearchText(e)}
+                onChangeText={e => handleSearchTextChange(e)}
               />
               <Icon name={'search'} size={20} color={'#000'} />
               <TouchableOpacity onPress={() => setOpenBarcode(true)}>
@@ -352,7 +394,10 @@ const ProductField = ({
               }
               initialNumToRender={10} // how many item to display first
               keyboardShouldPersistTaps={'always'}
-              removeClippedSubviews={false}
+              removeClippedSubviews={true}
+              windowSize={10}
+              maxToRenderPerBatch={10}
+              updateCellsBatchingPeriod={50}
               style={{ backgroundColor: C.white }}
               data={ProductFilter}
               renderItem={PDITEM}

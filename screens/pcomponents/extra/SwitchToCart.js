@@ -21,12 +21,12 @@ import {
 import axios from 'axios';
 import {numberWithCommas} from '../../../Database';
 import {CartContext} from '../context/CartContext';
-const SwitchToCart = ({item}) => {
+const SwitchToCart = React.memo(({item}) => {
   const {CartData, setCartData} = useContext(CartContext);
   const [selectedItem, setSelectItem] = useState(false);
   const [citem, setCitem] = useState();
 
-  const onFirstSetItem = fitem => {
+  const onFirstSetItem = useCallback(fitem => {
     if (fitem) {
       let d = {
         name: fitem.id,
@@ -41,74 +41,76 @@ const SwitchToCart = ({item}) => {
       setCitem(d);
       setSelectItem(true);
     }
-  };
+  }, []);
 
   const IncreaseValue = useCallback(() => {
-    const temp = {...citem, ['qty']: parseInt(citem.qty + 1)};
-    setCitem(temp);
-  }, [citem]);
+    setCitem(prevCitem => ({
+      ...prevCitem,
+      qty: parseInt(prevCitem.qty + 1)
+    }));
+  }, []);
 
   const DecreaseValue = useCallback(() => {
-    const temp = {...citem, ['qty']: parseInt(citem.qty - 1)};
-    setCitem(temp);
-  }, [citem]);
+    setCitem(prevCitem => ({
+      ...prevCitem,
+      qty: parseInt(prevCitem.qty - 1)
+    }));
+  }, []);
 
-  const typeNumber = text => {
-    const temp = {...citem, ['qty']: parseInt(text)};
-    setCitem(temp);
-  };
+  const typeNumber = useCallback(text => {
+    setCitem(prevCitem => ({
+      ...prevCitem,
+      qty: parseInt(text) || 0
+    }));
+  }, []);
 
   useEffect(() => {
-    if (citem) {
-      if (citem.qty === 0) {
-        setSelectItem(false);
-      }
+    if (citem && citem.qty === 0) {
+      setSelectItem(false);
     }
   }, [citem]);
 
-  useMemo(() => {
-    console.log('Citem Changing');
-    let cartdata = [...CartData];
-    if (citem) {
+  useEffect(() => {
+    if (!citem) return;
+
+    setCartData(prevCartData => {
+      let cartdata = [...prevCartData];
       let index = cartdata.findIndex(it => it.name === citem.name);
-      let joined = [];
-      if (index === -1) {
-        joined = CartData.concat(citem);
-        setCartData(joined);
+      
+      if (index === -1 && citem.qty > 0) {
+        // Add new item
+        return [...cartdata, citem];
       } else if (citem.qty === 0) {
-        cartdata = cartdata.filter(a => a.name !== citem.name);
-        setCartData(cartdata);
-      } else {
+        // Remove item
+        return cartdata.filter(a => a.name !== citem.name);
+      } else if (index !== -1) {
+        // Update existing item
         cartdata[index] = {
           ...cartdata[index],
-          ['qty']: parseInt(citem.qty),
+          qty: parseInt(citem.qty),
+          total: cartdata[index].price * parseInt(citem.qty),
         };
-        cartdata[index] = {
-          ...cartdata[index],
-          ['total']: cartdata[index].price * cartdata[index].qty,
-        };
-        setCartData(cartdata);
+        return cartdata;
       }
-
-      console.log(citem);
-      console.log(joined);
-    }
-  }, [citem]);
+      
+      return cartdata;
+    });
+  }, [citem, setCartData]);
 
   useMemo(() => {
     let data = CartData.filter(d => d.name === item.id);
-    if (data) {
+    if (data.length > 0) {
       setSelectItem(true);
     }
-  }, [CartData, setCartData]);
+  }, [CartData, item.id]);
 
   useEffect(() => {
     let data = CartData.filter(d => d.name === item.id);
-    if (data) {
+    if (data.length > 0) {
       setSelectItem(true);
       setCitem(data[0]);
     }
-  }, []);
+  }, [CartData, item.id]);
 
  
 
@@ -195,6 +197,6 @@ const SwitchToCart = ({item}) => {
       <MIcon name="cart-plus" size={25} color={'#fff'} />
     </TouchableOpacity>
   );
-};
+});
 
 export default SwitchToCart;
