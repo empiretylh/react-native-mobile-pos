@@ -152,7 +152,9 @@ const CartView = ({setTotalAmount, show, onClose}) => {
 
   const SumTotal = useMemo(() => {
     console.log('here');
-    if (CartData.length === 0) return 0;
+    if (CartData.length === 0) {
+      return 0;
+    }
 
     let amount = 0;
     CartData.forEach(e => {
@@ -260,7 +262,7 @@ const CartView = ({setTotalAmount, show, onClose}) => {
               <Text style={{...headerLabel, minWidth: width[3]}}>
                 Total Price
               </Text>
-              <Text style={{...headerLabel, minWidth: width[4]}}></Text>
+              <Text style={{...headerLabel, minWidth: width[4]}} />
             </View>
           )}
           contentContainerStyle={{

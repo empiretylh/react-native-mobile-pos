@@ -10,7 +10,7 @@ const SupplierDataProvider = ({children}) => {
   const getSupplierData = React.useCallback(() => {
     setLoading(true);
     const source = axios.CancelToken.source();
-    
+
     axios
       .get('/api/supplier/', {
         cancelToken: source.token,
@@ -25,13 +25,13 @@ const SupplierDataProvider = ({children}) => {
           setLoading(false);
         }
       });
-    
+
     return source;
   }, []);
 
   React.useEffect(() => {
     const source = getSupplierData();
-    
+
     return () => {
       if (source) {
         source.cancel('Component unmounted');
@@ -47,46 +47,48 @@ const SupplierDataProvider = ({children}) => {
 };
 
 const useSupplier = () => React.useContext(SupplierContext);
-const getSupplierProducts = (id)=>{
-  const {supplierData, loading, getSupplierData} = useSupplier()
 
-  if(id == 'all'){
-    let productsData = []
-    supplierData.forEach(item=>{
-      productsData.push(...item.products)
+// Custom hook for getting supplier products
+const useSupplierProducts = id => {
+  const {supplierData, loading, getSupplierData} = useSupplier();
 
-    })
-
-    return {productsData, loading, getSupplierData}
-  }
-
-   let  productsData = supplierData.filter(item=> item.id == id)[0].products;
-   return {productsData, loading, getSupplierData}
-
-}
-
-
-const computeSupplierRemainingAmount = (id)=>{
-  const {supplierData, loading, getSupplierData} = useSupplier()
-
-    let productsData = []
-    supplierData.forEach(item=>{
-      productsData.push(...item.products)
-
-    })
-
-    let total = 0;
-
-     productsData.forEach(item => {
-      let remaing = parseInt(item.cost) * parseInt(item.qty)
-
-      total +=  remaing - parseInt(item.supplier_payment)
+  if (id === 'all') {
+    let productsData = [];
+    supplierData.forEach(item => {
+      productsData.push(...item.products);
     });
 
-     return total;
+    return {productsData, loading, getSupplierData};
+  }
 
+  const supplier = supplierData.find(item => item.id === id);
+  let productsData = supplier ? supplier.products : [];
+  return {productsData, loading, getSupplierData};
+};
 
-}
+// Custom hook for computing supplier remaining amount
+const useSupplierRemainingAmount = () => {
+  const {supplierData} = useSupplier();
 
+  let productsData = [];
+  supplierData.forEach(item => {
+    productsData.push(...item.products);
+  });
 
-export {SupplierDataProvider, useSupplier, getSupplierProducts, computeSupplierRemainingAmount};
+  let total = 0;
+
+  productsData.forEach(item => {
+    let remaing = parseInt(item.cost, 10) * parseInt(item.qty, 10);
+
+    total += remaing - parseInt(item.supplier_payment, 10);
+  });
+
+  return total;
+};
+
+export {
+  SupplierDataProvider,
+  useSupplier,
+  useSupplierProducts,
+  useSupplierRemainingAmount,
+};

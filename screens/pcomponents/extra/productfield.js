@@ -25,7 +25,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { MessageModalNormal } from '../../MessageModal';
+import {MessageModalNormal} from '../../MessageModal';
 import {
   STYLE as s,
   COLOR as C,
@@ -33,11 +33,11 @@ import {
   ALERT as a,
 } from '../../../Database';
 import axios from 'axios';
-import { numberWithCommas } from '../../../Database';
+import {numberWithCommas} from '../../../Database';
 import SwitchToCart from './SwitchToCart';
 import PDITEM from './pditem';
-import { CartContext } from '../context/CartContext';
-import { ProductsContext } from '../context/ProductContext';
+import {CartContext} from '../context/CartContext';
+import {ProductsContext} from '../context/ProductContext';
 import BarCodeToCart from '../sales/AddWithBarCode';
 import CartView from '../sales/EditCartList';
 import {
@@ -48,8 +48,8 @@ import {
   insertCategories,
   insertProduct,
 } from '../../../localDatabase/products';
-import { useNetInfo } from '@react-native-community/netinfo';
-import { set } from 'react-native-reanimated';
+import {useNetInfo} from '@react-native-community/netinfo';
+import {set} from 'react-native-reanimated';
 
 const ProductField = ({
   ContainerProps,
@@ -72,9 +72,9 @@ const ProductField = ({
   const [editcartshow, seteditcartshow] = useState(false);
   const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
 
-  const { CartData, setCartData } = useContext(CartContext);
+  const {CartData, setCartData} = useContext(CartContext);
 
-  const { isConnected } = useNetInfo();
+  const {isConnected} = useNetInfo();
 
   const SetOpenModal = () => {
     setOpen(true);
@@ -147,7 +147,7 @@ const ProductField = ({
     console.log(result);
     let a = [];
     result.forEach(i => {
-      a.push({ label: i.title, value: i.id, id: i.id });
+      a.push({label: i.title, value: i.id, id: i.id});
     });
     setCategoryData(a);
     setCategoriesCache(a); // Cache the categories from local storage
@@ -161,12 +161,13 @@ const ProductField = ({
       return;
     }
 
-    axios.get('/api/categorys/')
+    axios
+      .get('/api/categorys/')
       .then(res => {
         let a = [];
         deleteCategories();
         res.data.forEach(item => {
-          a.push({ label: item.title, value: item.id, id: item.id });
+          a.push({label: item.title, value: item.id, id: item.id});
           insertCategories(item.id, item.title);
         });
         console.log(a);
@@ -180,33 +181,37 @@ const ProductField = ({
   };
 
   const ProductFilter = useMemo(() => {
-    if (!ProductData) return [];
-    if (!categoryId) return ProductData;
-    
+    if (!ProductData) {
+      return [];
+    }
+    if (!categoryId) {
+      return ProductData;
+    }
+
     const searchLower = searchtext.replaceAllTxt(' ', '').toLowerCase();
-    
+
     // If no search text and category is "All", return all products
     if (!searchLower && categoryId === 'All') {
       return ProductData;
     }
-    
+
     return ProductData.filter(e => {
       const nameLower = e?.name?.replaceAllTxt(' ', '').toLowerCase() || '';
       const barcode = e?.barcode?.toString() || '';
-      
+
       // Check barcode match first (most specific)
       if (barcode.includes(searchLower)) {
         return true;
       }
-      
+
       // Check category filter
       const matchesCategory = categoryId === 'All' || e.category === categoryId;
-      
+
       // If no search text, just use category filter
       if (!searchLower) {
         return matchesCategory;
       }
-      
+
       // Check name match with category filter
       return matchesCategory && nameLower.includes(searchLower);
     });
@@ -215,14 +220,16 @@ const ProductField = ({
   console.log('re render Products Field');
 
   const ProductDataValue = useMemo(
-    () => ({ ProductData, setProductData }),
+    () => ({ProductData, setProductData}),
     [ProductData, setProductData],
   );
   const [cpriceclick, setCPriceClick] = useState([]);
   const ProductView = () => {
     const SumTotal = useMemo(() => {
       console.log('here');
-      if (CartData.length === 0) return 0;
+      if (CartData.length === 0) {
+        return 0;
+      }
 
       let amount = 0;
       CartData.forEach(e => {
@@ -235,30 +242,30 @@ const ProductField = ({
       setTotalAmount(SumTotal);
     }, [SumTotal]);
 
-
-    const changePrice = (id) => {
-
+    const changePrice = id => {
       let count = cpriceclick.filter(e => e == id).length;
 
       setCPriceClick([...cpriceclick, id]);
-
 
       let temp = [...CartData];
       let index = temp.findIndex(e => e.name == id);
       console.log(temp[index]);
 
-      temp[index].extraprice.push({ extraprice: temp[index].price });
+      temp[index].extraprice.push({extraprice: temp[index].price});
 
       let position = count % temp[index]?.extraprice.length;
 
       let total = temp[index].extraprice[position].extraprice * temp[index].qty;
 
-      temp[index] = { ...temp[index], ['price']: temp[index].extraprice[position].extraprice, ['total']: total };
+      temp[index] = {
+        ...temp[index],
+        ['price']: temp[index].extraprice[position].extraprice,
+        ['total']: total,
+      };
       setCartData(temp);
     };
 
-
-    const CTITEM = ({ item }) => {
+    const CTITEM = ({item}) => {
       const labelstyle = {
         ...s.normal_label,
         color: 'black',
@@ -277,11 +284,16 @@ const ProductField = ({
           }}>
           <Text style={labelstyle}>{item.pdname}</Text>
           <Text style={labelstyle}>{item.qty}</Text>
-          {item?.extraprice?.length > 0 ? <TouchableOpacity style={labelstyle} onPress={() => changePrice(item.name)}>
+          {item?.extraprice?.length > 0 ? (
+            <TouchableOpacity
+              style={labelstyle}
+              onPress={() => changePrice(item.name)}>
+              <Text style={labelstyle}>{numberWithCommas(item.price)}</Text>
+            </TouchableOpacity>
+          ) : (
             <Text style={labelstyle}>{numberWithCommas(item.price)}</Text>
-          </TouchableOpacity>
-            : <Text style={labelstyle}>{numberWithCommas(item.price)}</Text>}
-          <Text style={{ ...labelstyle, textAlign: 'right' }}>
+          )}
+          <Text style={{...labelstyle, textAlign: 'right'}}>
             {numberWithCommas(item.total)}
           </Text>
         </View>
@@ -291,7 +303,7 @@ const ProductField = ({
     const [openbarcode, setOpenBarcode] = useState(false);
 
     // Debounced search handler with proper cleanup
-    const handleSearchTextChange = useCallback((text) => {
+    const handleSearchTextChange = useCallback(text => {
       // Clear previous timer
       if (searchDebounceTimer) {
         clearTimeout(searchDebounceTimer);
@@ -314,12 +326,10 @@ const ProductField = ({
       };
     }, [searchDebounceTimer]);
 
-
-
     return (
       <ProductsContext.Provider value={ProductDataValue}>
-        <KeyboardAvoidingView style={{ flex: 1, padding: 0 }}>
-          <View style={{ flexDirection: 'column', padding: 5 }}>
+        <KeyboardAvoidingView style={{flex: 1, padding: 0}}>
+          <View style={{flexDirection: 'column', padding: 5}}>
             <View
               style={{
                 ...s.flexrow_aligncenter_j_between,
@@ -345,7 +355,7 @@ const ProductField = ({
                   name={'barcode-outline'}
                   size={25}
                   color={'#000'}
-                  style={{ marginLeft: 10 }}
+                  style={{marginLeft: 10}}
                 />
               </TouchableOpacity>
             </View>
@@ -395,7 +405,7 @@ const ProductField = ({
           <BarCodeToCart open={openbarcode} setOpen={setOpenBarcode} />
 
           {/* Product View */}
-          <View style={{ flex: 1 }}>
+          <View style={{flex: 1}}>
             <FlatList
               refreshControl={
                 <RefreshControl
@@ -409,9 +419,9 @@ const ProductField = ({
               windowSize={10}
               maxToRenderPerBatch={10}
               updateCellsBatchingPeriod={50}
-              style={{ backgroundColor: C.white }}
+              style={{backgroundColor: C.white}}
               data={ProductFilter}
-              renderItem={({ item }) => <PDITEM item={item} />}
+              renderItem={({item}) => <PDITEM item={item} />}
               keyExtractor={i => i.id}
             />
           </View>
@@ -431,22 +441,22 @@ const ProductField = ({
               show={editcartshow}
               onClose={() => seteditcartshow(false)}
             />
-            <View style={{ ...s.flexrow_aligncenter_j_between }}>
-              <Text style={{ ...s.bold_label }}>Cart List</Text>
-              <Text style={{ ...s.bold_label, fontSize: 15 }}>
+            <View style={{...s.flexrow_aligncenter_j_between}}>
+              <Text style={{...s.bold_label}}>Cart List</Text>
+              <Text style={{...s.bold_label, fontSize: 15}}>
                 {CartData.length} Items
               </Text>
               <TouchableOpacity
-                style={{ padding: 5 }}
+                style={{padding: 5}}
                 onPress={() => seteditcartshow(true)}>
                 <Icon name={'pencil'} size={20} color={'#000'} />
               </TouchableOpacity>
             </View>
             <FlatList
-              contentContainerStyle={{ flexDirection: 'column-reverse' }}
-              style={{ backgroundColor: C.white }}
+              contentContainerStyle={{flexDirection: 'column-reverse'}}
+              style={{backgroundColor: C.white}}
               data={CartData}
-              renderItem={({ item }) => <CTITEM item={item} />}
+              renderItem={({item}) => <CTITEM item={item} />}
               keyExtractor={i => i.name}
             />
             <View
@@ -455,8 +465,8 @@ const ProductField = ({
                 justifyContent: 'space-between',
                 padding: 5,
               }}>
-              <Text style={{ ...s.bold_label }}>Total Amount :</Text>
-              <Text style={{ ...s.bold_label }}>
+              <Text style={{...s.bold_label}}>Total Amount :</Text>
+              <Text style={{...s.bold_label}}>
                 {numberWithCommas(SumTotal)} MMK
               </Text>
             </View>
@@ -469,7 +479,7 @@ const ProductField = ({
               }}
             />
             <TextInput
-              style={{ ...s.textInputnormal }}
+              style={{...s.textInputnormal}}
               keyboardType={'number-pad'}
             />
           </View>
@@ -478,7 +488,7 @@ const ProductField = ({
     );
   };
 
-  const ListItem = ({ item }) => {
+  const ListItem = ({item}) => {
     return (
       <View
         style={{
@@ -487,7 +497,7 @@ const ProductField = ({
           marginLeft: 5,
           borderRadius: 15,
         }}>
-        <Text style={{ fontWeight: 'bold', color: 'white' }}>{item.pdname}</Text>
+        <Text style={{fontWeight: 'bold', color: 'white'}}>{item.pdname}</Text>
       </View>
     );
   };
@@ -508,25 +518,25 @@ const ProductField = ({
         </TouchableOpacity>
       ) : (
         <View {...ContainerProps}>
-          <View style={{ flex: 1 }}>
+          <View style={{flex: 1}}>
             {CartData ? (
               <FlatList
                 horizontal
-                contentContainerStyle={{ flexDirection: 'row' }}
-                style={{ backgroundColor: C.white }}
+                contentContainerStyle={{flexDirection: 'row'}}
+                style={{backgroundColor: C.white}}
                 data={CartData}
-                renderItem={({ item }) => <ListItem item={item} />}
+                renderItem={({item}) => <ListItem item={item} />}
                 keyExtractor={i => i.name}
               />
             ) : (
               <TouchableOpacity
-                style={{ padding: 5 }}
+                style={{padding: 5}}
                 onPress={() => SetOpenModal()}>
                 <Text>Choose Prodcuts</Text>
               </TouchableOpacity>
             )}
           </View>
-          <TouchableOpacity style={{ padding: 5 }} onPress={() => SetOpenModal()}>
+          <TouchableOpacity style={{padding: 5}} onPress={() => SetOpenModal()}>
             <Icon name={'add'} size={20} color={'#000'} />
           </TouchableOpacity>
         </View>
