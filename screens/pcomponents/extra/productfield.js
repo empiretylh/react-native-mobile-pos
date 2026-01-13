@@ -231,7 +231,7 @@ const ProductField = ({
 
     useEffect(() => {
       setTotalAmount(SumTotal);
-    }, [SumTotal]);
+    }, [SumTotal, setTotalAmount]);
 
     const changePrice = id => {
       let count = cpriceclick.filter(e => e === id).length;

@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 
 const SelectedProductContext = React.createContext();
 
@@ -7,20 +6,28 @@ const SelectedProductProvider = ({children}) => {
   const [selectedProductData, setSelectedProductData] = React.useState([]);
 
   return (
-    <SelectedProductContext.Provider value={{selectedProductData, setSelectedProductData}}>
+    <SelectedProductContext.Provider
+      value={{selectedProductData, setSelectedProductData}}>
       {children}
     </SelectedProductContext.Provider>
   );
 };
 
 const useSelectedProduct = () => React.useContext(SelectedProductContext);
-const setSProduct = (data)=>{
-  const {selectedProductData, setSelectedProductData} = useSelectedProduct()
 
-  const item = {id : data.name, qty: data.qty}
-  
+// Custom hook for adding a product to selected products
+const useSetSelectedProduct = () => {
+  const {selectedProductData, setSelectedProductData} = useSelectedProduct();
 
-  setSelectedProductData()
-}
+  const addProduct = React.useCallback(
+    data => {
+      const item = {id: data.name, qty: data.qty};
+      setSelectedProductData([...selectedProductData, item]);
+    },
+    [selectedProductData, setSelectedProductData],
+  );
 
-export {SelectedProductProvider, useSelectedProduct, setSProduct};
+  return {addProduct};
+};
+
+export {SelectedProductProvider, useSelectedProduct, useSetSelectedProduct};
