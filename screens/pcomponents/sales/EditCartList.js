@@ -4,7 +4,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   TextInput,
   FlatList,
   Modal,
@@ -15,7 +14,6 @@ import {numberWithCommas} from '../../../Database';
 import {
   STYLE as s,
   COLOR as C,
-  IMAGE as i,
   ALERT as a,
 } from '../../../Database';
 import Icon from 'react-native-vector-icons/Ionicons';

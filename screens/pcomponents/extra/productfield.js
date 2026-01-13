@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
 import React, {
   useState,
@@ -13,28 +12,21 @@ import {
   Text,
   Modal,
   TouchableOpacity,
-  Image,
   FlatList,
   TextInput,
   RefreshControl,
   Button,
   ScrollView,
   KeyboardAvoidingView,
-  KeyboardAvoidingViewBase,
-  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {MessageModalNormal} from '../../MessageModal';
 import {
   STYLE as s,
   COLOR as C,
-  IMAGE as i,
   ALERT as a,
 } from '../../../Database';
 import axios from 'axios';
 import {numberWithCommas} from '../../../Database';
-import SwitchToCart from './SwitchToCart';
 import PDITEM from './pditem';
 import {CartContext} from '../context/CartContext';
 import {ProductsContext} from '../context/ProductContext';
@@ -49,7 +41,6 @@ import {
   insertProduct,
 } from '../../../localDatabase/products';
 import {useNetInfo} from '@react-native-community/netinfo';
-import {set} from 'react-native-reanimated';
 
 const ProductField = ({
   ContainerProps,
@@ -145,12 +136,12 @@ const ProductField = ({
   const getCategoryFromLocal = async () => {
     let result = await getAllCategories();
     console.log(result);
-    let a = [];
-    result.forEach(i => {
-      a.push({label: i.title, value: i.id, id: i.id});
+    let categories = [];
+    result.forEach(item => {
+      categories.push({label: item.title, value: item.id, id: item.id});
     });
-    setCategoryData(a);
-    setCategoriesCache(a); // Cache the categories from local storage
+    setCategoryData(categories);
+    setCategoriesCache(categories); // Cache the categories from local storage
   };
 
   const GetCategoryFromServer = () => {
@@ -164,15 +155,15 @@ const ProductField = ({
     axios
       .get('/api/categorys/')
       .then(res => {
-        let a = [];
+        let categories = [];
         deleteCategories();
         res.data.forEach(item => {
-          a.push({label: item.title, value: item.id, id: item.id});
+          categories.push({label: item.title, value: item.id, id: item.id});
           insertCategories(item.id, item.title);
         });
-        console.log(a);
-        setCategoryData(a);
-        setCategoriesCache(a); // Cache the categories
+        console.log(categories);
+        setCategoryData(categories);
+        setCategoriesCache(categories); // Cache the categories
       })
       .catch(err => {
         console.log('Error fetching categories:', err);
@@ -243,12 +234,12 @@ const ProductField = ({
     }, [SumTotal]);
 
     const changePrice = id => {
-      let count = cpriceclick.filter(e => e == id).length;
+      let count = cpriceclick.filter(e => e === id).length;
 
       setCPriceClick([...cpriceclick, id]);
 
       let temp = [...CartData];
-      let index = temp.findIndex(e => e.name == id);
+      let index = temp.findIndex(e => e.name === id);
       console.log(temp[index]);
 
       temp[index].extraprice.push({extraprice: temp[index].price});
