@@ -82,6 +82,11 @@ const ProductField = ({
     if (productsCache && categoriesCache) {
       setProductData(productsCache);
       setCategoryData(categoriesCache);
+      // Still refresh in background if connected
+      if (isConnected) {
+        GetProdcutsFromServer();
+        GetCategoryFromServer();
+      }
     } else {
       GetProdcutsFromServer();
       GetCategoryFromServer();
@@ -145,6 +150,7 @@ const ProductField = ({
       a.push({ label: i.title, value: i.id, id: i.id });
     });
     setCategoryData(a);
+    setCategoriesCache(a); // Cache the categories from local storage
   };
 
   const GetCategoryFromServer = () => {
@@ -155,17 +161,22 @@ const ProductField = ({
       return;
     }
 
-    axios.get('/api/categorys/').then(res => {
-      let a = [];
-      deleteCategories();
-      res.data.forEach(item => {
-        a.push({ label: item.title, value: item.id, id: item.id });
-        insertCategories(item.id, item.title);
+    axios.get('/api/categorys/')
+      .then(res => {
+        let a = [];
+        deleteCategories();
+        res.data.forEach(item => {
+          a.push({ label: item.title, value: item.id, id: item.id });
+          insertCategories(item.id, item.title);
+        });
+        console.log(a);
+        setCategoryData(a);
+        setCategoriesCache(a); // Cache the categories
+      })
+      .catch(err => {
+        console.log('Error fetching categories:', err);
+        getCategoryFromLocal();
       });
-      console.log(a);
-      setCategoryData(a);
-      setCategoriesCache(a); // Cache the categories
-    });
   };
 
   const ProductFilter = useMemo(() => {
@@ -279,7 +290,7 @@ const ProductField = ({
 
     const [openbarcode, setOpenBarcode] = useState(false);
 
-    // Debounced search handler
+    // Debounced search handler with proper cleanup
     const handleSearchTextChange = useCallback((text) => {
       // Clear previous timer
       if (searchDebounceTimer) {
@@ -292,6 +303,15 @@ const ProductField = ({
       }, 300); // 300ms debounce delay
 
       setSearchDebounceTimer(timer);
+    }, []);
+
+    // Cleanup timer on unmount
+    useEffect(() => {
+      return () => {
+        if (searchDebounceTimer) {
+          clearTimeout(searchDebounceTimer);
+        }
+      };
     }, [searchDebounceTimer]);
 
 
