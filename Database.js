@@ -140,6 +140,7 @@ export const isArrayhasData = (arr = []) => {
 
 // export const baseUrl = 'https://empirepos.pythonanywhere.com'; //without image
 export const baseUrl = 'https://mttonlinepos.pythonanywhere.com'; //with image
+// export const baseUrl = 'https://walposapi.mml.com.mm';
 
 
 // export const baseUrl = 'http://192.168.100.63:8000';  
