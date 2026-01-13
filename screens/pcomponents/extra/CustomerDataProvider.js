@@ -7,23 +7,37 @@ const CustomerDataProvider = ({children}) => {
   const [customerData, setCustomerData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
-  const getCustomerData = () => {
+  const getCustomerData = React.useCallback(() => {
     setLoading(true);
+    const source = axios.CancelToken.source();
+    
     axios
-      .get('/api/customer/')
+      .get('/api/customer/', {
+        cancelToken: source.token,
+      })
       .then(res => {
         setCustomerData(res.data);
         setLoading(false);
       })
       .catch(err => {
-        console.log(err);
-        setLoading(false);
+        if (!axios.isCancel(err)) {
+          console.log(err);
+          setLoading(false);
+        }
       });
-  };
+    
+    return source;
+  }, []);
 
   React.useEffect(() => {
-    getCustomerData();
-  }, []);
+    const source = getCustomerData();
+    
+    return () => {
+      if (source) {
+        source.cancel('Component unmounted');
+      }
+    };
+  }, [getCustomerData]);
 
   return (
     <CustomerProvider.Provider value={{customerData, loading, getCustomerData}}>

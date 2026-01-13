@@ -217,10 +217,12 @@ const ProductField = ({
       CartData.forEach(e => {
         amount += parseInt(e.total, 10);
       });
-      setTotalAmount(amount);
       return amount;
-    }, [CartData, setTotalAmount]);
+    }, [CartData]);
 
+    useEffect(() => {
+      setTotalAmount(SumTotal);
+    }, [SumTotal]);
 
 
     const changePrice = (id) => {

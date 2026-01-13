@@ -7,23 +7,37 @@ const SupplierDataProvider = ({children}) => {
   const [supplierData, setSupplierData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
-  const getSupplierData = () => {
+  const getSupplierData = React.useCallback(() => {
     setLoading(true);
+    const source = axios.CancelToken.source();
+    
     axios
-      .get('/api/supplier/')
+      .get('/api/supplier/', {
+        cancelToken: source.token,
+      })
       .then(res => {
         setSupplierData(res.data);
         setLoading(false);
       })
       .catch(err => {
-        console.log(err);
-        setLoading(false);
+        if (!axios.isCancel(err)) {
+          console.log(err);
+          setLoading(false);
+        }
       });
-  };
+    
+    return source;
+  }, []);
 
   React.useEffect(() => {
-    getSupplierData();
-  }, []);
+    const source = getSupplierData();
+    
+    return () => {
+      if (source) {
+        source.cancel('Component unmounted');
+      }
+    };
+  }, [getSupplierData]);
 
   return (
     <SupplierContext.Provider value={{supplierData, loading, getSupplierData}}>
