@@ -7,23 +7,37 @@ const CustomerDataProvider = ({children}) => {
   const [customerData, setCustomerData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
-  const getCustomerData = () => {
+  const getCustomerData = React.useCallback(() => {
     setLoading(true);
+    const source = axios.CancelToken.source();
+
     axios
-      .get('/api/customer/')
+      .get('/api/customer/', {
+        cancelToken: source.token,
+      })
       .then(res => {
         setCustomerData(res.data);
         setLoading(false);
       })
       .catch(err => {
-        console.log(err);
-        setLoading(false);
+        if (!axios.isCancel(err)) {
+          console.log(err);
+          setLoading(false);
+        }
       });
-  };
+
+    return source;
+  }, []);
 
   React.useEffect(() => {
-    getCustomerData();
-  }, []);
+    const source = getCustomerData();
+
+    return () => {
+      if (source) {
+        source.cancel('Component unmounted');
+      }
+    };
+  }, [getCustomerData]);
 
   return (
     <CustomerProvider.Provider value={{customerData, loading, getCustomerData}}>
@@ -33,35 +47,44 @@ const CustomerDataProvider = ({children}) => {
 };
 
 const useCustomer = () => React.useContext(CustomerProvider);
-const getCustomerSales = id => {
+
+// Custom hook for getting customer sales
+const useCustomerSales = id => {
   const {customerData, loading, getCustomerData} = useCustomer();
 
-  if(id == 'all'){
-    let salesData = []
-    customerData.forEach(item=>{
-      salesData.push(...item.sales)
-    })
-    return {salesData, loading, getCustomerData}
+  if (id === 'all') {
+    let salesData = [];
+    customerData.forEach(item => {
+      salesData.push(...item.sales);
+    });
+    return {salesData, loading, getCustomerData};
   }
 
-  let salesData = customerData.filter(item => item.id == id)[0].sales;
+  const customer = customerData.find(item => item.id === id);
+  let salesData = customer ? customer.sales : [];
   return {salesData, loading, getCustomerData};
 };
 
-const computeCustomerRemaingAmount = () =>{
-   const {customerData, loading, getCustomerData} = useCustomer();
-    let salesData = []
-    customerData.forEach(item=>{
-      salesData.push(...item.sales)
-    });
+// Custom hook for computing customer remaining amount
+const useCustomerRemainingAmount = () => {
+  const {customerData} = useCustomer();
+  let salesData = [];
+  customerData.forEach(item => {
+    salesData.push(...item.sales);
+  });
 
-     let total = 0;
-    salesData.forEach(item => {
-      total += parseInt(item.grandtotal, 10) - parseInt(item.customer_payment, 10);
-    });
+  let total = 0;
+  salesData.forEach(item => {
+    total +=
+      parseInt(item.grandtotal, 10) - parseInt(item.customer_payment, 10);
+  });
 
-    return total;
+  return total;
+};
 
-}
-
-export {CustomerDataProvider, useCustomer, getCustomerSales, computeCustomerRemaingAmount};
+export {
+  CustomerDataProvider,
+  useCustomer,
+  useCustomerSales,
+  useCustomerRemainingAmount,
+};

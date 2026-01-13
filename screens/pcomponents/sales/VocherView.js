@@ -275,7 +275,7 @@ const VoucherDetails = ({
                     <Text style={{ ...s.bold_label }}>{profile.name}</Text>
                     <Text style={{ ...s.normal_label }}>{profile.email}</Text>
                     <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.phoneno}</Text>
-                    <Text style={{ ...s.normal_label, textalign: 'center' }}>{profile.address}</Text>
+                    <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.address}</Text>
                   </View>
                   <View style={sepeator} />
                   <View

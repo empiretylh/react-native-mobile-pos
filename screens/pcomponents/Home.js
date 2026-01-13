@@ -34,8 +34,8 @@ import { MessageModalNormal } from '../MessageModal';
 import Pricing from './pricing';
 import { useNetInfo } from '@react-native-community/netinfo';
 import { DeleteAllProfile, insertProfile } from '../../localDatabase/profile';
-import { computeCustomerRemaingAmount, getCustomerSales, useCustomer } from './extra/CustomerDataProvider';
-import { computeSupplierRemainingAmount, useSupplier } from './extra/SupplierDataProvider';
+import { useCustomerSales, useCustomer, useCustomerRemainingAmount } from './extra/CustomerDataProvider';
+import { useSupplier, useSupplierRemainingAmount } from './extra/SupplierDataProvider';
 Date.prototype.addDays = function (days) {
   var date = new Date(this.valueOf());
   date.setDate(date.getDate() + days);
@@ -43,6 +43,10 @@ Date.prototype.addDays = function (days) {
 };
 const HomeScreen = ({ navigation, route }) => {
   const { token } = route.params;
+
+  // Get customer and supplier remaining amounts using hooks
+  const customerRemainingAmount = useCustomerRemainingAmount();
+  const supplierRemainingAmount = useSupplierRemainingAmount();
 
   const [settings, setSettings] = useState({
     datascope: 'year',
@@ -1024,7 +1028,7 @@ const HomeScreen = ({ navigation, route }) => {
 
             </View>
             <Text style={{ ...s.bold_label, color: 'white' }}>
-              {numberWithCommas(computeCustomerRemaingAmount())} MMK
+              {numberWithCommas(customerRemainingAmount)} MMK
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('supplier')} style={{ backgroundColor: C.bluecolor, borderRadius: 15, padding: 15, flex: 1, marginLeft: 4 }} underlayColor="white" >
@@ -1033,7 +1037,7 @@ const HomeScreen = ({ navigation, route }) => {
               <Text style={{ ...s.bold_label, color: 'white', marginLeft: 2 }}>Supplier</Text>
 
             </View>
-            <Text style={{ ...s.bold_label, color: 'white' }}>  {numberWithCommas(computeSupplierRemainingAmount())} MMK
+            <Text style={{ ...s.bold_label, color: 'white' }}>  {numberWithCommas(supplierRemainingAmount)} MMK
             </Text>
           </TouchableOpacity>
         </View>

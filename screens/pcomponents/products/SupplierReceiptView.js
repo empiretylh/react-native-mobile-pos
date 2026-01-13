@@ -20,8 +20,8 @@ import Icons from 'react-native-vector-icons/MaterialIcons';
 import IIcons from 'react-native-vector-icons/Ionicons';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useTranslation} from 'react-i18next';
-import {getCustomerSales} from '../extra/CustomerDataProvider';
-import {getSupplierProducts} from '../extra/SupplierDataProvider';
+import {useCustomerSales} from '../extra/CustomerDataProvider';
+import {useSupplierProducts} from '../extra/SupplierDataProvider';
 import {MessageModalNormal} from '../../MessageModal'
 import LoadingModal from '../../Loading';
 import Loading from '../../Loading'
@@ -39,8 +39,8 @@ const CustomerReceiptView = ({route, navigation}) => {
   const {data} = route.params;
 
   const {t, i18n} = useTranslation();
-  const {productsData, loading, getSupplierData} = getSupplierProducts(data.id);
-  const {productsData:allProductData} = getSupplierProducts('all');
+  const {productsData, loading, getSupplierData} = useSupplierProducts(data.id);
+  const {productsData:allProductData} = useSupplierProducts('all');
 
   const [type, setType] = useState('all');
   const [time, setTime] = useState('today');
