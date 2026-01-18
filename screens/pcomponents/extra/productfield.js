@@ -235,36 +235,41 @@ const ProductField = ({
     }, 300); // 300ms debounce delay
   }, []);
 
-  const changePrice = useCallback(
-    id => {
-      setCPriceClick(prev => [...prev, id]);
+  const changePrice = useCallback(id => {
+    setCartData(prevCartData => {
+      let temp = [...prevCartData];
+      let index = temp.findIndex(e => e.name === id);
 
-      setCartData(prevCartData => {
-        let temp = [...prevCartData];
-        let index = temp.findIndex(e => e.name === id);
+      if (index === -1) {
+        return prevCartData;
+      }
 
-        if (index === -1) {
-          return prevCartData;
-        }
+      // Use functional update to get current cpriceclick count
+      setCPriceClick(prev => {
+        let count = prev.filter(e => e === id).length;
 
-        let count = cpriceclick.filter(e => e === id).length;
-        temp[index].extraprice.push({extraprice: temp[index].price});
+        // Create new extraprice array immutably
+        const newExtraprice = [
+          ...temp[index].extraprice,
+          {extraprice: temp[index].price},
+        ];
 
-        let position = count % temp[index]?.extraprice.length;
-
-        let total =
-          temp[index].extraprice[position].extraprice * temp[index].qty;
+        let position = count % newExtraprice.length;
+        let total = newExtraprice[position].extraprice * temp[index].qty;
 
         temp[index] = {
           ...temp[index],
-          ['price']: temp[index].extraprice[position].extraprice,
-          ['total']: total,
+          extraprice: newExtraprice,
+          price: newExtraprice[position].extraprice,
+          total: total,
         };
-        return temp;
+
+        return [...prev, id];
       });
-    },
-    [cpriceclick],
-  );
+
+      return temp;
+    });
+  }, []);
 
   const handleDone = useCallback(() => {
     setOpen(false);
@@ -340,7 +345,7 @@ const ProductField = ({
               <TouchableOpacity
                 style={{padding: 5}}
                 onPress={() => SetOpenModal()}>
-                <Text>Choose Prodcuts</Text>
+                <Text>Choose Products</Text>
               </TouchableOpacity>
             )}
           </View>
