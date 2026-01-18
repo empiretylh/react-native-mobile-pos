@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useMemo,
   useContext,
+  useRef,
 } from 'react';
 import {
   View,
@@ -20,11 +21,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {
-  STYLE as s,
-  COLOR as C,
-  ALERT as a,
-} from '../../../Database';
+import {STYLE as s, COLOR as C, ALERT as a} from '../../../Database';
 import axios from 'axios';
 import {numberWithCommas} from '../../../Database';
 import PDITEM from './pditem';
@@ -61,14 +58,17 @@ const ProductField = ({
   const [searchtext, setSearchText] = useState('');
   const [categoryId, setCategoryId] = useState('All');
   const [editcartshow, seteditcartshow] = useState(false);
-  const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
+  const searchDebounceTimerRef = useRef(null);
 
   const {CartData, setCartData} = useContext(CartContext);
 
   const {isConnected} = useNetInfo();
 
-  const SetOpenModal = () => {
+  const SetOpenModal = useCallback(() => {
     setOpen(true);
+    // Reset search and category states when opening modal
+    setSearchText('');
+    setCategoryId('All');
     // Use cached data if available, otherwise fetch
     if (productsCache && categoriesCache) {
       setProductData(productsCache);
@@ -82,7 +82,7 @@ const ProductField = ({
       GetProdcutsFromServer();
       GetCategoryFromServer();
     }
-  };
+  }, [productsCache, categoriesCache, isConnected]);
 
   const GetProdcutsFromServer = async () => {
     setLoad(true);
@@ -113,7 +113,7 @@ const ProductField = ({
 
           setLoad(false);
         })
-        .catch(err => {
+        .catch(() => {
           a.spe();
           setLoad(false);
           getProductFromLocal();
@@ -210,12 +210,177 @@ const ProductField = ({
 
   console.log('re render Products Field');
 
-  const ProductDataValue = useMemo(
-    () => ({ProductData, setProductData}),
-    [ProductData, setProductData],
-  );
+  const ProductDataValue = useMemo(() => ({ProductData}), [ProductData]);
   const [cpriceclick, setCPriceClick] = useState([]);
-  const ProductView = () => {
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (searchDebounceTimerRef.current) {
+        clearTimeout(searchDebounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Debounced search handler with proper cleanup
+  const handleSearchTextChange = useCallback(text => {
+    // Clear previous timer
+    if (searchDebounceTimerRef.current) {
+      clearTimeout(searchDebounceTimerRef.current);
+    }
+
+    // Set new timer for debounced search
+    searchDebounceTimerRef.current = setTimeout(() => {
+      setSearchText(text);
+    }, 300); // 300ms debounce delay
+  }, []);
+
+  const changePrice = useCallback(id => {
+    setCartData(prevCartData => {
+      let temp = [...prevCartData];
+      let index = temp.findIndex(e => e.name === id);
+
+      if (index === -1) {
+        return prevCartData;
+      }
+
+      // Use functional update to get current cpriceclick count
+      setCPriceClick(prev => {
+        let count = prev.filter(e => e === id).length;
+
+        // Create new extraprice array immutably with safety check
+        const currentExtraprice = temp[index].extraprice || [];
+        const newExtraprice = [
+          ...currentExtraprice,
+          {extraprice: temp[index].price},
+        ];
+
+        let position = count % newExtraprice.length;
+        let total = newExtraprice[position].extraprice * temp[index].qty;
+
+        temp[index] = {
+          ...temp[index],
+          extraprice: newExtraprice,
+          price: newExtraprice[position].extraprice,
+          total: total,
+        };
+
+        return [...prev, id];
+      });
+
+      return temp;
+    });
+  }, []);
+
+  const handleDone = useCallback(() => {
+    setOpen(false);
+    setData(CartData);
+    // Reset states when closing
+    setSearchText('');
+    setCategoryId('All');
+    if (searchDebounceTimerRef.current) {
+      clearTimeout(searchDebounceTimerRef.current);
+    }
+  }, [CartData, setData]);
+
+  const ListItem = ({item}) => {
+    return (
+      <View
+        style={{
+          padding: 5,
+          backgroundColor: C.blackbutton,
+          marginLeft: 5,
+          borderRadius: 15,
+        }}>
+        <Text style={{fontWeight: 'bold', color: 'white'}}>{item.pdname}</Text>
+      </View>
+    );
+  };
+
+  return (
+    <>
+      <Modal visible={open}>
+        <InternalProductView
+          searchtext={searchtext}
+          handleSearchTextChange={handleSearchTextChange}
+          categoryData={categoryData}
+          categoryId={categoryId}
+          setCategoryId={setCategoryId}
+          load={load}
+          GetProdcutsFromServer={GetProdcutsFromServer}
+          ProductFilter={ProductFilter}
+          CartData={CartData}
+          setTotalAmount={setTotalAmount}
+          editcartshow={editcartshow}
+          seteditcartshow={seteditcartshow}
+          changePrice={changePrice}
+          cpriceclick={cpriceclick}
+          handleDone={handleDone}
+          ProductDataValue={ProductDataValue}
+        />
+      </Modal>
+      {custom ? (
+        <TouchableOpacity
+          style={{
+            padding: 5,
+            backgroundColor: C.bluecolor,
+            borderRadius: 15,
+            marginRight: 5,
+          }}
+          onPress={() => SetOpenModal()}>
+          <Icon name={'add'} size={25} color={'#fff'} />
+        </TouchableOpacity>
+      ) : (
+        <View {...ContainerProps}>
+          <View style={{flex: 1}}>
+            {CartData ? (
+              <FlatList
+                horizontal
+                contentContainerStyle={{flexDirection: 'row'}}
+                style={{backgroundColor: C.white}}
+                data={CartData}
+                renderItem={({item}) => <ListItem item={item} />}
+                keyExtractor={i => i.name}
+              />
+            ) : (
+              <TouchableOpacity
+                style={{padding: 5}}
+                onPress={() => SetOpenModal()}>
+                <Text>Choose Products</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <TouchableOpacity style={{padding: 5}} onPress={() => SetOpenModal()}>
+            <Icon name={'add'} size={20} color={'#000'} />
+          </TouchableOpacity>
+        </View>
+      )}
+    </>
+  );
+};
+
+// Extract ProductView as a separate memoized component to prevent unnecessary re-renders
+const InternalProductView = React.memo(
+  ({
+    searchtext,
+    handleSearchTextChange,
+    categoryData,
+    categoryId,
+    setCategoryId,
+    load,
+    GetProdcutsFromServer,
+    ProductFilter,
+    CartData,
+    setTotalAmount,
+    editcartshow,
+    seteditcartshow,
+    changePrice,
+    cpriceclick,
+    handleDone,
+    ProductDataValue,
+  }) => {
+    const [openbarcode, setOpenBarcode] = useState(false);
+
     const SumTotal = useMemo(() => {
       console.log('here');
       if (CartData.length === 0) {
@@ -232,29 +397,6 @@ const ProductField = ({
     useEffect(() => {
       setTotalAmount(SumTotal);
     }, [SumTotal, setTotalAmount]);
-
-    const changePrice = id => {
-      let count = cpriceclick.filter(e => e === id).length;
-
-      setCPriceClick([...cpriceclick, id]);
-
-      let temp = [...CartData];
-      let index = temp.findIndex(e => e.name === id);
-      console.log(temp[index]);
-
-      temp[index].extraprice.push({extraprice: temp[index].price});
-
-      let position = count % temp[index]?.extraprice.length;
-
-      let total = temp[index].extraprice[position].extraprice * temp[index].qty;
-
-      temp[index] = {
-        ...temp[index],
-        ['price']: temp[index].extraprice[position].extraprice,
-        ['total']: total,
-      };
-      setCartData(temp);
-    };
 
     const CTITEM = ({item}) => {
       const labelstyle = {
@@ -290,32 +432,6 @@ const ProductField = ({
         </View>
       );
     };
-
-    const [openbarcode, setOpenBarcode] = useState(false);
-
-    // Debounced search handler with proper cleanup
-    const handleSearchTextChange = useCallback(text => {
-      // Clear previous timer
-      if (searchDebounceTimer) {
-        clearTimeout(searchDebounceTimer);
-      }
-
-      // Set new timer for debounced search
-      const timer = setTimeout(() => {
-        setSearchText(text);
-      }, 300); // 300ms debounce delay
-
-      setSearchDebounceTimer(timer);
-    }, []);
-
-    // Cleanup timer on unmount
-    useEffect(() => {
-      return () => {
-        if (searchDebounceTimer) {
-          clearTimeout(searchDebounceTimer);
-        }
-      };
-    }, [searchDebounceTimer]);
 
     return (
       <ProductsContext.Provider value={ProductDataValue}>
@@ -461,14 +577,7 @@ const ProductField = ({
                 {numberWithCommas(SumTotal)} MMK
               </Text>
             </View>
-            <Button
-              title={'Done'}
-              onPress={() => {
-                setOpen(false);
-                setCartData(CartData);
-                setData(CartData);
-              }}
-            />
+            <Button title={'Done'} onPress={handleDone} />
             <TextInput
               style={{...s.textInputnormal}}
               keyboardType={'number-pad'}
@@ -477,63 +586,7 @@ const ProductField = ({
         </KeyboardAvoidingView>
       </ProductsContext.Provider>
     );
-  };
-
-  const ListItem = ({item}) => {
-    return (
-      <View
-        style={{
-          padding: 5,
-          backgroundColor: C.blackbutton,
-          marginLeft: 5,
-          borderRadius: 15,
-        }}>
-        <Text style={{fontWeight: 'bold', color: 'white'}}>{item.pdname}</Text>
-      </View>
-    );
-  };
-
-  return (
-    <>
-      <Modal visible={open}>{ProductView()}</Modal>
-      {custom ? (
-        <TouchableOpacity
-          style={{
-            padding: 5,
-            backgroundColor: C.bluecolor,
-            borderRadius: 15,
-            marginRight: 5,
-          }}
-          onPress={() => SetOpenModal()}>
-          <Icon name={'add'} size={25} color={'#fff'} />
-        </TouchableOpacity>
-      ) : (
-        <View {...ContainerProps}>
-          <View style={{flex: 1}}>
-            {CartData ? (
-              <FlatList
-                horizontal
-                contentContainerStyle={{flexDirection: 'row'}}
-                style={{backgroundColor: C.white}}
-                data={CartData}
-                renderItem={({item}) => <ListItem item={item} />}
-                keyExtractor={i => i.name}
-              />
-            ) : (
-              <TouchableOpacity
-                style={{padding: 5}}
-                onPress={() => SetOpenModal()}>
-                <Text>Choose Prodcuts</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          <TouchableOpacity style={{padding: 5}} onPress={() => SetOpenModal()}>
-            <Icon name={'add'} size={20} color={'#000'} />
-          </TouchableOpacity>
-        </View>
-      )}
-    </>
-  );
-};
+  },
+);
 
 export default ProductField;
