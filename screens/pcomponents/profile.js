@@ -410,6 +410,7 @@ const Profile = ({navigation, route}) => {
     datascope: 'year',
     expirescope:7,
     lessthan: 10,
+    barcode_type: 'camera',
   });
   const [fbshow, setFbshow] = useState(false);
   const [feedback, setFeedback] = useState();
@@ -420,6 +421,10 @@ const Profile = ({navigation, route}) => {
   const [expiredate,setexpiredate] = useState('7');
 
   const [discount_type, setDiscountType] = useState('percentage');
+  const [barcodeTypeShow, setBarcodeTypeShow] = useState(false);
+  const [baseURLShow, setBaseURLShow] = useState(false);
+  const [baseURL, setBaseURL] = useState('');
+  const [showBaseURL, setShowBaseURL] = useState(false);
 
   useEffect(() => {
     EncryptedStorage.getItem('discount_type')
@@ -430,7 +435,17 @@ const Profile = ({navigation, route}) => {
           setDiscountType('percentage');
         }
       })
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
+    
+    // Load base URL
+    EncryptedStorage.getItem('base_url')
+      .then(res => {
+        if (res !== null) {
+          setBaseURL(res);
+          axios.defaults.baseURL = res;
+        }
+      })
+      .catch(err => console.log(err));
   }, [])
 
   
@@ -505,6 +520,22 @@ const Profile = ({navigation, route}) => {
         .catch(err => console.log(err));
     }
     SaveSettings(setting_temp);
+  };
+
+  const handleSaveBaseURL = async () => {
+    if (!baseURL) {
+      a.alert('Please enter a valid URL');
+      return;
+    }
+    try {
+      await EncryptedStorage.setItem('base_url', baseURL);
+      axios.defaults.baseURL = baseURL;
+      setBaseURLShow(false);
+      a.alert('Base URL updated successfully');
+    } catch (err) {
+      console.log('Error saving base URL:', err);
+      a.alert('Failed to save Base URL');
+    }
   };
 
   const FeedbackModal = () => (
@@ -677,6 +708,133 @@ const Profile = ({navigation, route}) => {
           }}>
           <Text style={{...s.normal_label, color:'white'}}>Set Day</Text>
         </TouchableOpacity>
+      </MessageModalNormal>
+
+      <MessageModalNormal
+        show={barcodeTypeShow}
+        onClose={() => setBarcodeTypeShow(false)}>
+        <View>
+          <Text style={{...s.bold_label, marginBottom: 10}}>Barcode Scanner Type</Text>
+          <TouchableOpacity
+            style={{
+              ...s.flexrow_aligncenter,
+              padding: 10,
+              backgroundColor: settings.barcode_type === 'camera' ? C.bluecolor : '#f0f0f0',
+              borderRadius: 10,
+              marginBottom: 10,
+            }}
+            onPress={() => {
+              HandleSettings('camera', 'barcode_type');
+              setBarcodeTypeShow(false);
+            }}>
+            <Icons
+              name="camera"
+              size={25}
+              color={settings.barcode_type === 'camera' ? 'white' : 'black'}
+              style={{marginRight: 10}}
+            />
+            <Text
+              style={{
+                ...s.bold_label,
+                color: settings.barcode_type === 'camera' ? 'white' : 'black',
+              }}>
+              Camera Scanner
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              ...s.flexrow_aligncenter,
+              padding: 10,
+              backgroundColor: settings.barcode_type === 'scanner' ? C.bluecolor : '#f0f0f0',
+              borderRadius: 10,
+            }}
+            onPress={() => {
+              HandleSettings('scanner', 'barcode_type');
+              setBarcodeTypeShow(false);
+            }}>
+            <Icons
+              name="barcode-outline"
+              size={25}
+              color={settings.barcode_type === 'scanner' ? 'white' : 'black'}
+              style={{marginRight: 10}}
+            />
+            <Text
+              style={{
+                ...s.bold_label,
+                color: settings.barcode_type === 'scanner' ? 'white' : 'black',
+              }}>
+              Keyboard Scanner
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </MessageModalNormal>
+
+      <MessageModalNormal
+        show={baseURLShow}
+        onClose={() => setBaseURLShow(false)}>
+        <View>
+          <Text style={{...s.bold_label, marginBottom: 10}}>Server URL</Text>
+          <Text style={{...s.normal_label, color: '#666', marginBottom: 10}}>
+            Change the server URL for API connections
+          </Text>
+          <View style={{...inputS}}>
+            <TextInput
+              style={{height: 45, ...s.bold_label, color: '#0f0f0f', flex: 1}}
+              placeholder="Enter server URL"
+              value={baseURL}
+              onChangeText={e => setBaseURL(e)}
+              secureTextEntry={!showBaseURL}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity onPress={() => setShowBaseURL(!showBaseURL)}>
+              <Icons
+                name={showBaseURL ? 'eye-outline' : 'eye-off-outline'}
+                size={20}
+                color={'#000'}
+              />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={{...s.blue_button, marginTop: 10}}
+            onPress={handleSaveBaseURL}>
+            <Text style={{...s.bold_label, color: 'white'}}>Save URL</Text>
+          </TouchableOpacity>
+        </View>
+      </MessageModalNormal>
+
+      <MessageModalNormal
+        show={baseURLShow}
+        onClose={() => setBaseURLShow(false)}>
+        <View>
+          <Text style={{...s.bold_label, marginBottom: 10}}>Server URL</Text>
+          <Text style={{...s.normal_label, color: '#666', marginBottom: 10}}>
+            Change the server URL for API connections
+          </Text>
+          <View style={{...inputS}}>
+            <TextInput
+              style={{height: 45, ...s.bold_label, color: '#0f0f0f', flex: 1}}
+              placeholder="Enter server URL"
+              value={baseURL}
+              onChangeText={e => setBaseURL(e)}
+              secureTextEntry={!showBaseURL}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity onPress={() => setShowBaseURL(!showBaseURL)}>
+              <Icons
+                name={showBaseURL ? 'eye-outline' : 'eye-off-outline'}
+                size={20}
+                color={'#000'}
+              />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={{...s.blue_button, marginTop: 10}}
+            onPress={handleSaveBaseURL}>
+            <Text style={{...s.bold_label, color: 'white'}}>Save URL</Text>
+          </TouchableOpacity>
+        </View>
       </MessageModalNormal>
       
       <MessageModalNormal
@@ -989,6 +1147,35 @@ const Profile = ({navigation, route}) => {
               </View>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setBarcodeTypeShow(true);
+            }}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'barcode-outline'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  Barcode Scanner: {settings.barcode_type === 'camera' ? 'Camera' : 'Keyboard Scanner'}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setBaseURLShow(true);
+            }}>
+            <View style={{...styles.buttonColor, borderBottomWidth: 1}}>
+              <View style={{...s.flexrow_aligncenter}}>
+                <Icons name={'server-outline'} size={30} color={'#000'} />
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', marginLeft: 5}}>
+                  Server URL
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+       
           {/*Printer */}
           <TouchableOpacity
             onPress={() => {

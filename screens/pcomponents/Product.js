@@ -140,6 +140,20 @@ const Product = ({navigation}) => {
         Load();
       }, 1000);
     }
+    
+    // Load barcode type setting
+    const loadBarcodeType = async () => {
+      try {
+        const settingData = await EncryptedStorage.getItem('setting_data');
+        if (settingData) {
+          const settings = JSON.parse(settingData);
+          setBarcodeType(settings.barcode_type || 'camera');
+        }
+      } catch (err) {
+        console.log('Error loading barcode type:', err);
+      }
+    };
+    loadBarcodeType();
   }, []);
 
   const Load = () => {
@@ -471,6 +485,11 @@ const Product = ({navigation}) => {
 
   const [selectable, setSelectable] = useState(false);
   const [searchDebounceTimer, setSearchDebounceTimer] = useState(null);
+  
+  const [barcodeType, setBarcodeType] = useState('camera');
+  const [barcodeInput, setBarcodeInput] = useState('');
+  const [showBarcodeInput, setShowBarcodeInput] = useState(false);
+  const barcodeInputRef = useRef(null);
 
   const CategoryToText = useCallback(id => {
     if (ProductData && categoryData) {
@@ -499,7 +518,7 @@ const Product = ({navigation}) => {
           ? e.description.replaceAllTxt(' ', '').toLowerCase()
           : '';
         var d = CategoryToText(e.category).replaceAllTxt(' ', '').toLowerCase();
-        var barcode = e.barcode;
+        var barcode = e.barcode ? e.barcode.toString() : '';
         var c = text.replaceAllTxt(' ', '').toLowerCase();
 
         return (
@@ -507,7 +526,7 @@ const Product = ({navigation}) => {
           d.includes(c) ||
           f.includes(c) ||
           c.includes(e.id) ||
-          c.includes(barcode)
+          barcode.includes(c)
         );
       });
 
@@ -516,6 +535,44 @@ const Product = ({navigation}) => {
 
     setSearchDebounceTimer(timer);
   }, [ProductData, CategoryToText, searchDebounceTimer]);
+
+  // Handle barcode scanner input submission
+  const handleBarcodeSubmit = useCallback(() => {
+    if (!barcodeInput) {
+      return;
+    }
+    
+    const product = ProductData.find(item => item.barcode == barcodeInput);
+    
+    if (product) {
+      // Filter to show only the scanned product
+      setSp([product]);
+      setBarcodeInput('');
+      setShowBarcodeInput(false);
+    } else {
+      a.spe();
+      setBarcodeInput('');
+    }
+    
+    // Refocus after a short delay
+    setTimeout(() => {
+      barcodeInputRef.current?.focus();
+    }, 100);
+  }, [barcodeInput, ProductData]);
+
+  // Handle barcode icon click
+  const handleBarcodeIconClick = useCallback(() => {
+    if (barcodeType === 'scanner') {
+      setShowBarcodeInput(prev => !prev);
+      if (!showBarcodeInput) {
+        setTimeout(() => {
+          barcodeInputRef.current?.focus();
+        }, 100);
+      }
+    } else {
+      setBarCodeModal(true);
+    }
+  }, [barcodeType, showBarcodeInput]);
 
   const [filtershow, setFilterShow] = useState(false);
 
@@ -2309,7 +2366,7 @@ const Product = ({navigation}) => {
         />
 
         <Icons name={'search'} size={20} color={'#000'} />
-        <TouchableOpacity onPress={() => setBarCodeModal(true)}>
+        <TouchableOpacity onPress={handleBarcodeIconClick}>
           <Icons
             name={'barcode-outline'}
             size={25}
@@ -2318,6 +2375,54 @@ const Product = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
+      {/* Barcode Scanner Input */}
+      {showBarcodeInput && barcodeType === 'scanner' ? (
+        <View
+          style={{
+            ...s.flexrow_aligncenter_j_between,
+            borderRadius: 15,
+            height: 45,
+            borderColor: 'black',
+            borderWidth: 1.5,
+            paddingRight: 10,
+            marginTop: 10,
+          }}>
+          <Icons
+            name={'barcode-outline'}
+            size={20}
+            color={'#000'}
+            style={{marginLeft: 10, marginRight: 10}}
+          />
+          <TextInput
+            ref={barcodeInputRef}
+            style={{
+              padding: 10,
+              flex: 1,
+              fontWeight: '900',
+            }}
+            placeholder={'Scan or enter barcode'}
+            value={barcodeInput}
+            onChangeText={e => setBarcodeInput(e)}
+            keyboardType="numeric"
+            returnKeyType="done"
+            onSubmitEditing={handleBarcodeSubmit}
+            autoCorrect={false}
+          />
+          {barcodeInput ? (
+            <TouchableOpacity onPress={() => setBarcodeInput('')}>
+              <Icons name={'close-outline'} size={20} color={'#000'} />
+            </TouchableOpacity>
+          ) : null}
+          <TouchableOpacity onPress={handleBarcodeSubmit}>
+            <Icons
+              name={'checkmark-circle-outline'}
+              size={20}
+              color={'green'}
+              style={{marginLeft: 10}}
+            />
+          </TouchableOpacity>
+        </View>
+      ) : null}
       <View style={{...s.flexrow_aligncenter_j_center}}>
         <TouchableOpacity onPress={() => setFilterShow(true)}>
           <Icons name={'filter'} size={25} color={'#000'} />

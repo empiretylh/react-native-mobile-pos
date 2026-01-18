@@ -61,6 +61,17 @@ const SContainer = () => {
 
   const {t} = useTranslation();
 
+  // Load base URL from storage
+  useEffect(() => {
+    EncryptedStorage.getItem('base_url')
+      .then(res => {
+        if (res !== null) {
+          axios.defaults.baseURL = res;
+        }
+      })
+      .catch(err => console.log(err));
+  }, []);
+
   const UploadToServer = () => {
     setIsSyncing(true);
     UploadToCloud()

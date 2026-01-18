@@ -38,6 +38,7 @@ import {
   insertProduct,
 } from '../../../localDatabase/products';
 import {useNetInfo} from '@react-native-community/netinfo';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const ProductField = ({
   ContainerProps,
@@ -59,10 +60,27 @@ const ProductField = ({
   const [categoryId, setCategoryId] = useState('All');
   const [editcartshow, seteditcartshow] = useState(false);
   const searchDebounceTimerRef = useRef(null);
+  const [barcodeType, setBarcodeType] = useState('camera');
 
   const {CartData, setCartData} = useContext(CartContext);
 
   const {isConnected} = useNetInfo();
+
+  // Load barcode type setting
+  useEffect(() => {
+    const loadBarcodeType = async () => {
+      try {
+        const settingData = await EncryptedStorage.getItem('setting_data');
+        if (settingData) {
+          const settings = JSON.parse(settingData);
+          setBarcodeType(settings.barcode_type || 'camera');
+        }
+      } catch (err) {
+        console.log('Error loading barcode type:', err);
+      }
+    };
+    loadBarcodeType();
+  }, []);
 
   const SetOpenModal = useCallback(() => {
     setOpen(true);
@@ -317,6 +335,7 @@ const ProductField = ({
           cpriceclick={cpriceclick}
           handleDone={handleDone}
           ProductDataValue={ProductDataValue}
+          barcodeType={barcodeType}
         />
       </Modal>
       {custom ? (
@@ -378,8 +397,70 @@ const InternalProductView = React.memo(
     cpriceclick,
     handleDone,
     ProductDataValue,
+    barcodeType,
   }) => {
     const [openbarcode, setOpenBarcode] = useState(false);
+    const [barcodeInput, setBarcodeInput] = useState('');
+    const barcodeInputRef = useRef(null);
+    const {setCartData} = useContext(CartContext);
+
+    // Add product by barcode for keyboard scanner
+    const addProductByBarcode = useCallback(
+      barcode => {
+        if (!barcode || !ProductDataValue.ProductData) {
+          return;
+        }
+
+        const product = ProductDataValue.ProductData.find(
+          item => item.barcode == barcode,
+        );
+
+        if (product) {
+          const index = CartData.findIndex(e => e.name === product.id);
+          let updatedCartData;
+
+          if (index !== -1) {
+            updatedCartData = [...CartData];
+            updatedCartData[index].qty += 1;
+            updatedCartData[index].total =
+              updatedCartData[index].qty * updatedCartData[index].price;
+          } else {
+            const newItem = {
+              name: product.id,
+              qty: 1,
+              price: product.price,
+              check: true,
+              total: product.price,
+              pdname: product.name,
+              extraprice: product.extraprice || [],
+            };
+            updatedCartData = [...CartData, newItem];
+          }
+
+          setCartData(updatedCartData);
+
+          // Calculate total
+          const newTotal = updatedCartData.reduce(
+            (sum, item) => sum + parseInt(item.total, 10),
+            0,
+          );
+          setTotalAmount(newTotal);
+
+          // Clear input and refocus
+          setBarcodeInput('');
+          setTimeout(() => {
+            barcodeInputRef.current?.focus();
+          }, 100);
+        } else {
+          a.spe();
+          setBarcodeInput('');
+          setTimeout(() => {
+            barcodeInputRef.current?.focus();
+          }, 100);
+        }
+      },
+      [ProductDataValue.ProductData, CartData, setCartData, setTotalAmount],
+    );
 
     const SumTotal = useMemo(() => {
       console.log('here');
@@ -457,15 +538,67 @@ const InternalProductView = React.memo(
                 onChangeText={e => handleSearchTextChange(e)}
               />
               <Icon name={'search'} size={20} color={'#000'} />
-              <TouchableOpacity onPress={() => setOpenBarcode(true)}>
+              {barcodeType === 'camera' ? (
+                <TouchableOpacity onPress={() => setOpenBarcode(true)}>
+                  <Icon
+                    name={'barcode-outline'}
+                    size={25}
+                    color={'#000'}
+                    style={{marginLeft: 10}}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+            {/* Barcode Scanner Input for keyboard scanner */}
+            {barcodeType === 'scanner' ? (
+              <View
+                style={{
+                  ...s.flexrow_aligncenter_j_between,
+                  borderRadius: 15,
+                  height: 45,
+                  borderColor: 'black',
+                  borderWidth: 1.5,
+                  paddingRight: 10,
+                  margin: 5,
+                  marginTop: 10,
+                }}>
                 <Icon
                   name={'barcode-outline'}
-                  size={25}
+                  size={20}
                   color={'#000'}
-                  style={{marginLeft: 10}}
+                  style={{marginLeft: 10, marginRight: 10}}
                 />
-              </TouchableOpacity>
-            </View>
+                <TextInput
+                  ref={barcodeInputRef}
+                  style={{
+                    padding: 10,
+                    flex: 1,
+                    fontWeight: '900',
+                  }}
+                  placeholder={'Scan or enter barcode'}
+                  value={barcodeInput}
+                  onChangeText={e => setBarcodeInput(e)}
+                  keyboardType="numeric"
+                  returnKeyType="done"
+                  onSubmitEditing={() => addProductByBarcode(barcodeInput)}
+                  autoCorrect={false}
+                />
+                {barcodeInput ? (
+                  <TouchableOpacity onPress={() => setBarcodeInput('')}>
+                    <Icon name={'close-outline'} size={20} color={'#000'} />
+                  </TouchableOpacity>
+                ) : null}
+                <TouchableOpacity
+                  onPress={() => addProductByBarcode(barcodeInput)}>
+                  <Icon
+                    name={'checkmark-circle-outline'}
+                    size={20}
+                    color={'green'}
+                    style={{marginLeft: 10}}
+                  />
+                </TouchableOpacity>
+              </View>
+            ) : null}
             {/* Category View */}
             {categoryData ? (
               <ScrollView
