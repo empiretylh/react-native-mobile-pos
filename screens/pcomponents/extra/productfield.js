@@ -248,9 +248,10 @@ const ProductField = ({
       setCPriceClick(prev => {
         let count = prev.filter(e => e === id).length;
 
-        // Create new extraprice array immutably
+        // Create new extraprice array immutably with safety check
+        const currentExtraprice = temp[index].extraprice || [];
         const newExtraprice = [
-          ...temp[index].extraprice,
+          ...currentExtraprice,
           {extraprice: temp[index].price},
         ];
 
