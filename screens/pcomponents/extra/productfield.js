@@ -50,6 +50,7 @@ import {
 } from '../../../localDatabase/products';
 import {useNetInfo} from '@react-native-community/netinfo';
 import {set} from 'react-native-reanimated';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const ProductField = ({
   ContainerProps,
@@ -68,12 +69,29 @@ const ProductField = ({
   const [searchtext, setSearchText] = useState('');
   const [categoryId, setCategoryId] = useState('All');
   const [editcartshow, seteditcartshow] = useState(false);
+  const [barcodeType, setBarcodeType] = useState('camera');
 
   const {CartData, setCartData} = useContext(CartContext);
 
   const [cpriceclick, setCPriceClick] = useState([])
 
   const {isConnected} = useNetInfo();
+
+  // Load barcode type setting
+  useEffect(() => {
+    const loadBarcodeType = async () => {
+      try {
+        const settingData = await EncryptedStorage.getItem('setting_data');
+        if (settingData) {
+          const settings = JSON.parse(settingData);
+          setBarcodeType(settings.barcode_type || 'camera');
+        }
+      } catch (err) {
+        console.log('Error loading barcode type:', err);
+      }
+    };
+    loadBarcodeType();
+  }, []);
 
   const SetOpenModal = () => {
     setOpen(true);
