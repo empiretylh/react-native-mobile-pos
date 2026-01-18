@@ -47,6 +47,8 @@ export default class Home extends Component {
       debugMsg: '',
       footerText: '',
       paperWidth: '',
+      showLogo: true,
+      bottomWhitespace: '0',
     };
   }
 
@@ -118,6 +120,8 @@ export default class Home extends Component {
 
     this._getFooterTextFromStorage();
     this._getPaperWidthFromStorage();
+    this._getShowLogoFromStorage();
+    this._getBottomWhitespaceFromStorage();
 
 
     if (Platform.OS === 'ios') {
@@ -260,6 +264,34 @@ export default class Home extends Component {
   _setPaperWidthToStorage = async (width) => {
     this.setState({ paperWidth: width })
     await EncryptedStorage.setItem('paperWidth', width);
+  }
+
+  _getShowLogoFromStorage = async () => {
+    const showLogo = await EncryptedStorage.getItem('showLogo');
+    if (showLogo != null) {
+      this.setState({ showLogo: showLogo === 'true' });
+    } else {
+      this.setState({ showLogo: true });
+    }
+  }
+
+  _setShowLogoToStorage = async (value) => {
+    this.setState({ showLogo: value })
+    await EncryptedStorage.setItem('showLogo', value.toString());
+  }
+
+  _getBottomWhitespaceFromStorage = async () => {
+    const bottomWhitespace = await EncryptedStorage.getItem('bottomWhitespace');
+    if (bottomWhitespace != null) {
+      this.setState({ bottomWhitespace: bottomWhitespace });
+    } else {
+      this.setState({ bottomWhitespace: '0' });
+    }
+  }
+
+  _setBottomWhitespaceToStorage = async (value) => {
+    this.setState({ bottomWhitespace: value })
+    await EncryptedStorage.setItem('bottomWhitespace', value);
   }
 
   _deviceAlreadPaired(rsp) {
@@ -444,7 +476,29 @@ export default class Home extends Component {
             }}
             value={this.state.paperWidth}
           />
-          <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'black' }}>Footer Text</Text>
+          
+          <View style={{ ...styles.wtf, padding: 10, marginTop: 10 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'black' }}>Show Logo</Text>
+            <Switch
+              value={this.state.showLogo}
+              onValueChange={(v) => {
+                this._setShowLogoToStorage(v);
+              }}
+            />
+          </View>
+          
+          <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'black', marginTop: 10 }}>Bottom Whitespace (px)</Text>
+          <TextInput
+            keyboardType="number-pad"
+            style={{ padding: 4, borderColor: 'gray', borderWidth: 1 }}
+            selectTextOnFocus={true}
+            onChangeText={(text) => {
+              this._setBottomWhitespaceToStorage(text);
+            }}
+            value={this.state.bottomWhitespace}
+          />
+          
+          <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'black', marginTop: 10 }}>Footer Text</Text>
           <TextInput
             multiline
             style={{ padding: 4, borderColor: 'gray', borderWidth: 1 }}

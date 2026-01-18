@@ -29,6 +29,7 @@ import {printReceipt} from '../print/escpos';
 import EditVoucherList from './EditVoucherList';
 import {MessageModalNormal} from '../../MessageModal';
 import LoadingModal from '../../Loading';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 /*
   
@@ -55,6 +56,8 @@ const CustomerVoucherView = ({
   const [profile, setProfile] = useState([]);
   const [showEditVoucher, setShowEditVoucher] = useState(false);
   const [showPayModal, setShowPayModal] = useState(false);
+  const [showLogo, setShowLogo] = useState(true);
+  const [bottomWhitespace, setBottomWhitespace] = useState(0);
 
   
 
@@ -70,6 +73,23 @@ const CustomerVoucherView = ({
         console.log(res);
         setLoading(false);
       });
+      
+    // Load settings from storage
+    EncryptedStorage.getItem('showLogo').then(value => {
+      if (value != null) {
+        setShowLogo(value === 'true');
+      } else {
+        setShowLogo(true);
+      }
+    });
+    
+    EncryptedStorage.getItem('bottomWhitespace').then(value => {
+      if (value != null) {
+        setBottomWhitespace(parseInt(value, 10));
+      } else {
+        setBottomWhitespace(0);
+      }
+    });
   }, []);
 
   const nameWidth = C.windowWidth * 35;
@@ -185,24 +205,27 @@ const CustomerVoucherView = ({
               </TouchableOpacity>
             </View>
             <ScrollView style={{flex: 1}}>
-              <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                {/* fields = ['name', 'username', 'email', 'phoneno', 'password','address']*/}
-                <Image
-                  source={
-                    profile.profileimage
-                      ? {
-                          uri: axios.defaults.baseURL + profile.profileimage,
-                        }
-                      : I.profile
-                  }
-                  style={{width: 90, height: 90, alignSelf: 'center'}}
-                />
-                <Text style={{...s.bold_label}}>{profile.name}</Text>
-                <Text style={{...s.normal_label}}>{profile.email}</Text>
-                <Text style={{...s.normal_label}}>{profile.phoneno}</Text>
-                <Text style={{...s.normal_label}}>{profile.address}</Text>
-              </View>
-              <View style={sepeator} />
+              {profile?.name && profile.name !== '-' && (
+                <View style={{flexDirection: 'column', alignItems: 'center'}}>
+                  {showLogo && (
+                    <Image
+                      source={
+                        profile.profileimage
+                          ? {
+                              uri: axios.defaults.baseURL + profile.profileimage,
+                            }
+                          : I.profile
+                      }
+                      style={{width: 90, height: 90, alignSelf: 'center'}}
+                    />
+                  )}
+                  <Text style={{...s.bold_label}}>{profile.name}</Text>
+                  <Text style={{...s.normal_label}}>{profile.email}</Text>
+                  <Text style={{...s.normal_label}}>{profile.phoneno}</Text>
+                  <Text style={{...s.normal_label}}>{profile.address}</Text>
+                </View>
+              )}
+              {profile?.name && profile.name !== '-' && <View style={sepeator} />}
               <View
                 style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <Text
@@ -433,6 +456,9 @@ const CustomerVoucherView = ({
                     {data.description}
                   </Text>
                 </View>
+              )}
+              {bottomWhitespace > 0 && (
+                <View style={{ height: bottomWhitespace }} />
               )}
             </ScrollView>
             <View style={{flexDirection: 'column'}}>

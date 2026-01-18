@@ -59,6 +59,8 @@ const LocalVoucher = ({
   const [print, setPrint] = useState(false);
   const [profile, setProfile] = useState([]);
   const [showEditVoucher, setShowEditVoucher] = useState(false);
+  const [showLogo, setShowLogo] = useState(true);
+  const [bottomWhitespace, setBottomWhitespace] = useState(0);
 
   const viewRef = useRef();
 
@@ -194,8 +196,28 @@ const LocalVoucher = ({
     return footerText;
   };
 
+  const getShowLogo = async () => {
+    const showLogo = await EncryptedStorage.getItem('showLogo');
+    if (showLogo != null) {
+      setShowLogo(showLogo === 'true');
+    } else {
+      setShowLogo(true);
+    }
+  };
+
+  const getBottomWhitespace = async () => {
+    const whitespace = await EncryptedStorage.getItem('bottomWhitespace');
+    if (whitespace != null) {
+      setBottomWhitespace(parseInt(whitespace, 10));
+    } else {
+      setBottomWhitespace(0);
+    }
+  };
+
   React.useEffect(() => {
    getFooterText();
+   getShowLogo();
+   getBottomWhitespace();
   }, []);
 
   return (
@@ -250,24 +272,27 @@ const LocalVoucher = ({
             <ViewShot ref={viewRef}>
               <View style={{ backgroundColor: 'white' }}>
 
-                <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                  {/* fields = ['name', 'username', 'email', 'phoneno', 'password','address']*/}
-                  <Image
-                    source={
-                      profile?.profileimage
-                        ? {
-                          uri: axios.defaults.baseURL + profile.profileimage,
+                {profile?.name && profile.name !== '-' && (
+                  <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                    {showLogo && (
+                      <Image
+                        source={
+                          profile?.profileimage
+                            ? {
+                              uri: axios.defaults.baseURL + profile.profileimage,
+                            }
+                            : I.profile
                         }
-                        : I.profile
-                    }
-                    style={{ width: 90, height: 90, alignSelf: 'center' }}
-                  />
-                  <Text style={{ ...s.bold_label }}>{profile.name}</Text>
-                  <Text style={{ ...s.normal_label }}>{profile.email}</Text>
-                  <Text style={{ ...s.normal_label }}>{profile.phoneno}</Text>
-                  <Text style={{ ...s.normal_label, textAlign:'center' }}>{profile.address}</Text>
-                </View>
-                <View style={sepeator} />
+                        style={{ width: 90, height: 90, alignSelf: 'center' }}
+                      />
+                    )}
+                    <Text style={{ ...s.bold_label }}>{profile.name}</Text>
+                    <Text style={{ ...s.normal_label }}>{profile.email}</Text>
+                    <Text style={{ ...s.normal_label }}>{profile.phoneno}</Text>
+                    <Text style={{ ...s.normal_label, textAlign:'center' }}>{profile.address}</Text>
+                  </View>
+                )}
+                {profile?.name && profile.name !== '-' && <View style={sepeator} />}
                 <View
                   style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text
@@ -427,6 +452,10 @@ const LocalVoucher = ({
                 )}
 
                 <Text style={{ ...s.normal_label, textAlign: 'center', marginTop: 10 }}>{footerText}</Text>
+                
+                {bottomWhitespace > 0 && (
+                  <View style={{ height: bottomWhitespace }} />
+                )}
 
               </View>
             </ViewShot>

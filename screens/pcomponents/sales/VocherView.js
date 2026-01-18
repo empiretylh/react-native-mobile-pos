@@ -55,6 +55,8 @@ const VoucherDetails = ({
   const [print, setPrint] = useState(false);
   const [profile, setProfile] = useState([]);
   const [showEditVoucher, setShowEditVoucher] = useState(false);
+  const [showLogo, setShowLogo] = useState(true);
+  const [bottomWhitespace, setBottomWhitespace] = useState(0);
 
   const viewRef = useRef();
 
@@ -83,7 +85,7 @@ const VoucherDetails = ({
       paperWidth = 574;
     }
 
-    paperWidth =  parseInt(paperWidth);
+    paperWidth = parseInt(paperWidth);
 
     Image.getSize(`data:image/png;base64,${imageUri}`, (width, height) => {
       console.log(width, height);
@@ -92,10 +94,10 @@ const VoucherDetails = ({
       const imageAspectRatio = width / height;
       let newWidth, newHeight;
 
-      if(imageAspectRatio > printerAspectRatio){
+      if (imageAspectRatio > printerAspectRatio) {
         newWidth = paperWidth;
         newHeight = paperWidth / imageAspectRatio;
-      }else{
+      } else {
         newHeight = height;
         newWidth = height * imageAspectRatio;
       }
@@ -110,7 +112,7 @@ const VoucherDetails = ({
     });
 
 
-  
+
 
   };
 
@@ -141,8 +143,28 @@ const VoucherDetails = ({
     return footerText;
   };
 
+  const getShowLogo = async () => {
+    const showLogo = await EncryptedStorage.getItem('showLogo');
+    if (showLogo != null) {
+      setShowLogo(showLogo === 'true');
+    } else {
+      setShowLogo(true);
+    }
+  };
+
+  const getBottomWhitespace = async () => {
+    const whitespace = await EncryptedStorage.getItem('bottomWhitespace');
+    if (whitespace != null) {
+      setBottomWhitespace(parseInt(whitespace, 10));
+    } else {
+      setBottomWhitespace(0);
+    }
+  };
+
   React.useEffect(() => {
     getFooterText();
+    getShowLogo();
+    getBottomWhitespace();
   }, []);
 
   const nameWidth = C.windowWidth * 35;
@@ -260,24 +282,27 @@ const VoucherDetails = ({
             {true ?
               <ViewShot ref={viewRef} >
                 <View style={{ backgroundColor: 'white' }}>
-                  <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                    {/* fields = ['name', 'username', 'email', 'phoneno', 'password','address']*/}
-                    <Image
-                      source={
-                        profile.profileimage
-                          ? {
-                            uri: axios.defaults.baseURL + profile.profileimage,
+                  {profile?.name && profile.name !== '-' && (
+                    <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                      {showLogo && (
+                        <Image
+                          source={
+                            profile.profileimage
+                              ? {
+                                uri: axios.defaults.baseURL + profile.profileimage,
+                              }
+                              : I.profile
                           }
-                          : I.profile
-                      }
-                      style={{ width: 90, height: 90, alignSelf: 'center' }}
-                    />
-                    <Text style={{ ...s.bold_label }}>{profile.name}</Text>
-                    <Text style={{ ...s.normal_label }}>{profile.email}</Text>
-                    <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.phoneno}</Text>
-                    <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.address}</Text>
-                  </View>
-                  <View style={sepeator} />
+                          style={{ width: 90, height: 90, alignSelf: 'center' }}
+                        />
+                      )}
+                      {profile.name !== '-' && <Text style={{ ...s.bold_label }}>{profile.name}</Text>}
+                      {profile.email !== '-' && <Text style={{ ...s.normal_label }}>{profile.email}</Text>}
+                      {profile.phoneno !== '-' && <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.phoneno}</Text>}
+                      {profile.address !== '-' && <Text style={{ ...s.normal_label, textAlign: 'center' }}>{profile.address}</Text>}
+                    </View>
+                  )}
+                  {profile?.name && profile.name !== '-' && <View style={sepeator} />}
                   <View
                     style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text
@@ -488,6 +513,10 @@ const VoucherDetails = ({
 
                   )}
                   <Text style={{ ...s.normal_label, textAlign: 'center', marginTop: 10 }}>{footerText}</Text>
+
+                  {bottomWhitespace > 0 && (
+                    <View style={{ height: bottomWhitespace }} />
+                  )}
                 </View>
 
               </ViewShot>
