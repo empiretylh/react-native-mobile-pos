@@ -408,32 +408,27 @@ const Profile = ({ navigation, route }) => {
   const [settings, setSettings] = useState({
     language: 'en',
     datascope: 'year',
+    expirescope: 7,
     lessthan: 10,
+    barcode_type: 'camera',
   });
   const [fbshow, setFbshow] = useState(false);
   const [feedback, setFeedback] = useState();
   const [showthura, setShowThura] = useState(false);
 
-  const SaveSettings = async setting => {
-    await EncryptedStorage.setItem('setting_data', JSON.stringify(setting));
-    console.log('Setting Saved', JSON.stringify(setting));
-  };
-
-  const getSettings = () => {
-    // Set language from i18n
-    setSettings({ ...settings, ['language']: i18n.language });
-
-    EncryptedStorage.getItem('setting_data')
-      .then(res => {
-        console.log('get Settings', res);
-        if (res !== null) {
-          setSettings(JSON.parse(res));
-        }
-      })
-      .catch(err => console.log(err));
-  };
+  const [expireshow, setexpireshow] = useState(false);
+  const [expiredate, setexpiredate] = useState('7');
 
   const [discount_type, setDiscountType] = useState('percentage');
+  const [barcodeTypeShow, setBarcodeTypeShow] = useState(false);
+  const [baseURLShow, setBaseURLShow] = useState(false);
+  const [baseURL, setBaseURL] = useState('');
+  const [showBaseURL, setShowBaseURL] = useState(false);
+  
+  // Printer settings
+  const [showLogo, setShowLogo] = useState(true);
+  const [bottomWhitespace, setBottomWhitespace] = useState('0');
+  const [printerSettingsShow, setPrinterSettingsShow] = useState(false);
 
   useEffect(() => {
     EncryptedStorage.getItem('discount_type')
@@ -444,8 +439,35 @@ const Profile = ({ navigation, route }) => {
           setDiscountType('percentage');
         }
       })
-      .catch(err => console.log(err))
-  }, [])
+      .catch(err => console.log(err));
+    
+    // Load base URL
+    EncryptedStorage.getItem('base_url')
+      .then(res => {
+        if (res !== null) {
+          setBaseURL(res);
+          axios.defaults.baseURL = res;
+        }
+      })
+      .catch(err => console.log(err));
+    
+    // Load printer settings
+    EncryptedStorage.getItem('showLogo')
+      .then(res => {
+        if (res !== null) {
+          setShowLogo(res === 'true');
+        }
+      })
+      .catch(err => console.log(err));
+    
+    EncryptedStorage.getItem('bottomWhitespace')
+      .then(res => {
+        if (res !== null) {
+          setBottomWhitespace(res);
+        }
+      })
+      .catch(err => console.log(err));
+  }, []);
 
   let rdco;
 
@@ -485,6 +507,53 @@ const Profile = ({ navigation, route }) => {
   if (pdata === null) {
     return <Loading />;
   }
+
+  const SaveSettings = async setting => {
+    await EncryptedStorage.setItem('setting_data', JSON.stringify(setting));
+    console.log('Setting Saved', JSON.stringify(setting));
+  };
+
+  const getSettings = () => {
+    // Set language from i18n
+    setSettings({...settings, ['language']: i18n.language});
+
+    EncryptedStorage.getItem('setting_data')
+      .then(res => {
+        console.log('get Settings', res);
+        if (res !== null) {
+          setSettings(JSON.parse(res));
+        }
+      })
+      .catch(err => console.log(err));
+  };
+
+  const handleSaveBaseURL = async () => {
+    if (!baseURL) {
+      a.alert('Please enter a valid URL');
+      return;
+    }
+    try {
+      await EncryptedStorage.setItem('base_url', baseURL);
+      axios.defaults.baseURL = baseURL;
+      setBaseURLShow(false);
+      a.alert('Base URL updated successfully');
+    } catch (err) {
+      console.log('Error saving base URL:', err);
+      a.alert('Failed to save Base URL');
+    }
+  };
+
+  const handleSavePrinterSettings = async () => {
+    try {
+      await EncryptedStorage.setItem('showLogo', showLogo.toString());
+      await EncryptedStorage.setItem('bottomWhitespace', bottomWhitespace);
+      setPrinterSettingsShow(false);
+      a.alert('Printer settings saved successfully');
+    } catch (err) {
+      console.log('Error saving printer settings:', err);
+      a.alert('Failed to save printer settings');
+    }
+  };
 
   const HandleSettings = (value, name) => {
     const setting_temp = { ...settings, [name]: value };
@@ -875,6 +944,131 @@ const Profile = ({ navigation, route }) => {
             </View>
           </View>
 
+          {/* Barcode Scanner Type */}
+          <View style={styles.FirstButtonStyle}>
+            <Text style={{ color: 'black', fontWeight: 'bold' }}>
+              Barcode Scanner
+            </Text>
+            <View style={{ ...s.flexrow_aligncenter }}>
+              <Icons name={'barcode-outline'} size={30} color={'#000'} />
+              <View style={{ ...s.flexrow_aligncenter }}>
+                <TouchableOpacity
+                  onPress={() => HandleSettings('camera', 'barcode_type')}>
+                  <View style={{ ...s.flexrow_aligncenter, margin: 5 }}>
+                    <CheckBox
+                      value={settings.barcode_type === 'camera'}
+                      onValueChange={e =>
+                        HandleSettings(e === true ? 'camera' : 'keyboard', 'barcode_type')
+                      }
+                    />
+                    <Text style={{ fontSize: 15, color: 'black', margin: 5 }}>
+                      Camera
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => HandleSettings('keyboard', 'barcode_type')}>
+                  <View style={{ ...s.flexrow_aligncenter, margin: 5 }}>
+                    <CheckBox
+                      value={settings.barcode_type === 'keyboard'}
+                      onValueChange={e =>
+                        HandleSettings(e === true ? 'keyboard' : 'camera', 'barcode_type')
+                      }
+                    />
+                    <Text style={{ fontSize: 15, color: 'black', margin: 5 }}>
+                      Keyboard
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
+          {/* Base URL Configuration */}
+          <TouchableOpacity onPress={() => setBaseURLShow(true)}>
+            <View style={{ ...styles.buttonColor, borderBottomWidth: 1 }}>
+              <View style={{ ...s.flexrow_aligncenter }}>
+                <Icons name={'server-outline'} size={30} color={'#000'} />
+                <Text
+                  style={{ color: 'black', fontWeight: 'bold', marginLeft: 5 }}>
+                  Server URL Configuration
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Base URL Modal */}
+          {baseURLShow && (
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={baseURLShow}
+              onRequestClose={() => setBaseURLShow(false)}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                }}>
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    padding: 20,
+                    borderRadius: 15,
+                    width: '90%',
+                  }}>
+                  <Text style={{...s.bold_label, marginBottom: 10}}>
+                    Server URL
+                  </Text>
+                  <Text style={{...s.normal_label, color: '#666', marginBottom: 10}}>
+                    Change the server URL for API connections
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      borderBottomWidth: 1,
+                      borderBottomColor: 'black',
+                      marginBottom: 15,
+                    }}>
+                    <TextInput
+                      style={{
+                        flex: 1,
+                        ...s.defaultTextInput,
+                        borderBottomWidth: 0,
+                        margin: 0,
+                      }}
+                      placeholder="Enter server URL"
+                      value={baseURL}
+                      onChangeText={e => setBaseURL(e)}
+                      secureTextEntry={!showBaseURL}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                    <TouchableOpacity onPress={() => setShowBaseURL(!showBaseURL)}>
+                      <Icons
+                        name={showBaseURL ? 'eye' : 'eye-off'}
+                        size={20}
+                        color={'#000'}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity
+                    style={{...s.blue_button, padding: 10}}
+                    onPress={handleSaveBaseURL}>
+                    <Text style={{...s.bold_label, color: 'white'}}>Save URL</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{...s.black_button, padding: 10, marginTop: 5}}
+                    onPress={() => setBaseURLShow(false)}>
+                    <Text style={{...s.bold_label, color: 'white'}}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          )}
+
           {/*   <TouchableOpacity>
             <View style={styles.buttonColor}>
               <Text style={{color: 'black', fontWeight: 'bold'}}>
@@ -1004,6 +1198,90 @@ const Profile = ({ navigation, route }) => {
               </View>
             </View>
           </TouchableOpacity>
+
+          {/* Printer Settings */}
+          <TouchableOpacity onPress={() => setPrinterSettingsShow(true)}>
+            <View style={{ ...styles.buttonColor, borderBottomWidth: 1 }}>
+              <View style={{ ...s.flexrow_aligncenter }}>
+                <Icons name={'settings-outline'} size={30} color={'#000'} />
+                <Text
+                  style={{ color: 'black', fontWeight: 'bold', marginLeft: 5 }}>
+                  Printer Settings
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Printer Settings Modal */}
+          {printerSettingsShow && (
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={printerSettingsShow}
+              onRequestClose={() => setPrinterSettingsShow(false)}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                }}>
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    padding: 20,
+                    borderRadius: 15,
+                    width: '90%',
+                  }}>
+                  <Text style={{...s.bold_label, marginBottom: 20}}>
+                    Printer Settings
+                  </Text>
+                  
+                  {/* Show Logo Toggle */}
+                  <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20}}>
+                    <Text style={{...s.normal_label, color: 'black'}}>
+                      Show Logo on Receipt
+                    </Text>
+                    <CheckBox
+                      value={showLogo}
+                      onValueChange={e => setShowLogo(e)}
+                    />
+                  </View>
+                  
+                  {/* Bottom Whitespace Input */}
+                  <View style={{marginBottom: 20}}>
+                    <Text style={{...s.normal_label, color: 'black', marginBottom: 10}}>
+                      Bottom Whitespace (px)
+                    </Text>
+                    <TextInput
+                      style={{
+                        ...s.defaultTextInput,
+                        borderWidth: 1,
+                        borderColor: 'black',
+                        borderRadius: 5,
+                        padding: 10,
+                      }}
+                      placeholder="Enter bottom whitespace (0-200)"
+                      value={bottomWhitespace}
+                      onChangeText={e => setBottomWhitespace(e)}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  
+                  <TouchableOpacity
+                    style={{...s.blue_button, padding: 10}}
+                    onPress={handleSavePrinterSettings}>
+                    <Text style={{...s.bold_label, color: 'white'}}>Save Settings</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{...s.black_button, padding: 10, marginTop: 5}}
+                    onPress={() => setPrinterSettingsShow(false)}>
+                    <Text style={{...s.bold_label, color: 'white'}}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          )}
 
           { /* <TouchableOpacity
             onPress={() => {

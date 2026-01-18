@@ -31,6 +31,21 @@ const LoginScreen = ({navigation, route}) => {
   });
   const [visible, setVisible] = useState(true);
   const [load, setLoad] = useState(false);
+  const [baseURLShow, setBaseURLShow] = useState(false);
+  const [baseURL, setBaseURL] = useState('');
+  const [showBaseURL, setShowBaseURL] = useState(false);
+
+  useEffect(() => {
+    // Load base URL on mount
+    EncryptedStorage.getItem('base_url')
+      .then(res => {
+        if (res !== null) {
+          setBaseURL(res);
+          axios.defaults.baseURL = res;
+        }
+      })
+      .catch(err => console.log(err));
+  }, []);
 
   const LoginToServer = () => {
     if(!data.username)  return Alert.alert("","Please Enter Username & Password")
@@ -47,7 +62,7 @@ const LoginScreen = ({navigation, route}) => {
           password: data.password,
           unique_id: DeviceInfo.getUniqueIdSync(),
           device_name: DeviceInfo.getDeviceNameSync(),
-          acc_type: 'Cashier',
+          acc_type: 'Admin',
         },
         {timeout: 5000},
       )
@@ -84,17 +99,108 @@ const LoginScreen = ({navigation, route}) => {
     await EncryptedStorage.setItem('secure_token', token);
   };
 
+  const handleSaveBaseURL = async () => {
+    if (!baseURL) {
+      Alert.alert('', 'Please enter a valid URL');
+      return;
+    }
+    try {
+      await EncryptedStorage.setItem('base_url', baseURL);
+      axios.defaults.baseURL = baseURL;
+      setBaseURLShow(false);
+      Alert.alert('', 'Base URL updated successfully');
+    } catch (err) {
+      console.log('Error saving base URL:', err);
+      Alert.alert('', 'Failed to save Base URL');
+    }
+  };
+
   return (
     <ScrollView style={{...styles.container}}>
       <LoadingModal show={load} />
-      <Text
-        style={{
-          ...STYLE.bold_label,
-          marginTop: 5,
-          marginBottom: 5,
-        }}>
-        Login
-      </Text>
+      {/* Base URL Modal */}
+      {baseURLShow && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999,
+          }}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 20,
+              borderRadius: 15,
+              width: '90%',
+            }}>
+            <Text style={{...STYLE.bold_label, marginBottom: 10}}>
+              Server URL
+            </Text>
+            <Text style={{...STYLE.normal_label, color: '#666', marginBottom: 10}}>
+              Change the server URL for API connections
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderBottomWidth: 1,
+                borderBottomColor: 'black',
+                marginBottom: 15,
+              }}>
+              <TextInput
+                style={{
+                  flex: 1,
+                  ...STYLE.defaultTextInput,
+                  borderBottomWidth: 0,
+                  margin: 0,
+                }}
+                placeholder="Enter server URL"
+                value={baseURL}
+                onChangeText={e => setBaseURL(e)}
+                secureTextEntry={!showBaseURL}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              <TouchableOpacity onPress={() => setShowBaseURL(!showBaseURL)}>
+                <Icons
+                  name={showBaseURL ? 'eye' : 'eye-off'}
+                  size={20}
+                  color={'#000'}
+                />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={{...STYLE.blue_button, padding: 10}}
+              onPress={handleSaveBaseURL}>
+              <Text style={{...STYLE.bold_label, color: 'white'}}>Save URL</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{...STYLE.black_button, padding: 10, marginTop: 5}}
+              onPress={() => setBaseURLShow(false)}>
+              <Text style={{...STYLE.bold_label, color: 'white'}}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+        <Text
+          style={{
+            ...STYLE.bold_label,
+            marginTop: 5,
+            marginBottom: 5,
+          }}>
+          Login
+        </Text>
+        <TouchableOpacity onPress={() => setBaseURLShow(true)}>
+          <Icons name={'settings-outline'} size={25} color={'#000'} />
+        </TouchableOpacity>
+      </View>
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <Image
           source={IMAGE.app_logo}
@@ -156,11 +262,11 @@ const LoginScreen = ({navigation, route}) => {
             />
           </TouchableOpacity>
         </View>
-       {/* <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>
+        <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>
           <View>
             <Text
               style={{
-                ...STYLE.norm al_label,
+                ...STYLE.normal_label,
                 color: 'black',
                 textDecorationLine: 'underline',
                 padding: 5,
@@ -168,7 +274,7 @@ const LoginScreen = ({navigation, route}) => {
               Forgot Password?
             </Text>
           </View>
-            </TouchableOpacity>*/}
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => LoginToServer()}>
           <View style={{...STYLE.blue_button, marginTop: 5, padding: 15}}>
             <Text
@@ -177,6 +283,17 @@ const LoginScreen = ({navigation, route}) => {
                 color: 'white',
               }}>
               Login
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('register')}>
+          <View style={{...STYLE.black_button, marginTop: 5, padding: 15}}>
+            <Text
+              style={{
+                ...STYLE.bold_label,
+                color: 'white',
+              }}>
+              Create Account
             </Text>
           </View>
         </TouchableOpacity>

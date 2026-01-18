@@ -115,6 +115,8 @@ const Product = ({ navigation }) => {
   const [categoryData, setCategoryData] = useState([]);
   const [ProductData, setProductData] = useState([]);
   const [load, setLoad] = useState(false);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [barcodeType, setBarcodeType] = useState('camera');
 
   const [isUpload, setIsUpload] = useState(false);
 
@@ -139,6 +141,20 @@ const Product = ({ navigation }) => {
         Load();
       }, 1000);
     }
+    
+    // Load barcode type setting
+    const loadBarcodeType = async () => {
+      try {
+        const settingData = await EncryptedStorage.getItem('setting_data');
+        if (settingData) {
+          const settings = JSON.parse(settingData);
+          setBarcodeType(settings.barcode_type || 'camera');
+        }
+      } catch (err) {
+        console.log('Error loading barcode type:', err);
+      }
+    };
+    loadBarcodeType();
   }, []);
 
   const Load = () => {
