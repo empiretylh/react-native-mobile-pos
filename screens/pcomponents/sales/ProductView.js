@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, {useState, useEffect, useMemo, useCallback, useRef} from 'react';
 import {
   View,
   Text,
@@ -54,6 +54,7 @@ const ProductView = React.memo(({navigation}) => {
   const [productData, setProductData] = useState([]);
   const [barcodeMap, setBarcodeMap] = useState(new Map());
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const barcodeInputRef = useRef(null);
 
   // Load products for barcode lookup - only once on mount
   useEffect(() => {
@@ -95,13 +96,13 @@ const ProductView = React.memo(({navigation}) => {
         // Check if product already in cart
         const index = prevCartData.findIndex(e => e.name === product.id);
 
+        let updatedCartData;
         if (index !== -1) {
           // Increase quantity if already in cart
-          const updatedCartData = [...prevCartData];
+          updatedCartData = [...prevCartData];
           updatedCartData[index].qty += 1;
           updatedCartData[index].total =
             updatedCartData[index].qty * updatedCartData[index].price;
-          return updatedCartData;
         } else {
           // Add new item to cart
           const newItem = {
@@ -113,18 +114,36 @@ const ProductView = React.memo(({navigation}) => {
             pdname: product.name,
             extraprice: product.extraprice || [],
           };
-          return [...prevCartData, newItem];
+          updatedCartData = [...prevCartData, newItem];
         }
+
+        // Calculate and update total amount
+        const newTotalAmount = updatedCartData.reduce((sum, item) => {
+          return sum + parseInt(item.total, 10);
+        }, 0);
+        setTotalAmount(newTotalAmount);
+
+        return updatedCartData;
       });
 
       // Clear the barcode input for next scan
       setBarcodeInput('');
+      
+      // Refocus the input for continuous scanning
+      setTimeout(() => {
+        barcodeInputRef.current?.focus();
+      }, 100);
     } else {
       // Product not found
       a.spe();
       setBarcodeInput('');
+      
+      // Refocus the input even on error
+      setTimeout(() => {
+        barcodeInputRef.current?.focus();
+      }, 100);
     }
-  }, [barcodeMap, setCartData]);
+  }, [barcodeMap, setCartData, setTotalAmount]);
 
   const DiscountCalculator = (price, discount) => {
     if (discount_type == 'amount') {
@@ -491,6 +510,7 @@ const ProductView = React.memo(({navigation}) => {
               style={{marginRight: 10}}
             />
             <TextInput
+              ref={barcodeInputRef}
               style={{height: 45, ...s.bold_label, color: '#0f0f0f', flex: 1}}
               placeholder="Scan or enter barcode"
               value={barcodeInput}

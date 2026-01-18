@@ -61,6 +61,13 @@ const PDITEM = React.memo(({item}) => {
       </View>
     </View>
   );
+}, (prevProps, nextProps) => {
+  // Only re-render if item id, qty, or price changes
+  return (
+    prevProps.item.id === nextProps.item.id &&
+    prevProps.item.qty === nextProps.item.qty &&
+    prevProps.item.price === nextProps.item.price
+  );
 });
 
 export default PDITEM;

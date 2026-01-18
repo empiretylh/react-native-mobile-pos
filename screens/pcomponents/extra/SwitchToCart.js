@@ -25,6 +25,13 @@ const SwitchToCart = React.memo(({item}) => {
   const {CartData, setCartData} = useContext(CartContext);
   const [selectedItem, setSelectItem] = useState(false);
   const [citem, setCitem] = useState();
+  const isMountedRef = React.useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const onFirstSetItem = useCallback(fitem => {
     if (fitem) {
@@ -44,24 +51,34 @@ const SwitchToCart = React.memo(({item}) => {
   }, []);
 
   const IncreaseValue = useCallback(() => {
-    setCitem(prevCitem => ({
-      ...prevCitem,
-      qty: parseInt(prevCitem.qty + 1)
-    }));
+    if (isMountedRef.current) {
+      setCitem(prevCitem => ({
+        ...prevCitem,
+        qty: parseInt(prevCitem.qty + 1),
+        total: prevCitem.price * parseInt(prevCitem.qty + 1)
+      }));
+    }
   }, []);
 
   const DecreaseValue = useCallback(() => {
-    setCitem(prevCitem => ({
-      ...prevCitem,
-      qty: parseInt(prevCitem.qty - 1)
-    }));
+    if (isMountedRef.current) {
+      setCitem(prevCitem => ({
+        ...prevCitem,
+        qty: parseInt(prevCitem.qty - 1),
+        total: prevCitem.price * parseInt(prevCitem.qty - 1)
+      }));
+    }
   }, []);
 
   const typeNumber = useCallback(text => {
-    setCitem(prevCitem => ({
-      ...prevCitem,
-      qty: parseInt(text) || 0
-    }));
+    if (isMountedRef.current) {
+      const qty = parseInt(text) || 0;
+      setCitem(prevCitem => ({
+        ...prevCitem,
+        qty: qty,
+        total: prevCitem.price * qty
+      }));
+    }
   }, []);
 
   useEffect(() => {
@@ -74,8 +91,17 @@ const SwitchToCart = React.memo(({item}) => {
     if (!citem) return;
 
     setCartData(prevCartData => {
+      let index = prevCartData.findIndex(it => it.name === citem.name);
+      
+      // Check if update is actually needed
+      if (index !== -1) {
+        const existingItem = prevCartData[index];
+        if (existingItem.qty === citem.qty && existingItem.total === citem.total) {
+          return prevCartData; // No change needed, prevent re-render
+        }
+      }
+      
       let cartdata = [...prevCartData];
-      let index = cartdata.findIndex(it => it.name === citem.name);
       
       if (index === -1 && citem.qty > 0) {
         // Add new item
@@ -97,20 +123,14 @@ const SwitchToCart = React.memo(({item}) => {
     });
   }, [citem, setCartData]);
 
-  useMemo(() => {
-    let data = CartData.filter(d => d.name === item.id);
-    if (data.length > 0) {
-      setSelectItem(true);
-    }
-  }, [CartData, item.id]);
-
+  // Only check on mount and when item changes, not on every CartData update
   useEffect(() => {
-    let data = CartData.filter(d => d.name === item.id);
-    if (data.length > 0) {
+    let data = CartData.find(d => d.name === item.id);
+    if (data) {
       setSelectItem(true);
-      setCitem(data[0]);
+      setCitem(data);
     }
-  }, [CartData, item.id]);
+  }, [item.id]); // Remove CartData dependency to prevent circular updates
 
  
 
@@ -196,6 +216,13 @@ const SwitchToCart = React.memo(({item}) => {
       }}>
       <MIcon name="cart-plus" size={25} color={'#fff'} />
     </TouchableOpacity>
+  );
+}, (prevProps, nextProps) => {
+  // Only re-render if item id or qty changes
+  return (
+    prevProps.item.id === nextProps.item.id &&
+    prevProps.item.qty === nextProps.item.qty &&
+    prevProps.item.price === nextProps.item.price
   );
 });
 
