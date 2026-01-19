@@ -21,7 +21,7 @@ const Container = ({navigation, route}) => {
   const {t, i18n} = useTranslation();
   const {accountType} = useContext(AuthContext);
   const isCashier = accountType === 'Cashier';
-  
+
   return (
     <Tab.Navigator
       screenOptions={{
