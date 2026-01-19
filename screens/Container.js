@@ -55,6 +55,7 @@ const SContainer = () => {
   axios.defaults.baseURL = baseUrl;
   const [isloading, setIsLoading] = useState();
   const [userToken, setToken] = useState();
+  const [accountType, setAccountType] = useState();
 
   const {isConnected, connectionType} = useNetInfo();
   const [IsSyncing, setIsSyncing] = useState(false);
@@ -108,13 +109,17 @@ const SContainer = () => {
 
   const GetToken = () => {
     setIsLoading(true);
-    EncryptedStorage.getItem('secure_token').then(res => {
-      setToken(res);
+    Promise.all([
+      EncryptedStorage.getItem('secure_token'),
+      EncryptedStorage.getItem('account_type'),
+    ]).then(([token, accType]) => {
+      setToken(token);
+      setAccountType(accType || 'Admin');
       setIsLoading(false);
-      if (res == null) {
+      if (token == null) {
         SplashScreen.hide();
       } else {
-        axios.defaults.headers.common = {Authorization: `Token ${res}`};
+        axios.defaults.headers.common = {Authorization: `Token ${token}`};
         SplashScreen.hide();
       }
     });
@@ -125,7 +130,7 @@ const SContainer = () => {
     createTables();
   }, []);
 
-  const userTokenValue = useMemo(() => ({userToken, setToken}), [userToken]);
+  const userTokenValue = useMemo(() => ({userToken, setToken, accountType, setAccountType}), [userToken, accountType]);
 
     //Connect Printer
     useEffect(() => {

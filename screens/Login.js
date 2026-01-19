@@ -34,6 +34,7 @@ const LoginScreen = ({navigation, route}) => {
   const [baseURLShow, setBaseURLShow] = useState(false);
   const [baseURL, setBaseURL] = useState('');
   const [showBaseURL, setShowBaseURL] = useState(false);
+  const [accountType, setAccountType] = useState('Admin');
 
   useEffect(() => {
     // Load base URL on mount
@@ -61,7 +62,7 @@ const LoginScreen = ({navigation, route}) => {
           password: data.password,
           unique_id: DeviceInfo.getUniqueIdSync(),
           device_name: DeviceInfo.getDeviceNameSync(),
-          acc_type: 'Admin',
+          acc_type: accountType,
         },
         {timeout: 5000},
       )
@@ -69,6 +70,7 @@ const LoginScreen = ({navigation, route}) => {
         setLoad(false);
         console.log(res.data.token);
         SaveToken(res.data.token);
+        SaveAccountType(accountType);
 
         axios.defaults.headers.common = {
           Authorization: `Token ${res.data.token}`,
@@ -97,6 +99,10 @@ const LoginScreen = ({navigation, route}) => {
 
   const SaveToken = async token => {
     await EncryptedStorage.setItem('secure_token', token);
+  };
+
+  const SaveAccountType = async accType => {
+    await EncryptedStorage.setItem('account_type', accType);
   };
 
   const handleSaveBaseURL = async () => {
@@ -261,6 +267,45 @@ const LoginScreen = ({navigation, route}) => {
               size={25}
               color={'#000'}
             />
+          </TouchableOpacity>
+        </View>
+        <Text style={{...STYLE.normal_label, marginTop: 10}}>Account Type </Text>
+        <View style={{flexDirection: 'row', marginTop: 10, marginBottom: 10}}>
+          <TouchableOpacity
+            onPress={() => setAccountType('Admin')}
+            style={{
+              flex: 1,
+              padding: 12,
+              borderRadius: 10,
+              backgroundColor: accountType === 'Admin' ? '#0d6efd' : '#e0e0e0',
+              marginRight: 5,
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{
+                ...STYLE.bold_label,
+                color: accountType === 'Admin' ? 'white' : 'black',
+              }}>
+              Admin
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setAccountType('Cashier')}
+            style={{
+              flex: 1,
+              padding: 12,
+              borderRadius: 10,
+              backgroundColor: accountType === 'Cashier' ? '#0d6efd' : '#e0e0e0',
+              marginLeft: 5,
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{
+                ...STYLE.bold_label,
+                color: accountType === 'Cashier' ? 'white' : 'black',
+              }}>
+              Cashier
+            </Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>

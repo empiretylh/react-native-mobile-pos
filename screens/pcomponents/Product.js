@@ -1,6 +1,6 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
+import React, {useState, useEffect, useRef, useCallback, useMemo, useContext} from 'react';
 import {
   View,
   Text,
@@ -48,6 +48,7 @@ import {useTranslation} from 'react-i18next';
 import '../../assets/i18n/i18n';
 import DocumentPicker from 'react-native-document-picker';
 import Collapsible from 'react-native-collapsible';
+import {AuthContext} from './context/AuthContext';
 
 import {RNCamera} from 'react-native-camera';
 
@@ -97,6 +98,8 @@ const Product = ({navigation}) => {
   const renderCount = useRef(0);
 
   const {t, i18n} = useTranslation();
+  const {accountType} = useContext(AuthContext);
+  const isCashier = accountType === 'Cashier';
 
   const [apmodal, setapmodal] = useState(false);
   const [cmodal, setcmodal] = useState(false);
@@ -1330,23 +1333,25 @@ const Product = ({navigation}) => {
               </View>
             </TouchableOpacity>
                 */}
-            <TouchableOpacity
-              onPress={() => {
-                setDepdshow(true);
-              }}>
-              <View
-                style={{
-                  ...s.flexrow_aligncenter,
-                  padding: 10,
-                  backgroundColor: 'red',
-                  borderRadius: 15,
+            {!isCashier && (
+              <TouchableOpacity
+                onPress={() => {
+                  setDepdshow(true);
                 }}>
-                <Icons name={'trash'} size={30} color={'#fff'} />
-                <Text style={{...s.bold_label, marginLeft: 5, color: 'white'}}>
-                  {t('Delete_Product')}
-                </Text>
-              </View>
-            </TouchableOpacity>
+                <View
+                  style={{
+                    ...s.flexrow_aligncenter,
+                    padding: 10,
+                    backgroundColor: 'red',
+                    borderRadius: 15,
+                  }}>
+                  <Icons name={'trash'} size={30} color={'#fff'} />
+                  <Text style={{...s.bold_label, marginLeft: 5, color: 'white'}}>
+                    {t('Delete_Product')}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
         </MessageModalNormal>
 
@@ -1897,36 +1902,40 @@ const Product = ({navigation}) => {
       </MessageModalNormal>
       <MessageModalNormal show={apmodal} onClose={onOpenAndCloseAPModal}>
         <View>
-          <TouchableOpacity
-            onPress={() => {
-              setcmodal(true);
+          {!isCashier && (
+            <TouchableOpacity
+              onPress={() => {
+                setcmodal(true);
 
-              onOpenAndCloseAPModal();
-            }}>
-            <View style={{...s.flexrow_aligncenter, padding: 10}}>
-              <Icons name={'duplicate-outline'} size={30} color={'#000'} />
-              <Text style={{...s.bold_label, marginLeft: 5}}>
-                {t('Add_Category')}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setpmodal(true);
-              setImage(null);
-              onOpenAndCloseAPModal();
-            }}>
-            <View style={{...s.flexrow_aligncenter, padding: 10}}>
-              <MIcons
-                name={'package-variant-closed'}
-                size={30}
-                color={'#000'}
-              />
-              <Text style={{...s.bold_label, marginLeft: 5}}>
-                {t('Add_Product')}
-              </Text>
-            </View>
-          </TouchableOpacity>
+                onOpenAndCloseAPModal();
+              }}>
+              <View style={{...s.flexrow_aligncenter, padding: 10}}>
+                <Icons name={'duplicate-outline'} size={30} color={'#000'} />
+                <Text style={{...s.bold_label, marginLeft: 5}}>
+                  {t('Add_Category')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          {!isCashier && (
+            <TouchableOpacity
+              onPress={() => {
+                setpmodal(true);
+                setImage(null);
+                onOpenAndCloseAPModal();
+              }}>
+              <View style={{...s.flexrow_aligncenter, padding: 10}}>
+                <MIcons
+                  name={'package-variant-closed'}
+                  size={30}
+                  color={'#000'}
+                />
+                <Text style={{...s.bold_label, marginLeft: 5}}>
+                  {t('Add_Product')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             onPress={() => {
               handleExcelImport();
@@ -2496,26 +2505,28 @@ const Product = ({navigation}) => {
         <Stack.Screen name={'p'} component={ProductView} />
         <Stack.Screen name={'c'} component={CategoryView} />
       </Stack.Navigator>
-      <View
-        style={{
-          ...s.blue_button,
-          borderRadius: 50,
-          position: 'absolute',
-          bottom: 55,
-          right: 20,
-          width: 50,
-          height: 50,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <TouchableOpacity
-          onPress={() => {
-            console.log('apmodal');
-            onOpenAndCloseAPModal();
+      {!isCashier && (
+        <View
+          style={{
+            ...s.blue_button,
+            borderRadius: 50,
+            position: 'absolute',
+            bottom: 55,
+            right: 20,
+            width: 50,
+            height: 50,
+            alignItems: 'center',
+            justifyContent: 'center',
           }}>
-          <Icons name={'pencil'} size={25} color={'#fff'} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            onPress={() => {
+              console.log('apmodal');
+              onOpenAndCloseAPModal();
+            }}>
+            <Icons name={'pencil'} size={25} color={'#fff'} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
