@@ -258,6 +258,9 @@ const Sales = ({navigation}) => {
             }>
             <MIcons name={'file-chart'} size={30} color={'#000'} />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('profile')}>
+            <Icons name="settings-outline" size={30} color={'#000'} />
+          </TouchableOpacity>
         </View>
       </View>
       {/* view */}
